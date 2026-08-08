@@ -12,7 +12,7 @@
     { berkas: "susun.html",     nama: "Susun Halaman" },
     { berkas: "nomor.html",     nama: "Penomor Halaman" },
     { berkas: "tanda-air.html", nama: "Watermark" },
-    { berkas: "gambar.html",    nama: "PDF ke gambar" }
+    { berkas: "gambar.html",    nama: "PDF dan Gambar" }
   ];
 
   function pasangMenu() {
