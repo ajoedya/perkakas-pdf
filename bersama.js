@@ -62,7 +62,7 @@
     bar.appendChild(isi);
     document.body.insertBefore(bar, document.body.firstChild);
 
-    // Event Listener Klik Dropdown
+    // Event Listener Klik Dropdown Menu
     tombol.addEventListener("click", function (e) {
       e.stopPropagation();
       container.classList.toggle("terbuka");
@@ -74,14 +74,20 @@
   }
 
   // ============================================================
-  // Objek Bersama: Fungsi Alat Bantu & Penanganan Unggah
+  // Objek Bersama: Pustaka Utama Penanganan Berkas & Utilities
   // ============================================================
   window.Bersama = {
-    // Memasang area seret-lepas (drag and drop) dan klik pilihan berkas
+    // Memasang penanganan klik & drag-and-drop unggah berkas
     pasangJatuhan: function (area, input, callback) {
       if (!area || !input) return;
 
-      area.addEventListener("click", () => input.click());
+      // 1. Aksi Klik pada Kotak Unggah
+      area.addEventListener("click", (e) => {
+        e.preventDefault();
+        input.click();
+      });
+
+      // 2. Aksi Aksesibilitas Keyboard (Enter / Spasi)
       area.addEventListener("keydown", (e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
@@ -89,6 +95,7 @@
         }
       });
 
+      // 3. Effect Hover saat Berkas Diseret di Atas Kotak
       ["dragenter", "dragover"].forEach((namaEvent) => {
         area.addEventListener(namaEvent, (e) => {
           e.preventDefault();
@@ -105,6 +112,7 @@
         });
       });
 
+      // 4. Menerima Berkas dari Drag & Drop
       area.addEventListener("drop", (e) => {
         const berkas = Array.from(e.dataTransfer.files || []);
         if (berkas.length > 0 && typeof callback === "function") {
@@ -112,26 +120,27 @@
         }
       });
 
+      // 5. Menerima Berkas dari Dialog Pilih Berkas (Klik)
       input.addEventListener("change", () => {
         const berkas = Array.from(input.files || []);
         if (berkas.length > 0 && typeof callback === "function") {
           callback(berkas);
         }
-        input.value = ""; // reset agar bisa memilih berkas yang sama ulang
+        input.value = ""; // Reset pilihan agar bisa memilih file yang sama berulang kali
       });
     },
 
-    // Penyaring berkas PDF saja
+    // Penyaring berkas PDF
     pdfSaja: function (daftar) {
       return daftar.filter((f) => f.type === "application/pdf" || /\.pdf$/i.test(f.name));
     },
 
-    // Penyaring berkas Gambar (JPG & PNG) saja
+    // Penyaring berkas Gambar (JPG/PNG)
     gambarSaja: function (daftar) {
       return daftar.filter((f) => /image\/(jpeg|png)/i.test(f.type) || /\.(jpg|jpeg|png)$/i.test(f.name));
     },
 
-    // Menampilkan kotak pesan/kabar
+    // Menampilkan pesan status/kabar
     pesan: function (id, teks, jenis) {
       const el = document.getElementById(id);
       if (!el) return;
@@ -139,14 +148,14 @@
       el.innerHTML = teks;
     },
 
-    // Membaca berkas PDF menggunakan PDF.js
+    // Membaca PDF melalui pdf.js
     bacaPdf: async function (file) {
       const bytes = await file.arrayBuffer();
       const dok = await pdfjsLib.getDocument({ data: bytes.slice(0) }).promise;
       return { bytes, dok, nama: file.name };
     },
 
-    // Merender halaman PDF ke bentuk elemen <canvas>
+    // Render halaman PDF ke Kanvas
     halamanKeKanvas: async function (dok, nomorHalaman, targetLebar) {
       const hal = await dok.getPage(nomorHalaman);
       const vpAsli = hal.getViewport({ scale: 1 });
@@ -162,7 +171,7 @@
       return kanvas;
     },
 
-    // Memicu unduhan berkas otomatis
+    // Fungsi Pengunduhan Berkas
     unduh: function (dataBytes, namaBerkas) {
       const blob = new Blob([dataBytes], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
@@ -175,12 +184,11 @@
       setTimeout(() => URL.revokeObjectURL(url), 10000);
     },
 
-    // Memotong ekstensi .pdf dari nama berkas
+    // Pembantu string & ukuran berkas
     tanpaAkhiran: function (nama) {
       return nama.replace(/\.pdf$/i, "");
     },
 
-    // Sanitasi karakter HTML
     lolos: function (str) {
       return String(str)
         .replace(/&/g, "&amp;")
@@ -189,14 +197,12 @@
         .replace(/"/g, "&quot;");
     },
 
-    // Format ukuran berkas (KB / MB)
     ukuran: function (bytes) {
       if (bytes < 1024) return bytes + " B";
       if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
       return (bytes / 1048576).toFixed(1) + " MB";
     },
 
-    // Mengurai teks rentang halaman (misal: "1-3, 5, 8-10")
     bacaRentang: function (teks, totalHalaman) {
       const hasil = new Set();
       const bagian = teks.split(",");
