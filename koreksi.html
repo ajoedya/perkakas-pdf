@@ -132,12 +132,6 @@ let ukurFont = null;
 
 /* ================================================================
    BAGIAN A. Membaca dan mengubah aliran isi halaman
-
-   Aliran isi adalah deretan perintah menggambar. Letak tiap perintah
-   penampil teks dicari dengan menirukan matriks teks, lalu perintah
-   yang cocok dengan sasaran diganti perintah penggeser murni yang
-   tidak menampilkan apa pun tetapi lebarnya sama, sehingga tulisan
-   lain pada baris yang sama tidak ikut bergeser.
    ================================================================ */
 
 function keLatin1(u8) {
@@ -176,7 +170,7 @@ async function ambilAliran(node) {
       if (!dibuka) return null;
       bagian.push(keLatin1(dibuka));
     } else if (filter) {
-      return null;   // penyaring lain belum didukung
+      return null;
     } else {
       bagian.push(keLatin1(mentah));
     }
@@ -308,8 +302,6 @@ function petakanOperator(t) {
   return hasil;
 }
 
-/* Satu perintah bisa memuat beberapa potongan teks. Pemilik sebuah
-   potongan adalah perintah terdekat di sebelah kiri pada garis alas sama. */
 function petakanItem(items, ops) {
   return items.map((it) => {
     const ix = it.transform[4], iy = it.transform[5];
@@ -323,7 +315,6 @@ function petakanItem(items, ops) {
   });
 }
 
-/* Perintah hanya boleh dihapus kalau SELURUH potongan miliknya ikut terpilih. */
 function saringAman(pemilik, indeksTerpilih) {
   const terpilih = {};
   indeksTerpilih.forEach((i) => { terpilih[i] = true; });
@@ -339,6 +330,7 @@ function saringAman(pemilik, indeksTerpilih) {
   return { aman: aman, tolak: tolak };
 }
 
+/* PERBAIKAN BUG SINTAKS OPERATOR PDF MEMAKAI SINTAKS TJ BERISI LARIK GESER */
 function hapusOperator(teks, opList) {
   const urut = opList.slice().sort((a, b) => b.awal - a.awal);
   let hasil = teks;
@@ -352,12 +344,12 @@ function hapusOperator(teks, opList) {
     }
     const sesudah = hasil.slice(o.akhir);
     const cocok = sesudah.match(/^\s*(Tj|TJ|'|")/);
-    let ekor = sesudah;
     if (cocok) {
-      if (cocok[1] === "Tj" || cocok[1] === "TJ") ekor = " TJ" + sesudah.slice(cocok[0].length);
-      else ganti = "()";   // ' dan " wajib memakai untai
+      const sisa = sesudah.slice(cocok[0].length);
+      hasil = hasil.slice(0, o.awal) + ganti + " TJ" + sisa;
+    } else {
+      hasil = hasil.slice(0, o.awal) + "()" + sesudah;
     }
-    hasil = hasil.slice(0, o.awal) + ganti + ekor;
   });
   return hasil;
 }
@@ -733,7 +725,7 @@ el("halSebelum").addEventListener("click", () => tampilkanHalaman(halamanTampil 
 el("halSesudah").addEventListener("click", () => tampilkanHalaman(halamanTampil + 1));
 
 /* ================================================================
-   BAGIAN C. Menyimpan
+   BAGIAN C. Menyimpan (Diperbaiki agar stream pdf-lib terbarui dengan benar)
    ================================================================ */
 function keRgb(hex) {
   const h = hex.replace("#", "");
@@ -760,7 +752,6 @@ el("simpan").addEventListener("click", async () => {
       const aliran = await ambilAliran(semua[i].node);
       if (!aliran) { mundur(); continue; }
       const ops = petakanOperator(aliran.teks);
-      // Kalau penguraian ulang tidak sepadan, lebih baik mundur daripada merusak berkas.
       if (ops.length !== hal.ops.length) { mundur(); continue; }
 
       const terpilihIdx = [];
@@ -774,15 +765,14 @@ el("simpan").addEventListener("click", async () => {
         return op;
       });
 
-      const baru = dariLatin1(hapusOperator(aliran.teks, buang));
-      const utama = aliran.daftar[0];
-      utama.contents = baru;
-      utama.dict.delete(PDFLib.PDFName.of("Filter"));
-      utama.dict.set(PDFLib.PDFName.of("Length"), PDFLib.PDFNumber.of(baru.length));
-      // Seluruh aliran halaman sudah digabung ke aliran pertama, sisanya dilepas.
-      const isiLama = semua[i].node.Contents();
-      const rujukan = isiLama instanceof PDFLib.PDFArray ? isiLama.asArray()[0] : isiLama;
-      semua[i].node.set(PDFLib.PDFName.of("Contents"), semua[i].node.context.obj([rujukan]));
+      // Terapkan penghapusan teks pada stream
+      const teksBaru = hapusOperator(aliran.teks, buang);
+      const byteBaru = dariLatin1(teksBaru);
+
+      // PERBAIKAN BUG UTAMA: Membuat stream baru langsung via context PDFLib
+      const streamBaru = semua[i].node.context.stream(byteBaru);
+      semua[i].node.set(PDFLib.PDFName.of("Contents"), streamBaru);
+
       jmlHapus += daftarK.length;
     }
 
