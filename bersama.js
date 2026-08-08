@@ -81,9 +81,13 @@
     pasangJatuhan: function (area, input, callback) {
       if (!area || !input) return;
 
+      // Hentikan penjalaran event dari input file agar tidak balik memicu area
+      input.addEventListener("click", (e) => {
+        e.stopPropagation();
+      });
+
       // 1. Aksi Klik pada Kotak Unggah
-      area.addEventListener("click", (e) => {
-        e.preventDefault();
+      area.addEventListener("click", () => {
         input.click();
       });
 
@@ -95,7 +99,7 @@
         }
       });
 
-      // 3. Effect Hover saat Berkas Diseret di Atas Kotak
+      // 3. Efek Hover saat Berkas Diseret di Atas Kotak
       ["dragenter", "dragover"].forEach((namaEvent) => {
         area.addEventListener(namaEvent, (e) => {
           e.preventDefault();
@@ -126,7 +130,7 @@
         if (berkas.length > 0 && typeof callback === "function") {
           callback(berkas);
         }
-        input.value = ""; // Reset pilihan agar bisa memilih file yang sama berulang kali
+        input.value = ""; // Reset pilihan
       });
     },
 
