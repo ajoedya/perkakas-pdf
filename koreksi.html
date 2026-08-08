@@ -153,7 +153,6 @@ async function bukaMampatan(u8) {
   } catch (err) { return null; }
 }
 
-/* Mengambil seluruh aliran isi satu halaman, digabung menjadi satu teks. */
 async function ambilAliran(node) {
   const isi = node.Contents();
   if (!isi) return null;
@@ -330,7 +329,6 @@ function saringAman(pemilik, indeksTerpilih) {
   return { aman: aman, tolak: tolak };
 }
 
-/* PERBAIKAN BUG SINTAKS OPERATOR PDF MEMAKAI SINTAKS TJ BERISI LARIK GESER */
 function hapusOperator(teks, opList) {
   const urut = opList.slice().sort((a, b) => b.awal - a.awal);
   let hasil = teks;
@@ -555,6 +553,7 @@ function ambilWarnaLatar(seg, hal) {
 }
 
 function pilih(k) {
+  if (terpilih === k) return;
   terpilih = k;
   koreksiList.forEach((q) => { if (q.el) q.el.classList.toggle("terpilih", q === k); });
   gambarDaftar();
@@ -594,7 +593,10 @@ function gambarDaftar() {
     lama.textContent = "semula: " + k.teksLama;
     lama.title = k.teksLama;
     kepala.append(judul, lama);
-    kepala.appendChild(tombol("Buka halaman", () => tampilkanHalaman(k.halamanNo).then(() => pilih(k))));
+    kepala.appendChild(tombol("Buka halaman", () => {
+      terpilih = null;
+      tampilkanHalaman(k.halamanNo).then(() => pilih(k));
+    }));
     kepala.appendChild(tombol("Hapus", () => {
       koreksiList = koreksiList.filter((q) => q !== k);
       if (k.el) k.el.remove();
@@ -657,7 +659,13 @@ function gambarDaftar() {
     k.awas = awas;
     periksaLebar(k);
 
-    kartu.addEventListener("click", () => pilih(k));
+    /* Perbaikan: Jangan picu pilih(k) jika elemen input/select/button diklik */
+    kartu.addEventListener("click", (e) => {
+      const tag = e.target.tagName;
+      if (tag === "INPUT" || tag === "SELECT" || tag === "BUTTON" || tag === "LABEL") return;
+      pilih(k);
+    });
+
     wadah.appendChild(kartu);
   });
 }
@@ -725,7 +733,7 @@ el("halSebelum").addEventListener("click", () => tampilkanHalaman(halamanTampil 
 el("halSesudah").addEventListener("click", () => tampilkanHalaman(halamanTampil + 1));
 
 /* ================================================================
-   BAGIAN C. Menyimpan (Diperbaiki agar stream pdf-lib terbarui dengan benar)
+   BAGIAN C. Menyimpan
    ================================================================ */
 function keRgb(hex) {
   const h = hex.replace("#", "");
@@ -769,9 +777,10 @@ el("simpan").addEventListener("click", async () => {
       const teksBaru = hapusOperator(aliran.teks, buang);
       const byteBaru = dariLatin1(teksBaru);
 
-      // PERBAIKAN BUG UTAMA: Membuat stream baru langsung via context PDFLib
-      const streamBaru = semua[i].node.context.stream(byteBaru);
-      semua[i].node.set(PDFLib.PDFName.of("Contents"), streamBaru);
+      // PERBAIKAN BUG PDF BLANK: Daftarkan flateStream baru ke dalam context dokumen
+      const streamBaru = dok.context.flateStream(byteBaru);
+      const streamRef = dok.context.register(streamBaru);
+      semua[i].node.set(PDFLib.PDFName.of("Contents"), streamRef);
 
       jmlHapus += daftarK.length;
     }
