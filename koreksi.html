@@ -423,3 +423,288 @@ function gambarDaftar() {
       perbaruiNav();
     }));
     kartu.appendChild(kepala);
+
+    // Baris 1: Teks Baru & Ukuran
+    const b1 = document.createElement("div");
+    b1.className = "ladang";
+    b1.appendChild(isian("Tulisan Pengganti / Teks Baru", "lebar", "text", k.teksBaru, (v) => {
+      k.teksBaru = v; perbaruiTambal(k);
+    }));
+    b1.appendChild(isian("Ukuran Font", "satu", "number", k.ukuran, (v) => {
+      k.ukuran = parseFloat(v) || k.ukuran; perbaruiTambal(k);
+    }));
+    kartu.appendChild(b1);
+
+    // Baris 2: Posisi X, Y & Rotasi
+    const bPos = document.createElement("div");
+    bPos.className = "ladang";
+    const ix = isian("Posisi X (pt)", "satu", "number", k.x, (v) => {
+      k.x = parseFloat(v) || 0; perbaruiTambal(k);
+    });
+    const iy = isian("Posisi Y (pt)", "satu", "number", k.y, (v) => {
+      k.y = parseFloat(v) || 0; perbaruiTambal(k);
+    });
+    k.inputX = ix.querySelector("input");
+    k.inputY = iy.querySelector("input");
+
+    bPos.appendChild(ix);
+    bPos.appendChild(iy);
+    bPos.appendChild(pilihan("Rotasi", [
+      ["0", "0°"], ["90", "90°"], ["180", "180°"], ["270", "270°"]
+    ], String(k.rotasi), (v) => {
+      k.rotasi = parseInt(v, 10); perbaruiTambal(k);
+    }));
+    kartu.appendChild(bPos);
+
+    // Baris 3: Font, Perataan, Gaya (Bold/Italic/Underline)
+    const b2 = document.createElement("div");
+    b2.className = "ladang";
+    b2.appendChild(pilihan("Jenis Huruf", [
+      ["helvetica", "Helvetica / Arial"],
+      ["times", "Times New Roman"],
+      ["courier", "Courier"]
+    ], k.huruf, (v) => { k.huruf = v; perbaruiTambal(k); }));
+
+    b2.appendChild(pilihan("Rata", [["left", "Kiri"], ["center", "Tengah"], ["right", "Kanan"]], k.rata, (v) => {
+      k.rata = v; perbaruiTambal(k);
+    }));
+
+    // Group Tombol Gaya
+    const bungkusGaya = document.createElement("div");
+    bungkusGaya.className = "satu";
+    const labelG = document.createElement("label"); labelG.textContent = "Format Teks";
+    const grp = document.createElement("div"); grp.className = "gaya-tombol-group";
+    
+    const tB = buatTombolGaya("B", k.tebal, () => { k.tebal = !k.tebal; tB.classList.toggle("aktif", k.tebal); perbaruiTambal(k); });
+    const tI = buatTombolGaya("I", k.miring, () => { k.miring = !k.miring; tI.classList.toggle("aktif", k.miring); perbaruiTambal(k); });
+    const tU = buatTombolGaya("U", k.garisBawah, () => { k.garisBawah = !k.garisBawah; tU.classList.toggle("aktif", k.garisBawah); perbaruiTambal(k); });
+    
+    grp.append(tB, tI, tU);
+    bungkusGaya.append(labelG, grp);
+    b2.appendChild(bungkusGaya);
+    kartu.appendChild(b2);
+
+    // Baris 4: Warna & Penutup Kotak
+    const b3 = document.createElement("div");
+    b3.className = "ladang";
+    b3.appendChild(isian("Warna Teks", "satu", "color", k.warnaTeks, (v) => {
+      k.warnaTeks = v; perbaruiTambal(k);
+    }));
+
+    const bungkusKotak = document.createElement("div");
+    bungkusKotak.className = "satu";
+    const lblK = document.createElement("label");
+    lblK.style.display = "flex"; lblK.style.alignItems = "center"; lblK.style.gap = "6px";
+    const cb = document.createElement("input");
+    cb.type = "checkbox"; cb.checked = k.pakaiKotak;
+    lblK.append(cb, document.createTextNode("Kotak Latar Penutup"));
+    bungkusKotak.appendChild(lblK);
+    b3.appendChild(bungkusKotak);
+
+    const ladangWarnaKotak = isian("Warna Latar", "satu", "color", k.warnaKotak, (v) => {
+      k.warnaKotak = v; perbaruiTambal(k);
+    });
+    ladangWarnaKotak.style.display = k.pakaiKotak ? "" : "none";
+    b3.appendChild(ladangWarnaKotak);
+
+    cb.addEventListener("change", () => {
+      k.pakaiKotak = cb.checked;
+      ladangWarnaKotak.style.display = k.pakaiKotak ? "" : "none";
+      perbaruiTambal(k);
+    });
+    kartu.appendChild(b3);
+
+    kartu.addEventListener("click", (e) => {
+      const t = e.target.tagName;
+      if (t === "INPUT" || t === "SELECT" || t === "LABEL" || t === "BUTTON") return;
+      pilih(k);
+    });
+
+    k.kartu = kartu;
+    wadah.appendChild(kartu);
+  });
+}
+
+function buatTombolGaya(simbol, aktif, saat) {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "tombol-gaya" + (aktif ? " aktif" : "");
+  b.textContent = simbol;
+  b.addEventListener("click", saat);
+  return b;
+}
+
+function isian(label, kelas, jenis, nilai, saat) {
+  const bungkus = document.createElement("div");
+  bungkus.className = kelas;
+  const l = document.createElement("label");
+  l.textContent = label;
+  const i = document.createElement("input");
+  i.type = jenis; i.value = nilai;
+  if (jenis === "number") { i.step = "1"; }
+  i.addEventListener("input", () => saat(i.value));
+  bungkus.append(l, i);
+  return bungkus;
+}
+
+function pilihan(label, opsi, nilai, saat) {
+  const bungkus = document.createElement("div");
+  bungkus.className = "satu";
+  const l = document.createElement("label");
+  l.textContent = label;
+  const s = document.createElement("select");
+  opsi.forEach((p) => {
+    const o = document.createElement("option");
+    o.value = p[0]; o.textContent = p[1];
+    if (p[0] === nilai) o.selected = true;
+    s.appendChild(o);
+  });
+  s.addEventListener("change", () => saat(s.value));
+  bungkus.append(l, s);
+  return bungkus;
+}
+
+function tombol(teks, saat) {
+  const b = document.createElement("button");
+  b.className = "tombol sekunder kecil";
+  b.textContent = teks;
+  b.addEventListener("click", (e) => { e.stopPropagation(); saat(); });
+  return b;
+}
+
+function perbaruiNav() {
+  const total = halaman.length;
+  el("labelHalaman").textContent = "Halaman " + halamanTampil + " dari " + total;
+  el("halSebelum").disabled = halamanTampil <= 1;
+  el("halSesudah").disabled = halamanTampil >= total;
+  
+  const wadah = el("daftarHalaman");
+  wadah.innerHTML = "";
+  halaman.forEach((h) => {
+    const adaKoreksi = koreksiList.some((k) => k.halamanNo === h.no);
+    const b = document.createElement("button");
+    b.className = "cip" + (adaKoreksi ? " ada" : "") + (h.no === halamanTampil ? " kini" : "");
+    b.textContent = h.no;
+    b.addEventListener("click", () => tampilkanHalaman(h.no));
+    wadah.appendChild(b);
+  });
+}
+
+el("halSebelum").addEventListener("click", () => tampilkanHalaman(halamanTampil - 1));
+el("halSesudah").addEventListener("click", () => tampilkanHalaman(halamanTampil + 1));
+
+/* ================================================================
+   BAGIAN D. Proses Simpan Ekspor PDF
+   ================================================================ */
+
+function keRgb(hex) {
+  const h = hex.replace("#", "");
+  return PDFLib.rgb(parseInt(h.slice(0,2),16)/255, parseInt(h.slice(2,4),16)/255, parseInt(h.slice(4,6),16)/255);
+}
+
+el("simpan").addEventListener("click", async () => {
+  if (!koreksiList.length) {
+    Bersama.pesan("kabar", "Belum ada teks yang ditambahkan atau dikoreksi.", "gagal");
+    return;
+  }
+  const tombolSimpan = el("simpan");
+  tombolSimpan.disabled = true;
+  tombolSimpan.textContent = "Menyimpan...";
+
+  try {
+    const dok = await PDFLib.PDFDocument.load(bytesAsli.slice(0));
+    const semua = dok.getPages();
+
+    // Embed Standard Fonts
+    const fHelvetica = await dok.embedFont(PDFLib.StandardFonts.Helvetica);
+    const fHelveticaBold = await dok.embedFont(PDFLib.StandardFonts.HelveticaBold);
+    const fHelveticaOblique = await dok.embedFont(PDFLib.StandardFonts.HelveticaOblique);
+    const fHelveticaBoldOblique = await dok.embedFont(PDFLib.StandardFonts.HelveticaBoldOblique);
+
+    const fTimes = await dok.embedFont(PDFLib.StandardFonts.TimesRoman);
+    const fTimesBold = await dok.embedFont(PDFLib.StandardFonts.TimesBold);
+    const fTimesItalic = await dok.embedFont(PDFLib.StandardFonts.TimesItalic);
+
+    const fCourier = await dok.embedFont(PDFLib.StandardFonts.Courier);
+
+    const dapatkanFont = (k) => {
+      if (k.huruf === "times") {
+        if (k.tebal) return fTimesBold;
+        if (k.miring) return fTimesItalic;
+        return fTimes;
+      }
+      if (k.huruf === "courier") return fCourier;
+      // Default Helvetica
+      if (k.tebal && k.miring) return fHelveticaBoldOblique;
+      if (k.tebal) return fHelveticaBold;
+      if (k.miring) return fHelveticaOblique;
+      return fHelvetica;
+    };
+
+    koreksiList.forEach((k) => {
+      const hal = semua[k.halamanNo - 1];
+      const font = dapatkanFont(k);
+
+      // 1. Gambar Kotak Penutup (Background Overwrite) jika diaktifkan
+      if (k.pakaiKotak) {
+        hal.drawRectangle({
+          x: k.x - 2,
+          y: k.y - 2,
+          width: k.lebar + 4,
+          height: k.tinggi + 4,
+          color: keRgb(k.warnaKotak),
+          rotate: PDFLib.degrees(k.rotasi || 0)
+        });
+      }
+
+      // 2. Gambar Teks Pengganti/Teks Baru
+      if (k.teksBaru) {
+        const w = font.widthOfTextAtSize(k.teksBaru, k.ukuran);
+        let posX = k.x;
+        if (k.rata === "center") posX = k.x + (k.lebar - w) / 2;
+        if (k.rata === "right") posX = k.x + k.lebar - w;
+
+        hal.drawText(k.teksBaru, {
+          x: posX,
+          y: k.y,
+          size: k.ukuran,
+          font: font,
+          color: keRgb(k.warnaTeks),
+          rotate: PDFLib.degrees(k.rotasi || 0)
+        });
+
+        // 3. Efek Underline manual jika diaktifkan
+        if (k.garisBawah) {
+          hal.drawLine({
+            start: { x: posX, y: k.y - 2 },
+            end: { x: posX + w, y: k.y - 2 },
+            thickness: 1,
+            color: keRgb(k.warnaTeks),
+            rotate: PDFLib.degrees(k.rotasi || 0)
+          });
+        }
+      }
+    });
+
+    const hasilBytes = await dok.save();
+    Bersama.unduh(hasilBytes, Bersama.tanpaAkhiran(namaAsli) + "-teredit.pdf");
+    Bersama.pesan("kabar", "Dokumen berhasil disimpan dan diunduh!", "beres");
+  } catch (err) {
+    Bersama.pesan("kabar", "Gagal menyimpan dokumen PDF.", "gagal");
+    console.error(err);
+  }
+
+  tombolSimpan.disabled = false;
+  tombolSimpan.textContent = "Simpan dokumen";
+});
+
+el("ulangi").addEventListener("click", () => {
+  koreksiList = []; nomorUrut = 0; terpilih = null;
+  panggung.innerHTML = ""; el("daftarKoreksi").innerHTML = "";
+  el("bagianKerja").classList.add("sembunyi");
+  Bersama.pesan("kabar", "", "");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+</script>
+</body>
+</html>
