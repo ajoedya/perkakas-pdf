@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pecah PDF — Perkakas PDF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600&family=Public+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="gaya.css">
+</head>
+<body>
+
+<header class="kop">
+  <div class="kop-isi">
+    <h1>Pecah PDF</h1>
+    <p>Mengambil halaman tertentu menjadi berkas baru, atau memecah seluruh dokumen menjadi <em>satu berkas per halaman</em>.</p>
+  </div>
+</header>
+
+<div class="bungkus">
+
+  <section>
+    <p class="nomor">Langkah 1</p>
+    <h2>Pilih dokumen</h2>
+    <div class="jatuhan" id="jatuhan" tabindex="0" role="button" aria-label="Pilih berkas PDF">
+      <strong>Seret berkas PDF ke sini</strong>
+      <span>atau klik untuk memilih dari komputer</span>
+    </div>
+    <input type="file" id="berkas" accept="application/pdf" class="sembunyi">
+    <div id="kabar" class="kabar"></div>
+  </section>
+
+  <section id="bagianPilih" class="sembunyi">
+    <p class="nomor">Langkah 2</p>
+    <h2>Tentukan caranya</h2>
+
+    <div class="isian">
+      <label for="cara">Cara memecah</label>
+      <select id="cara">
+        <option value="rentang">Ambil halaman tertentu menjadi satu berkas</option>
+        <option value="satuan">Pecah tiap halaman menjadi berkas sendiri</option>
+      </select>
+    </div>
+
+    <div class="isian" id="isianRentang">
+      <label for="rentang">Halaman yang diambil</label>
+      <input type="text" id="rentang" placeholder="Contoh: 1-3, 5, 8-10">
+      <p class="petunjuk">Tulis nomornya dipisah koma. Tanda hubung berarti rentang, jadi 1-3 berarti halaman satu sampai tiga.</p>
+    </div>
+
+    <div class="baris-tombol">
+      <button class="tombol" id="proses">Pecah lalu simpan</button>
+    </div>
+    <p class="petunjuk" id="catatanUnduh"></p>
+  </section>
+
+  <footer>
+    Seluruh pengolahan berjalan di peramban. Tidak ada berkas yang diunggah ke server mana pun.
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script src="bersama.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+const el = (id) => document.getElementById(id);
+let bytes = null, jumlah = 0, namaAsli = "dokumen.pdf";
+
+Bersama.pasangJatuhan(el("jatuhan"), el("berkas"), async (daftar) => {
+  const pdf = Bersama.pdfSaja(daftar);
+  if (!pdf.length) {
+    Bersama.pesan("kabar", "Berkas itu bukan PDF. Pilih berkas berakhiran .pdf.", "gagal");
+    return;
+  }
+  try {
+    const buf = await pdf[0].arrayBuffer();
+    bytes = buf;
+    const dok = await PDFLib.PDFDocument.load(buf.slice(0));
+    jumlah = dok.getPageCount();
+    namaAsli = pdf[0].name;
+    el("rentang").placeholder = "Contoh: 1-3, 5, 8-" + jumlah;
+    Bersama.pesan("kabar", namaAsli + " berhasil dibaca, " + jumlah + " halaman.", "");
+    el("bagianPilih").classList.remove("sembunyi");
+    el("bagianPilih").scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (err) {
+    Bersama.pesan("kabar", "Berkas tidak bisa dibaca, kemungkinan rusak atau berkata sandi.", "gagal");
+    console.error(err);
+  }
+});
+
+el("cara").addEventListener("change", () => {
+  el("isianRentang").classList.toggle("sembunyi", el("cara").value !== "rentang");
+  el("catatanUnduh").textContent = el("cara").value === "satuan"
+    ? "Peramban akan mengunduh banyak berkas sekaligus, jadi kalau muncul permintaan izin untuk beberapa unduhan, pilih Izinkan."
+    : "";
+});
+
+el("proses").addEventListener("click", async () => {
+  const tombol = el("proses");
+  tombol.disabled = true; tombol.textContent = "Memproses...";
+  try {
+    const dasar = Bersama.tanpaAkhiran(namaAsli);
+    if (el("cara").value === "satuan") {
+      for (let i = 0; i < jumlah; i++) {
+        const sumber = await PDFLib.PDFDocument.load(bytes.slice(0));
+        const baru = await PDFLib.PDFDocument.create();
+        const [h] = await baru.copyPages(sumber, [i]);
+        baru.addPage(h);
+        Bersama.unduh(await baru.save(), dasar + "-hlm" + String(i + 1).padStart(2, "0") + ".pdf");
+        await jeda(320);   // jeda supaya peramban tidak membatalkan unduhan beruntun
+      }
+      Bersama.pesan("kabar", jumlah + " berkas tersimpan di folder unduhan, satu berkas untuk tiap halaman.", "beres");
+    } else {
+      const nomor = Bersama.bacaRentang(el("rentang").value, jumlah);
+      if (!nomor.length) {
+        Bersama.pesan("kabar", "Nomor halaman belum diisi atau tidak ada yang sah. Dokumen ini punya " +
+          jumlah + " halaman.", "gagal");
+        tombol.disabled = false; tombol.textContent = "Pecah lalu simpan";
+        return;
+      }
+      const sumber = await PDFLib.PDFDocument.load(bytes.slice(0));
+      const baru = await PDFLib.PDFDocument.create();
+      const salinan = await baru.copyPages(sumber, nomor.map((n) => n - 1));
+      salinan.forEach((h) => baru.addPage(h));
+      Bersama.unduh(await baru.save(), dasar + "-hlm-" + nomor.join("_") + ".pdf");
+      Bersama.pesan("kabar", "Berkas baru berisi " + nomor.length + " halaman, yaitu halaman " +
+        nomor.join(", ") + ", tersimpan di folder unduhan.", "beres");
+    }
+  } catch (err) {
+    Bersama.pesan("kabar", "Pemecahan gagal. Muat ulang halaman lalu pilih berkasnya sekali lagi.", "gagal");
+    console.error(err);
+  }
+  tombol.disabled = false; tombol.textContent = "Pecah lalu simpan";
+});
+
+function jeda(ms) { return new Promise((r) => setTimeout(r, ms)); }
+</script>
+</body>
+</html>

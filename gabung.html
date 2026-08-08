@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gabung PDF — Perkakas PDF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600&family=Public+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="gaya.css">
+</head>
+<body>
+
+<header class="kop">
+  <div class="kop-isi">
+    <h1>Gabung beberapa PDF</h1>
+    <p>Menyatukan beberapa berkas menjadi satu dokumen, dengan urutan yang <em>kamu tentukan sendiri</em>. Halaman dari tiap berkas disalin apa adanya, jadi teks dan mutunya tidak berubah.</p>
+  </div>
+</header>
+
+<div class="bungkus">
+
+  <section>
+    <p class="nomor">Langkah 1</p>
+    <h2>Pilih berkas</h2>
+    <div class="jatuhan" id="jatuhan" tabindex="0" role="button" aria-label="Pilih berkas PDF">
+      <strong>Seret beberapa berkas PDF ke sini</strong>
+      <span>atau klik untuk memilih, bisa dipilih berkali-kali</span>
+    </div>
+    <input type="file" id="berkas" accept="application/pdf" multiple class="sembunyi">
+    <div id="kabar" class="kabar"></div>
+  </section>
+
+  <section id="bagianDaftar" class="sembunyi">
+    <p class="nomor">Langkah 2</p>
+    <h2>Atur urutannya</h2>
+    <ul class="daftar" id="daftar"></ul>
+    <div class="isian" style="margin-top:22px;">
+      <label for="namaHasil">Nama berkas hasil</label>
+      <input type="text" id="namaHasil" value="gabungan.pdf">
+    </div>
+    <div class="baris-tombol">
+      <button class="tombol" id="gabung">Gabung lalu simpan</button>
+      <button class="tombol sekunder" id="kosongkan">Kosongkan daftar</button>
+    </div>
+  </section>
+
+  <footer>
+    Seluruh pengolahan berjalan di peramban. Tidak ada berkas yang diunggah ke server mana pun.
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script src="bersama.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+const el = (id) => document.getElementById(id);
+let antrean = [];   // [{nama, bytes, jumlah, besar}]
+
+Bersama.pasangJatuhan(el("jatuhan"), el("berkas"), async (daftar) => {
+  const pdf = Bersama.pdfSaja(daftar);
+  const ditolak = daftar.length - pdf.length;
+  for (const f of pdf) {
+    try {
+      const buf = await f.arrayBuffer();
+      const dok = await PDFLib.PDFDocument.load(buf.slice(0));
+      antrean.push({ nama: f.name, bytes: buf, jumlah: dok.getPageCount(), besar: f.size });
+    } catch (err) {
+      Bersama.pesan("kabar", "Berkas " + Bersama.lolos(f.name) +
+        " tidak bisa dibaca, kemungkinan rusak atau berkata sandi.", "gagal");
+      console.error(err);
+    }
+  }
+  if (ditolak) {
+    Bersama.pesan("kabar", ditolak + " berkas dilewati sebab bukan PDF.", "gagal");
+  } else if (antrean.length) {
+    const total = antrean.reduce((a, b) => a + b.jumlah, 0);
+    Bersama.pesan("kabar", antrean.length + " berkas siap digabung, seluruhnya " + total + " halaman.", "");
+  }
+  gambarDaftar();
+});
+
+function gambarDaftar() {
+  const wadah = el("daftar");
+  wadah.innerHTML = "";
+  antrean.forEach((b, i) => {
+    const li = document.createElement("li");
+
+    const urut = document.createElement("span");
+    urut.className = "urut"; urut.textContent = (i + 1) + ".";
+
+    const nama = document.createElement("span");
+    nama.className = "nama"; nama.textContent = b.nama; nama.title = b.nama;
+
+    const rinci = document.createElement("span");
+    rinci.className = "rinci";
+    rinci.textContent = b.jumlah + " hlm, " + Bersama.ukuran(b.besar);
+
+    li.append(urut, nama, rinci);
+    li.appendChild(tombolKecil("Naik", i === 0, () => { tukar(i, i - 1); }));
+    li.appendChild(tombolKecil("Turun", i === antrean.length - 1, () => { tukar(i, i + 1); }));
+    li.appendChild(tombolKecil("Buang", false, () => { antrean.splice(i, 1); gambarDaftar(); }));
+    wadah.appendChild(li);
+  });
+  el("bagianDaftar").classList.toggle("sembunyi", !antrean.length);
+}
+
+function tombolKecil(teks, mati, saat) {
+  const b = document.createElement("button");
+  b.className = "tombol sekunder kecil";
+  b.textContent = teks; b.disabled = mati;
+  b.addEventListener("click", saat);
+  return b;
+}
+
+function tukar(a, b) {
+  if (b < 0 || b >= antrean.length) return;
+  const s = antrean[a]; antrean[a] = antrean[b]; antrean[b] = s;
+  gambarDaftar();
+}
+
+el("kosongkan").addEventListener("click", () => {
+  antrean = []; gambarDaftar();
+  Bersama.pesan("kabar", "", "");
+});
+
+el("gabung").addEventListener("click", async () => {
+  if (antrean.length < 2) {
+    Bersama.pesan("kabar", "Perlu paling sedikit dua berkas untuk digabung.", "gagal");
+    return;
+  }
+  const tombol = el("gabung");
+  tombol.disabled = true; tombol.textContent = "Menggabung...";
+  try {
+    const hasil = await PDFLib.PDFDocument.create();
+    for (const b of antrean) {
+      const sumber = await PDFLib.PDFDocument.load(b.bytes.slice(0));
+      const salinan = await hasil.copyPages(sumber, sumber.getPageIndices());
+      salinan.forEach((h) => hasil.addPage(h));
+    }
+    let nama = el("namaHasil").value.trim() || "gabungan.pdf";
+    if (!/\.pdf$/i.test(nama)) nama += ".pdf";
+    Bersama.unduh(await hasil.save(), nama);
+    Bersama.pesan("kabar", "Berhasil digabung menjadi " + hasil.getPageCount() +
+      " halaman dan tersimpan di folder unduhan.", "beres");
+  } catch (err) {
+    Bersama.pesan("kabar", "Penggabungan gagal. Coba buang berkas yang mencurigakan lalu ulangi.", "gagal");
+    console.error(err);
+  }
+  tombol.disabled = false; tombol.textContent = "Gabung lalu simpan";
+});
+</script>
+</body>
+</html>

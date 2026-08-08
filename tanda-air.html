@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tanda Air — Perkakas PDF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600&family=Public+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="gaya.css">
+</head>
+<body>
+
+<header class="kop">
+  <div class="kop-isi">
+    <h1>Tanda air</h1>
+    <p>Menuliskan kata seperti SALINAN atau KONSEP secara menyerong di tengah tiap halaman, dengan warna samar sehingga <em>tidak menutupi isi naskah</em>.</p>
+  </div>
+</header>
+
+<div class="bungkus">
+
+  <section>
+    <p class="nomor">Langkah 1</p>
+    <h2>Pilih dokumen</h2>
+    <div class="jatuhan" id="jatuhan" tabindex="0" role="button" aria-label="Pilih berkas PDF">
+      <strong>Seret berkas PDF ke sini</strong>
+      <span>atau klik untuk memilih dari komputer</span>
+    </div>
+    <input type="file" id="berkas" accept="application/pdf" class="sembunyi">
+    <div id="kabar" class="kabar"></div>
+  </section>
+
+  <section id="bagianAtur" class="sembunyi">
+    <p class="nomor">Langkah 2</p>
+    <h2>Atur tanda airnya</h2>
+
+    <div class="isian">
+      <label for="tulisan">Kata yang dituliskan</label>
+      <input type="text" id="tulisan" value="SALINAN" maxlength="30">
+    </div>
+
+    <div class="isian-baris">
+      <div class="isian">
+        <label for="kepekatan">Kepekatan</label>
+        <select id="kepekatan">
+          <option value="0.08">Sangat samar</option>
+          <option value="0.14" selected>Samar</option>
+          <option value="0.22">Sedang</option>
+          <option value="0.32">Tegas</option>
+        </select>
+      </div>
+      <div class="isian">
+        <label for="sudut">Kemiringan</label>
+        <select id="sudut">
+          <option value="45" selected>Menyerong naik</option>
+          <option value="315">Menyerong turun</option>
+          <option value="0">Mendatar</option>
+        </select>
+      </div>
+      <div class="isian">
+        <label for="warna">Warna</label>
+        <select id="warna">
+          <option value="abu" selected>Abu-abu</option>
+          <option value="merah">Merah</option>
+          <option value="biru">Biru</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="baris-tombol">
+      <button class="tombol" id="proses">Bubuhkan lalu simpan</button>
+    </div>
+    <p class="petunjuk">Tanda air digambar di atas isi halaman, jadi kepekatan yang terlalu tinggi akan mengganggu keterbacaan naskah. Untuk naskah dinas, pilihan samar biasanya sudah cukup.</p>
+  </section>
+
+  <footer>
+    Seluruh pengolahan berjalan di peramban. Tidak ada berkas yang diunggah ke server mana pun.
+  </footer>
+</div>
+
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script src="bersama.js"></script>
+<script>
+const el = (id) => document.getElementById(id);
+let bytes = null, jumlah = 0, namaAsli = "dokumen.pdf";
+const WARNA = { abu: [0.45,0.45,0.45], merah: [0.70,0.13,0.10], biru: [0.08,0.24,0.45] };
+
+Bersama.pasangJatuhan(el("jatuhan"), el("berkas"), async (daftar) => {
+  const pdf = Bersama.pdfSaja(daftar);
+  if (!pdf.length) {
+    Bersama.pesan("kabar", "Berkas itu bukan PDF. Pilih berkas berakhiran .pdf.", "gagal");
+    return;
+  }
+  try {
+    bytes = await pdf[0].arrayBuffer();
+    const dok = await PDFLib.PDFDocument.load(bytes.slice(0));
+    jumlah = dok.getPageCount();
+    namaAsli = pdf[0].name;
+    Bersama.pesan("kabar", namaAsli + " berhasil dibaca, " + jumlah + " halaman.", "");
+    el("bagianAtur").classList.remove("sembunyi");
+    el("bagianAtur").scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (err) {
+    Bersama.pesan("kabar", "Berkas tidak bisa dibaca, kemungkinan rusak atau berkata sandi.", "gagal");
+    console.error(err);
+  }
+});
+
+el("proses").addEventListener("click", async () => {
+  const tulisan = el("tulisan").value.trim();
+  if (!tulisan) {
+    Bersama.pesan("kabar", "Kata tanda airnya masih kosong.", "gagal");
+    return;
+  }
+  const tombol = el("proses");
+  tombol.disabled = true; tombol.textContent = "Memproses...";
+  try {
+    const dok = await PDFLib.PDFDocument.load(bytes.slice(0));
+    const font = await dok.embedFont(PDFLib.StandardFonts.HelveticaBold);
+    const alfa = parseFloat(el("kepekatan").value);
+    const sudut = parseInt(el("sudut").value, 10);
+    const rgb = WARNA[el("warna").value];
+
+    dok.getPages().forEach((h) => {
+      const { width, height } = h.getSize();
+      // Ukuran huruf dihitung dari lebar halaman supaya kertas apa pun tetap seimbang.
+      let besar = (width * 0.85) / (tulisan.length * 0.62);
+      besar = Math.max(18, Math.min(besar, height * 0.35));
+      const lebar = font.widthOfTextAtSize(tulisan, besar);
+      const tinggi = font.heightAtSize(besar);
+      const rad = sudut * Math.PI / 180;
+      // Titik mula digeser setengah panjang tulisan mengikuti arah putarnya,
+      // supaya tulisan tetap berada di tengah halaman setelah diserongkan.
+      const x = width / 2 - (lebar / 2) * Math.cos(rad) + (tinggi / 2) * Math.sin(rad);
+      const y = height / 2 - (lebar / 2) * Math.sin(rad) - (tinggi / 2) * Math.cos(rad);
+      h.drawText(tulisan, {
+        x, y, size: besar, font, opacity: alfa,
+        color: PDFLib.rgb(rgb[0], rgb[1], rgb[2]),
+        rotate: PDFLib.degrees(sudut)
+      });
+    });
+
+    Bersama.unduh(await dok.save(), Bersama.tanpaAkhiran(namaAsli) + "-bertanda-air.pdf");
+    Bersama.pesan("kabar", "Tanda air dibubuhkan pada " + jumlah +
+      " halaman dan berkasnya tersimpan di folder unduhan.", "beres");
+  } catch (err) {
+    Bersama.pesan("kabar", "Pembubuhan gagal. Muat ulang halaman lalu pilih berkasnya sekali lagi.", "gagal");
+    console.error(err);
+  }
+  tombol.disabled = false; tombol.textContent = "Bubuhkan lalu simpan";
+});
+</script>
+</body>
+</html>

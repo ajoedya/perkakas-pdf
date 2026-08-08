@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Penanda TTE — Perkakas PDF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600&family=Public+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="gaya.css">
+<style>
+  /* Warna penanda mengikuti warna cetaknya pada PDF, bukan corak situs. */
+  .penanda{position:absolute;font-family:Helvetica,Arial,sans-serif;color:#8C8C8C;
+    white-space:nowrap;cursor:grab;padding:1px 3px;
+    border:1px dashed transparent;touch-action:none;user-select:none;}
+  .penanda:hover,.penanda:focus{border-color:var(--emas-tua);}
+  .penanda:focus-visible{outline:none;border-color:var(--emas-tua);border-style:solid;}
+  .penanda.digeser{cursor:grabbing;border-color:var(--emas-tua);}
+  .penanda.hilang{border-color:var(--bahaya);border-style:solid;}
+  #navHalaman{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:12px;}
+  #labelHalaman{font-weight:500;color:var(--biru-tua);}
+  #daftarHalaman{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;}
+  .cip{font-family:inherit;font-size:14px;padding:7px 12px;min-height:38px;cursor:pointer;
+    border:1px solid var(--garis);background:var(--putih);border-radius:3px;color:var(--tinta);}
+  .cip.ada{border-color:var(--emas);background:var(--emas-muda);font-weight:700;}
+  .cip.kini{background:var(--biru-tua);color:var(--putih);border-color:var(--biru-tua);}
+  .cip:focus-visible{outline:3px solid var(--emas);outline-offset:2px;}
+</style>
+</head>
+<body>
+
+<header class="kop">
+  <div class="kop-isi">
+    <h1>Penanda tanda tangan elektronik</h1>
+    <p>Menambahkan tulisan <em>Ditandatangani secara elektronik</em> di atas setiap nama penandatangan, termasuk yang tersebar di beberapa halaman.</p>
+  </div>
+</header>
+
+<div class="bungkus">
+
+  <section>
+    <p class="nomor">Langkah 1</p>
+    <h2>Pilih dokumen</h2>
+    <div class="jatuhan" id="jatuhan" tabindex="0" role="button" aria-label="Pilih berkas PDF">
+      <strong>Seret berkas PDF ke sini</strong>
+      <span>atau klik untuk memilih dari komputer</span>
+    </div>
+    <input type="file" id="berkas" accept="application/pdf" class="sembunyi">
+    <p class="keterangan-berkas" id="namaBerkas"></p>
+    <p class="petunjuk">Bubuhkan penanda sebelum dokumen ditandatangani. Menambah apa pun setelah penandatanganan akan membuat tanda tangannya tidak berlaku.</p>
+  </section>
+
+  <section id="langkah2" class="sembunyi">
+    <p class="nomor">Langkah 2</p>
+    <h2>Tulis nama penandatangan</h2>
+    <div id="kabar2" class="kabar"></div>
+    <label for="daftarNama">Satu nama per baris. Tambahkan barisnya kalau penandatangannya lebih dari satu.</label>
+    <textarea id="daftarNama" spellcheck="false" placeholder="Contoh:&#10;Supitriana&#10;Budi Hartono"></textarea>
+    <div class="baris-tombol">
+      <button class="tombol" id="tandai">Tandai nama ini</button>
+      <button class="tombol sekunder" id="ulangi">Pilih berkas lain</button>
+    </div>
+  </section>
+
+  <section id="langkah3" class="sembunyi">
+    <p class="nomor">Langkah 3</p>
+    <h2>Periksa letaknya lalu simpan</h2>
+    <div id="kabar3" class="kabar"></div>
+    <div id="navHalaman">
+      <button class="tombol sekunder kecil" id="halSebelum">Halaman sebelumnya</button>
+      <span id="labelHalaman"></span>
+      <button class="tombol sekunder kecil" id="halSesudah">Halaman berikutnya</button>
+    </div>
+    <div id="daftarHalaman"></div>
+    <div class="panggung" id="panggung"></div>
+    <p class="petunjuk">Seret tulisan abu-abu ke tempat yang benar. Bisa juga diklik lalu digeser dengan tombol panah pada papan ketik, tahan Shift supaya bergeser lebih jauh, dan tekan Delete untuk menghapus penanda yang sedang terpilih.</p>
+    <div class="baris-tombol">
+      <button class="tombol" id="simpan">Simpan dokumen</button>
+      <button class="tombol sekunder" id="tambah">Tambah penanda di halaman ini</button>
+      <button class="tombol sekunder" id="kembali">Ubah nama penandatangan</button>
+    </div>
+  </section>
+
+  <footer>
+    Tulisan ini hanya penanda visual. Keabsahan tanda tangan elektronik melekat pada sertifikat elektronik yang diterbitkan penyelenggara sertifikasi, bukan pada tulisan di lembar PDF.
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script src="bersama.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+const TEKS = "Ditandatangani secara elektronik";
+const UKURAN = 10;                 // titik (pt)
+const ABU = [0.55, 0.55, 0.55];
+const JURANG = 25;                 // jarak mendatar yang dianggap pemisah antarkolom
+
+const el = (id) => document.getElementById(id);
+const langkah2 = el("langkah2"), langkah3 = el("langkah3");
+const daftarNama = el("daftarNama"), panggung = el("panggung");
+
+let bytesAsli = null, dokJs = null, namaAsli = "dokumen.pdf";
+let halaman = [], halamanTampil = 1, skala = 1;
+let penandaList = [];
+
+/* ================= 1. Menerima berkas ================= */
+Bersama.pasangJatuhan(el("jatuhan"), el("berkas"), async (daftar) => {
+  const pdf = Bersama.pdfSaja(daftar);
+  if (!pdf.length) {
+    el("namaBerkas").textContent = "Berkas itu bukan PDF. Pilih berkas berakhiran .pdf.";
+    return;
+  }
+  await muatBerkas(pdf[0]);
+});
+
+async function muatBerkas(file) {
+  el("namaBerkas").textContent = "Membaca " + file.name + " ...";
+  const hasil = await Bersama.bacaPdf(file);
+  bytesAsli = hasil.bytes; dokJs = hasil.dok; namaAsli = hasil.nama;
+
+  halaman = [];
+  for (let i = 1; i <= dokJs.numPages; i++) {
+    const h = await dokJs.getPage(i);
+    const v = h.getViewport({ scale: 1 });
+    const isi = await h.getTextContent();
+    halaman.push({ no: i, lebarPt: v.width, tinggiPt: v.height, baris: susunBaris(isi.items) });
+  }
+
+  const tebakan = [];
+  halaman.forEach((h) => tebakNama(h).forEach((n) => tebakan.push(n)));
+  const unik = [...new Set(tebakan)].slice(0, 8);
+  daftarNama.value = unik.join("\n");
+
+  el("namaBerkas").textContent = file.name + " berhasil dibaca, " + dokJs.numPages + " halaman.";
+  Bersama.pesan("kabar2", unik.length
+    ? "Ditemukan " + unik.length + " calon nama penandatangan di seluruh halaman. Periksa ejaannya, buang yang bukan nama, lalu tambahkan yang belum tercantum."
+    : "Nama penandatangan tidak terdeteksi otomatis. Ketik sendiri namanya persis seperti yang tertulis di dokumen.", unik.length ? "" : "gagal");
+
+  langkah2.classList.remove("sembunyi");
+  langkah3.classList.add("sembunyi");
+  langkah2.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+/* ========== 2. Menyusun potongan teks menjadi baris ========== */
+function susunBaris(items) {
+  const kumpulan = [];
+  items.forEach((it) => {
+    if (!it.str || !it.str.trim()) return;
+    const x = it.transform[4], y = it.transform[5], w = it.width || 0;
+    const cocok = kumpulan.find((b) => Math.abs(b.y - y) < 2.5);
+    if (cocok) cocok.potongan.push({ x, w, s: it.str });
+    else kumpulan.push({ y, potongan: [{ x, w, s: it.str }] });
+  });
+  // Satu baris dipecah lagi menjadi segmen kalau ada jarak mendatar yang lebar,
+  // sebab blok tanda tangan yang bersebelahan berbagi koordinat y yang sama.
+  const hasil = [];
+  kumpulan.forEach((b) => {
+    b.potongan.sort((a, c) => a.x - c.x);
+    let segmen = [b.potongan[0]];
+    for (let i = 1; i < b.potongan.length; i++) {
+      const sebelum = b.potongan[i - 1], kini = b.potongan[i];
+      if (kini.x - (sebelum.x + sebelum.w) > JURANG) {
+        hasil.push(bentukBaris(segmen, b.y)); segmen = [kini];
+      } else segmen.push(kini);
+    }
+    hasil.push(bentukBaris(segmen, b.y));
+  });
+  return hasil.filter((r) => r.teks).sort((a, b) => b.y - a.y);
+}
+function bentukBaris(segmen, y) {
+  const kiri = segmen[0].x, akhir = segmen[segmen.length - 1];
+  return { teks: segmen.map((p) => p.s).join("").replace(/\s+/g, " ").trim(),
+           y, x: kiri, lebar: (akhir.x + akhir.w) - kiri };
+}
+function sekolom(a, b) { return !(a.x + a.lebar < b.x || b.x + b.lebar < a.x); }
+
+/* ========== 3. Menebak nama ========== */
+const TERLARANG = /^(yth|dari|sifat|lampiran|hal|tanggal|tembusan|nomor|nota dinas|kepala|direktorat|kantor|kementerian|jalan|telepon|laman|nip|ditandatangani|dokumen ini|atas perhatian|pihak|demikian|mengetahui|menyetujui|halaman)\b/i;
+
+function tebakNama(hal) {
+  const hasil = [], b = hal.baris;
+  b.forEach((baris) => {
+    if (!/\bNIP\.?\s*\d[\d\s.]{15,}/i.test(baris.teks)) return;
+    const atas = b.filter((x) => x.y > baris.y && x.y - baris.y < 40 && sekolom(x, baris))
+                  .sort((p, q) => p.y - q.y)[0];
+    if (atas && atas.teks.length > 2 && !TERLARANG.test(atas.teks)) hasil.push(atas.teks);
+  });
+  if (!hasil.length) {
+    b.forEach((baris) => {
+      const t = baris.teks;
+      if (baris.y > hal.tinggiPt * 0.55 || baris.y < hal.tinggiPt * 0.15) return;
+      if (t.includes(":") || /\d{3}/.test(t)) return;
+      if (t.length < 3 || t.length > 45) return;
+      if (TERLARANG.test(t)) return;
+      if (t.split(" ").length > 6) return;
+      if (!/^[A-Z]/.test(t) || !/^[A-Za-z.,'\- ]+$/.test(t)) return;
+      hasil.push(t);
+    });
+  }
+  return [...new Set(hasil)];
+}
+
+/* ========== 4. Mencocokkan nama ========== */
+const rapikan = (s) => s.toLowerCase().replace(/[^a-z ]/g, " ").replace(/\s+/g, " ").trim();
+// Pencocokan berbatas kata, supaya "Ari" tidak dianggap cocok dengan "Dari".
+const kataUtuh = (teks, cari) => (" " + teks + " ").includes(" " + cari + " ");
+
+function nilaiBaris(baris, hal, n) {
+  const t = rapikan(baris.teks);
+  let setara = false;
+  if (t === n) setara = true;
+  else if (kataUtuh(t, n)) setara = true;
+  else if (kataUtuh(n, t) && t.length >= 4) setara = true;
+  if (!setara) return -1;
+  let nilai = 0;
+  if (t === n) nilai += 40;
+  if (baris.y < hal.tinggiPt * 0.55) nilai += 30;
+  if (!baris.teks.includes(":")) nilai += 12;
+  if (baris.teks.length <= 45) nilai += 10;
+  nilai += (1 - baris.y / hal.tinggiPt) * 8;
+  return nilai;
+}
+
+// Kalau nilainya seri, halaman belakang yang menang sebab blok tanda tangan ada di sana.
+function letakTerbaik(n) {
+  const cari = rapikan(n);
+  if (cari.length < 3) return null;
+  let juara = null;
+  halaman.forEach((hal) => {
+    hal.baris.forEach((baris) => {
+      const nilai = nilaiBaris(baris, hal, cari);
+      if (nilai < 0) return;
+      if (!juara || nilai >= juara.nilai) juara = { nilai, baris, hal };
+    });
+  });
+  return juara;
+}
+
+function lebarTeksPt() {
+  const bayangan = document.createElement("span");
+  bayangan.style.cssText = "position:absolute;visibility:hidden;white-space:nowrap;" +
+    "font-family:Helvetica,Arial,sans-serif;font-size:" + UKURAN + "px;";
+  bayangan.textContent = TEKS;
+  document.body.appendChild(bayangan);
+  const w = bayangan.getBoundingClientRect().width;
+  bayangan.remove();
+  return w;
+}
+
+el("tandai").addEventListener("click", tandaiNama);
+
+async function tandaiNama() {
+  const nama = daftarNama.value.split("\n").map((s) => s.trim()).filter(Boolean);
+  if (!nama.length) {
+    Bersama.pesan("kabar2", "Kolom nama masih kosong. Tulis dulu paling sedikit satu nama penandatangan.", "gagal");
+    return;
+  }
+  const lebarTeks = lebarTeksPt();
+  penandaList = [];
+  const tidakKetemu = [];
+  let geseran = 0;
+
+  nama.forEach((n) => {
+    const juara = letakTerbaik(n);
+    if (juara) {
+      penandaList.push({ nama: n, halamanNo: juara.hal.no, ketemu: true,
+        x: juara.baris.x + juara.baris.lebar / 2 - lebarTeks / 2,
+        y: juara.baris.y + UKURAN + 4, el: null });
+    } else {
+      const akhir = halaman[halaman.length - 1];
+      penandaList.push({ nama: n, halamanNo: akhir.no, ketemu: false,
+        x: akhir.lebarPt * 0.55, y: akhir.tinggiPt * 0.34 - geseran * 26, el: null });
+      geseran++; tidakKetemu.push(n);
+    }
+  });
+
+  const halBerpenanda = [...new Set(penandaList.map((p) => p.halamanNo))].sort((a, b) => a - b);
+  let isi = tidakKetemu.length
+    ? "Nama berikut tidak ditemukan di dokumen, jadi penandanya ditaruh di halaman terakhir dan harus kamu geser sendiri.<ul><li>" +
+      tidakKetemu.map(Bersama.lolos).join("</li><li>") + "</li></ul>"
+    : "Semua nama ditemukan. Penanda dipasang pada halaman " + halBerpenanda.join(", ") + ".";
+  if (halBerpenanda.length > 1) isi += " Periksa tiap halaman lewat tombol navigasi di bawah.";
+  Bersama.pesan("kabar3", isi, tidakKetemu.length ? "gagal" : "");
+
+  langkah3.classList.remove("sembunyi");
+  await tampilkanHalaman(halBerpenanda[0]);
+  langkah3.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+/* ========== 5. Menggambar halaman dan penanda ========== */
+async function tampilkanHalaman(no) {
+  halamanTampil = no;
+  const hal = halaman[no - 1];
+  const lebarLayar = Math.min(720, window.innerWidth - 70);
+  skala = lebarLayar / hal.lebarPt;
+  panggung.innerHTML = "";
+  panggung.appendChild(await Bersama.halamanKeKanvas(dokJs, no, lebarLayar));
+  penandaList.filter((p) => p.halamanNo === no).forEach((p) => {
+    p.el = buatElemenPenanda(p); letakkan(p);
+  });
+  perbaruiNav();
+}
+
+function buatElemenPenanda(p) {
+  const d = document.createElement("div");
+  d.className = "penanda" + (p.ketemu ? "" : " hilang");
+  d.textContent = TEKS;
+  d.tabIndex = 0;
+  const judul = p.nama ? "Penanda untuk " + p.nama : "Penanda tambahan";
+  d.title = judul;
+  d.setAttribute("aria-label", judul + ". Seret atau gunakan tombol panah, tekan Delete untuk menghapus.");
+  d.style.fontSize = (UKURAN * skala) + "px";
+  panggung.appendChild(d);
+  pasangGeser(d, p);
+  return d;
+}
+
+function letakkan(p) {
+  const hal = halaman[p.halamanNo - 1];
+  p.x = Math.max(0, Math.min(p.x, hal.lebarPt - 10));
+  p.y = Math.max(0, Math.min(p.y, hal.tinggiPt - 4));
+  if (!p.el) return;
+  p.el.style.left = (p.x * skala) + "px";
+  // koordinat PDF dihitung dari bawah, koordinat layar dari atas
+  p.el.style.top = ((hal.tinggiPt - p.y - UKURAN) * skala) + "px";
+}
+
+function pasangGeser(d, p) {
+  let geser = false, mx = 0, my = 0, ax = 0, ay = 0;
+  d.addEventListener("pointerdown", (e) => {
+    geser = true; d.classList.add("digeser"); d.setPointerCapture(e.pointerId);
+    mx = e.clientX; my = e.clientY; ax = p.x; ay = p.y;
+  });
+  d.addEventListener("pointermove", (e) => {
+    if (!geser) return;
+    p.x = ax + (e.clientX - mx) / skala;
+    p.y = ay - (e.clientY - my) / skala;
+    letakkan(p);
+  });
+  ["pointerup","pointercancel"].forEach((n) => d.addEventListener(n, () => {
+    geser = false; d.classList.remove("digeser"); d.classList.remove("hilang"); p.ketemu = true;
+  }));
+  d.addEventListener("keydown", (e) => {
+    if (e.key === "Delete" || e.key === "Backspace") {
+      e.preventDefault();
+      penandaList = penandaList.filter((q) => q !== p);
+      d.remove(); perbaruiNav();
+      return;
+    }
+    const l = e.shiftKey ? 10 : 1;
+    const arah = { ArrowLeft:[-l,0], ArrowRight:[l,0], ArrowUp:[0,l], ArrowDown:[0,-l] }[e.key];
+    if (!arah) return;
+    e.preventDefault();
+    p.x += arah[0]; p.y += arah[1];
+    d.classList.remove("hilang"); p.ketemu = true;
+    letakkan(p);
+  });
+}
+
+/* ========== 6. Navigasi halaman ========== */
+function perbaruiNav() {
+  const total = halaman.length;
+  const berpenanda = new Set(penandaList.map((p) => p.halamanNo));
+  const jml = penandaList.filter((p) => p.halamanNo === halamanTampil).length;
+  el("labelHalaman").textContent = "Halaman " + halamanTampil + " dari " + total + ", " + jml + " penanda";
+  el("halSebelum").disabled = halamanTampil <= 1;
+  el("halSesudah").disabled = halamanTampil >= total;
+  const wadah = el("daftarHalaman");
+  wadah.innerHTML = "";
+  halaman.forEach((h) => {
+    const b = document.createElement("button");
+    b.className = "cip" + (berpenanda.has(h.no) ? " ada" : "") + (h.no === halamanTampil ? " kini" : "");
+    b.textContent = h.no;
+    b.title = "Buka halaman " + h.no + (berpenanda.has(h.no) ? ", ada penanda" : "");
+    b.addEventListener("click", () => tampilkanHalaman(h.no));
+    wadah.appendChild(b);
+  });
+}
+el("halSebelum").addEventListener("click", () => tampilkanHalaman(halamanTampil - 1));
+el("halSesudah").addEventListener("click", () => tampilkanHalaman(halamanTampil + 1));
+
+el("tambah").addEventListener("click", () => {
+  const hal = halaman[halamanTampil - 1];
+  const p = { nama: "", halamanNo: halamanTampil, ketemu: false,
+    x: hal.lebarPt * 0.55, y: hal.tinggiPt * 0.34, el: null };
+  penandaList.push(p);
+  p.el = buatElemenPenanda(p); letakkan(p); p.el.focus();
+  perbaruiNav();
+});
+
+/* ================= 7. Menyimpan ================= */
+el("simpan").addEventListener("click", async () => {
+  const tombol = el("simpan");
+  if (!penandaList.length) {
+    Bersama.pesan("kabar3", "Belum ada penanda sama sekali. Tambahkan dulu paling sedikit satu.", "gagal");
+    return;
+  }
+  tombol.disabled = true; tombol.textContent = "Menyimpan...";
+  try {
+    const dok = await PDFLib.PDFDocument.load(bytesAsli.slice(0));
+    const font = await dok.embedFont(PDFLib.StandardFonts.Helvetica);
+    const semua = dok.getPages();
+    penandaList.forEach((p) => {
+      semua[p.halamanNo - 1].drawText(TEKS, {
+        x: p.x, y: p.y, size: UKURAN, font, color: PDFLib.rgb(...ABU)
+      });
+    });
+    Bersama.unduh(await dok.save(), Bersama.tanpaAkhiran(namaAsli) + "-bertanda.pdf");
+    const hal = [...new Set(penandaList.map((p) => p.halamanNo))].sort((a, b) => a - b);
+    Bersama.pesan("kabar3", "Dokumen tersimpan di folder unduhan, memuat " + penandaList.length +
+      " penanda pada halaman " + hal.join(", ") + ". Tandatangani dokumen ini melalui aplikasi tanda tangan elektronik.", "beres");
+  } catch (err) {
+    Bersama.pesan("kabar3", "Dokumen gagal disimpan. Muat ulang halaman lalu pilih berkasnya sekali lagi.", "gagal");
+    console.error(err);
+  }
+  tombol.disabled = false; tombol.textContent = "Simpan dokumen";
+});
+
+el("kembali").addEventListener("click", () => {
+  langkah3.classList.add("sembunyi");
+  langkah2.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+el("ulangi").addEventListener("click", () => {
+  daftarNama.value = ""; el("namaBerkas").textContent = "";
+  penandaList = []; panggung.innerHTML = "";
+  langkah2.classList.add("sembunyi"); langkah3.classList.add("sembunyi");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+</script>
+</body>
+</html>

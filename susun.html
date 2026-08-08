@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Susun Halaman — Perkakas PDF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600&family=Public+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="gaya.css">
+</head>
+<body>
+
+<header class="kop">
+  <div class="kop-isi">
+    <h1>Susun halaman</h1>
+    <p>Menghapus halaman yang tidak perlu, memutar halaman yang terpindai miring, dan mengubah urutannya. Halaman <em>disalin apa adanya</em>, jadi teksnya tetap utuh.</p>
+  </div>
+</header>
+
+<div class="bungkus lebar">
+
+  <section>
+    <p class="nomor">Langkah 1</p>
+    <h2>Pilih dokumen</h2>
+    <div class="jatuhan" id="jatuhan" tabindex="0" role="button" aria-label="Pilih berkas PDF">
+      <strong>Seret berkas PDF ke sini</strong>
+      <span>atau klik untuk memilih dari komputer</span>
+    </div>
+    <input type="file" id="berkas" accept="application/pdf" class="sembunyi">
+    <div id="kabar" class="kabar"></div>
+  </section>
+
+  <section id="bagianRak" class="sembunyi">
+    <p class="nomor">Langkah 2</p>
+    <h2>Atur halamannya</h2>
+    <p class="petunjuk" style="margin-top:0;">Nomor pada tiap ubin adalah urutan barunya. Halaman yang dibuang tampil samar dan tidak ikut disimpan.</p>
+    <div class="rak" id="rak"></div>
+    <div class="baris-tombol">
+      <button class="tombol" id="simpan">Simpan dokumen</button>
+      <button class="tombol sekunder" id="pulihkan">Pulihkan semua</button>
+    </div>
+  </section>
+
+  <footer>
+    Seluruh pengolahan berjalan di peramban. Tidak ada berkas yang diunggah ke server mana pun.
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script src="bersama.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+const el = (id) => document.getElementById(id);
+let bytes = null, namaAsli = "dokumen.pdf";
+let daftar = [];   // [{asli, putar, dibuang, kanvas}] urutannya = urutan hasil
+
+Bersama.pasangJatuhan(el("jatuhan"), el("berkas"), async (masuk) => {
+  const pdf = Bersama.pdfSaja(masuk);
+  if (!pdf.length) {
+    Bersama.pesan("kabar", "Berkas itu bukan PDF. Pilih berkas berakhiran .pdf.", "gagal");
+    return;
+  }
+  Bersama.pesan("kabar", "Membaca dan menggambar halaman, mohon tunggu sebentar ...", "");
+  try {
+    const hasil = await Bersama.bacaPdf(pdf[0]);
+    bytes = hasil.bytes; namaAsli = hasil.nama;
+    daftar = [];
+    for (let i = 1; i <= hasil.dok.numPages; i++) {
+      const k = await Bersama.halamanKeKanvas(hasil.dok, i, 150);
+      daftar.push({ asli: i, putar: 0, dibuang: false, kanvas: k });
+    }
+    Bersama.pesan("kabar", namaAsli + " berhasil dibaca, " + daftar.length + " halaman.", "");
+    el("bagianRak").classList.remove("sembunyi");
+    gambarRak();
+    el("bagianRak").scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (err) {
+    Bersama.pesan("kabar", "Berkas tidak bisa dibaca, kemungkinan rusak atau berkata sandi.", "gagal");
+    console.error(err);
+  }
+});
+
+function gambarRak() {
+  const rak = el("rak");
+  rak.innerHTML = "";
+  let urutBaru = 0;
+  daftar.forEach((h, i) => {
+    if (!h.dibuang) urutBaru++;
+    const ubin = document.createElement("div");
+    ubin.className = "ubin" + (h.dibuang ? " dibuang" : "");
+
+    const bingkai = document.createElement("div");
+    bingkai.style.transform = "rotate(" + h.putar + "deg)";
+    bingkai.style.transition = "transform .15s";
+    bingkai.appendChild(h.kanvas);
+    ubin.appendChild(bingkai);
+
+    const nomor = document.createElement("div");
+    nomor.className = "ubin-nomor";
+    nomor.textContent = h.dibuang ? "dibuang (asal " + h.asli + ")" : urutBaru + " (asal " + h.asli + ")";
+    ubin.appendChild(nomor);
+
+    const alat = document.createElement("div");
+    alat.className = "ubin-alat";
+    alat.appendChild(tbl("\u2190", "Geser ke kiri", i === 0, () => tukar(i, i - 1)));
+    alat.appendChild(tbl("\u2192", "Geser ke kanan", i === daftar.length - 1, () => tukar(i, i + 1)));
+    alat.appendChild(tbl("\u21BA", "Putar berlawanan jarum jam", false, () => putar(i, -90)));
+    alat.appendChild(tbl("\u21BB", "Putar searah jarum jam", false, () => putar(i, 90)));
+    alat.appendChild(tbl(h.dibuang ? "Pulihkan" : "Buang", h.dibuang ? "Pulihkan halaman" : "Buang halaman",
+      false, () => { h.dibuang = !h.dibuang; gambarRak(); }));
+    ubin.appendChild(alat);
+    rak.appendChild(ubin);
+  });
+}
+
+function tbl(teks, judul, mati, saat) {
+  const b = document.createElement("button");
+  b.textContent = teks; b.title = judul;
+  b.setAttribute("aria-label", judul);
+  b.disabled = mati;
+  b.addEventListener("click", saat);
+  return b;
+}
+
+function tukar(a, b) {
+  if (b < 0 || b >= daftar.length) return;
+  const s = daftar[a]; daftar[a] = daftar[b]; daftar[b] = s;
+  gambarRak();
+}
+function putar(i, derajat) {
+  daftar[i].putar = (daftar[i].putar + derajat + 360) % 360;
+  gambarRak();
+}
+
+el("pulihkan").addEventListener("click", () => {
+  daftar.sort((a, b) => a.asli - b.asli);
+  daftar.forEach((h) => { h.dibuang = false; h.putar = 0; });
+  gambarRak();
+  Bersama.pesan("kabar", "Semua halaman dipulihkan ke urutan dan arah semula.", "");
+});
+
+el("simpan").addEventListener("click", async () => {
+  const dipakai = daftar.filter((h) => !h.dibuang);
+  if (!dipakai.length) {
+    Bersama.pesan("kabar", "Semua halaman terbuang, jadi tidak ada yang bisa disimpan.", "gagal");
+    return;
+  }
+  const tombol = el("simpan");
+  tombol.disabled = true; tombol.textContent = "Menyimpan...";
+  try {
+    const sumber = await PDFLib.PDFDocument.load(bytes.slice(0));
+    const baru = await PDFLib.PDFDocument.create();
+    const salinan = await baru.copyPages(sumber, dipakai.map((h) => h.asli - 1));
+    salinan.forEach((h, i) => {
+      // Putaran ditambahkan ke putaran bawaan halaman, bukan menimpanya.
+      const awal = h.getRotation().angle || 0;
+      h.setRotation(PDFLib.degrees((awal + dipakai[i].putar) % 360));
+      baru.addPage(h);
+    });
+    Bersama.unduh(await baru.save(), Bersama.tanpaAkhiran(namaAsli) + "-tersusun.pdf");
+    const dibuang = daftar.length - dipakai.length;
+    Bersama.pesan("kabar", "Dokumen tersimpan dengan " + dipakai.length + " halaman" +
+      (dibuang ? ", " + dibuang + " halaman dibuang" : "") + ".", "beres");
+  } catch (err) {
+    Bersama.pesan("kabar", "Penyimpanan gagal. Muat ulang halaman lalu pilih berkasnya sekali lagi.", "gagal");
+    console.error(err);
+  }
+  tombol.disabled = false; tombol.textContent = "Simpan dokumen";
+});
+</script>
+</body>
+</html>

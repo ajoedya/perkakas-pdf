@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nomor Halaman — Perkakas PDF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600&family=Public+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="gaya.css">
+</head>
+<body>
+
+<header class="kop">
+  <div class="kop-isi">
+    <h1>Nomor halaman</h1>
+    <p>Membubuhkan nomor pada posisi yang kamu pilih, dan halaman awal bisa <em>dilewati</em> supaya lembar pengantar tidak ikut bernomor.</p>
+  </div>
+</header>
+
+<div class="bungkus">
+
+  <section>
+    <p class="nomor">Langkah 1</p>
+    <h2>Pilih dokumen</h2>
+    <div class="jatuhan" id="jatuhan" tabindex="0" role="button" aria-label="Pilih berkas PDF">
+      <strong>Seret berkas PDF ke sini</strong>
+      <span>atau klik untuk memilih dari komputer</span>
+    </div>
+    <input type="file" id="berkas" accept="application/pdf" class="sembunyi">
+    <div id="kabar" class="kabar"></div>
+  </section>
+
+  <section id="bagianAtur" class="sembunyi">
+    <p class="nomor">Langkah 2</p>
+    <h2>Atur penomorannya</h2>
+
+    <div class="isian-baris">
+      <div class="isian">
+        <label for="posisi">Posisi</label>
+        <select id="posisi">
+          <option value="bawah-tengah">Bawah tengah</option>
+          <option value="bawah-kanan">Bawah kanan</option>
+          <option value="bawah-kiri">Bawah kiri</option>
+          <option value="atas-tengah">Atas tengah</option>
+          <option value="atas-kanan">Atas kanan</option>
+        </select>
+      </div>
+      <div class="isian">
+        <label for="bentuk">Bentuk tulisan</label>
+        <select id="bentuk">
+          <option value="angka">1</option>
+          <option value="dari">1 dari 10</option>
+          <option value="strip">- 1 -</option>
+          <option value="halaman">Halaman 1</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="isian-baris">
+      <div class="isian">
+        <label for="mulaiHal">Mulai dibubuhkan pada halaman ke</label>
+        <input type="number" id="mulaiHal" value="1" min="1">
+      </div>
+      <div class="isian">
+        <label for="mulaiNomor">Nomor pertama yang dipakai</label>
+        <input type="number" id="mulaiNomor" value="1" min="0">
+      </div>
+      <div class="isian">
+        <label for="besar">Ukuran huruf</label>
+        <input type="number" id="besar" value="10" min="6" max="24">
+      </div>
+    </div>
+
+    <div class="baris-tombol">
+      <button class="tombol" id="proses">Bubuhkan lalu simpan</button>
+    </div>
+    <p class="petunjuk">Contoh pemakaian, kalau lembar pengantar tidak boleh bernomor, isi halaman ke dengan 2 dan nomor pertama dengan 1, sehingga penomoran dimulai dari lembar kedua tetapi angkanya tetap mulai dari satu.</p>
+  </section>
+
+  <footer>
+    Seluruh pengolahan berjalan di peramban. Tidak ada berkas yang diunggah ke server mana pun.
+  </footer>
+</div>
+
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script src="bersama.js"></script>
+<script>
+const el = (id) => document.getElementById(id);
+let bytes = null, jumlah = 0, namaAsli = "dokumen.pdf";
+const TEPI = 28;   // jarak dari tepi kertas, dalam titik
+
+Bersama.pasangJatuhan(el("jatuhan"), el("berkas"), async (daftar) => {
+  const pdf = Bersama.pdfSaja(daftar);
+  if (!pdf.length) {
+    Bersama.pesan("kabar", "Berkas itu bukan PDF. Pilih berkas berakhiran .pdf.", "gagal");
+    return;
+  }
+  try {
+    bytes = await pdf[0].arrayBuffer();
+    const dok = await PDFLib.PDFDocument.load(bytes.slice(0));
+    jumlah = dok.getPageCount();
+    namaAsli = pdf[0].name;
+    el("mulaiHal").max = jumlah;
+    Bersama.pesan("kabar", namaAsli + " berhasil dibaca, " + jumlah + " halaman.", "");
+    el("bagianAtur").classList.remove("sembunyi");
+    el("bagianAtur").scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (err) {
+    Bersama.pesan("kabar", "Berkas tidak bisa dibaca, kemungkinan rusak atau berkata sandi.", "gagal");
+    console.error(err);
+  }
+});
+
+function susunTulisan(bentuk, nomor, total) {
+  if (bentuk === "dari") return nomor + " dari " + total;
+  if (bentuk === "strip") return "- " + nomor + " -";
+  if (bentuk === "halaman") return "Halaman " + nomor;
+  return String(nomor);
+}
+
+el("proses").addEventListener("click", async () => {
+  const mulaiHal = Math.max(1, parseInt(el("mulaiHal").value, 10) || 1);
+  const mulaiNomor = Math.max(0, parseInt(el("mulaiNomor").value, 10) || 1);
+  const besar = Math.min(24, Math.max(6, parseInt(el("besar").value, 10) || 10));
+  const posisi = el("posisi").value, bentuk = el("bentuk").value;
+
+  if (mulaiHal > jumlah) {
+    Bersama.pesan("kabar", "Halaman awal melebihi jumlah halaman dokumen, yaitu " + jumlah + ".", "gagal");
+    return;
+  }
+
+  const tombol = el("proses");
+  tombol.disabled = true; tombol.textContent = "Memproses...";
+  try {
+    const dok = await PDFLib.PDFDocument.load(bytes.slice(0));
+    const font = await dok.embedFont(PDFLib.StandardFonts.Helvetica);
+    const semua = dok.getPages();
+    const totalBernomor = jumlah - mulaiHal + 1;
+
+    semua.forEach((h, i) => {
+      if (i + 1 < mulaiHal) return;
+      const nomor = mulaiNomor + (i + 1 - mulaiHal);
+      const tulisan = susunTulisan(bentuk, nomor, mulaiNomor + totalBernomor - 1);
+      const lebarTulisan = font.widthOfTextAtSize(tulisan, besar);
+      const { width, height } = h.getSize();
+
+      let x = (width - lebarTulisan) / 2;
+      if (posisi.endsWith("kanan")) x = width - TEPI - lebarTulisan;
+      if (posisi.endsWith("kiri")) x = TEPI;
+      const y = posisi.startsWith("atas") ? height - TEPI - besar : TEPI;
+
+      h.drawText(tulisan, { x, y, size: besar, font, color: PDFLib.rgb(0.1, 0.1, 0.1) });
+    });
+
+    Bersama.unduh(await dok.save(), Bersama.tanpaAkhiran(namaAsli) + "-bernomor.pdf");
+    Bersama.pesan("kabar", totalBernomor + " halaman diberi nomor, mulai dari halaman ke-" + mulaiHal +
+      " dengan angka pertama " + mulaiNomor + ". Berkas tersimpan di folder unduhan.", "beres");
+  } catch (err) {
+    Bersama.pesan("kabar", "Pembubuhan gagal. Muat ulang halaman lalu pilih berkasnya sekali lagi.", "gagal");
+    console.error(err);
+  }
+  tombol.disabled = false; tombol.textContent = "Bubuhkan lalu simpan";
+});
+</script>
+</body>
+</html>
