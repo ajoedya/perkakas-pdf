@@ -7,11 +7,11 @@
   const HALAMAN = [
     { berkas: "index.html",     nama: "Beranda" },
     { berkas: "penanda.html",   nama: "Penanda TTE" },
-    { berkas: "gabung.html",    nama: "Gabung" },
-    { berkas: "pecah.html",     nama: "Pecah" },
-    { berkas: "susun.html",     nama: "Susun halaman" },
-    { berkas: "nomor.html",     nama: "Nomor halaman" },
-    { berkas: "tanda-air.html", nama: "Tanda air" },
+    { berkas: "gabung.html",    nama: "Gabung PDF" },
+    { berkas: "pecah.html",     nama: "Pecah/Split PDF" },
+    { berkas: "susun.html",     nama: "Susun Halaman" },
+    { berkas: "nomor.html",     nama: "Penomor Halaman" },
+    { berkas: "tanda-air.html", nama: "Watermark" },
     { berkas: "gambar.html",    nama: "PDF dan gambar" },
     { berkas: "panduan.html",   nama: "Panduan" }
   ];
