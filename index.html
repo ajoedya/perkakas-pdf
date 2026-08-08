@@ -8,6 +8,93 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600&family=Public+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="gaya.css">
+
+<style>
+  /* Gaya Tambahan untuk Dropdown/Accordion */
+  .daftar-dropdown {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .item-dropdown {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #fff;
+    transition: box-shadow 0.2s ease;
+  }
+
+  .item-dropdown:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+
+  .tombol-dropdown {
+    width: 100%;
+    padding: 16px 20px;
+    background: none;
+    border: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1e293b;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+  }
+
+  .tombol-dropdown::after {
+    content: '▼';
+    font-size: 0.8rem;
+    transition: transform 0.3s ease;
+    color: #64748b;
+  }
+
+  .item-dropdown.aktif .tombol-dropdown::after {
+    transform: rotate(180deg);
+  }
+
+  .konten-dropdown {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+    background-color: #f8fafc;
+    border-top: 1px solid transparent;
+  }
+
+  .item-dropdown.aktif .konten-dropdown {
+    max-height: 200px; /* Cukup besar untuk menampung teks deskripsi */
+    padding: 16px 20px;
+    border-top-color: #e2e8f0;
+  }
+
+  .konten-dropdown p {
+    margin: 0 0 12px 0;
+    color: #475569;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .tautan-aksi {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #2563eb;
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+  }
+
+  .tautan-aksi:hover {
+    background-color: #1d4ed8;
+  }
+</style>
 </head>
 <body>
 
@@ -23,39 +110,73 @@
   <section>
     <p class="nomor">Perkakas</p>
     <h2>Pilih pekerjaan yang mau dilakukan</h2>
-    <div class="petak">
-      <a class="kartu" href="penanda.html">
-        <strong>Penanda TTE</strong>
-        <span>Membubuhkan tulisan Ditandatangani secara elektronik di atas nama penandatangan, termasuk bila penandatangannya lebih dari satu.</span>
-      </a>
-      <a class="kartu" href="gabung.html">
-        <strong>Gabung PDF</strong>
-        <span>Menyatukan beberapa PDF menjadi satu berkas, dengan urutan yang bisa kamu atur sendiri.</span>
-      </a>
-      <a class="kartu" href="pecah.html">
-        <strong>Pecah PDF</strong>
-        <span>Mengambil halaman tertentu menjadi berkas baru, atau memecah seluruh dokumen menjadi satu berkas per halaman.</span>
-      </a>
-      <a class="kartu" href="susun.html">
-        <strong>Susun Halaman</strong>
-        <span>Menghapus halaman yang tidak perlu, memutar halaman yang miring, dan mengubah urutannya.</span>
-      </a>
-      <a class="kartu" href="nomor.html">
-        <strong>Penomor Halaman</strong>
-        <span>Membubuhkan nomor halaman pada posisi dan mulai dari nomor yang kamu tentukan.</span>
-      </a>
-      <a class="kartu" href="tanda-air.html">
-        <strong>Watermark</strong>
-        <span>Menuliskan kata seperti SALINAN atau KONSEP secara menyerong di tengah tiap halaman.</span>
-      </a>
-      <a class="kartu" href="gambar.html">
-        <strong>PDF dan gambar</strong>
-        <span>Mengubah tiap halaman PDF menjadi gambar, atau menyusun beberapa gambar menjadi satu PDF.</span>
-      </a>
-      <a class="kartu" href="koreksi.html">
-        <strong>Edit Teks</strong>
-        <span>Edit teks yang ada pada pdf.</span>
-      </a>
+    
+    <div class="daftar-dropdown">
+
+      <div class="item-dropdown">
+        <button class="tombol-dropdown">Penanda TTE</button>
+        <div class="konten-dropdown">
+          <p>Membubuhkan tulisan Ditandatangani secara elektronik di atas nama penandatangan, termasuk bila penandatangannya lebih dari satu.</p>
+          <a class="tautan-aksi" href="penanda.html">Buka Perkakas &rarr;</a>
+        </div>
+      </div>
+
+      <div class="item-dropdown">
+        <button class="tombol-dropdown">Gabung PDF</button>
+        <div class="konten-dropdown">
+          <p>Menyatukan beberapa PDF menjadi satu berkas, dengan urutan yang bisa kamu atur sendiri.</p>
+          <a class="tautan-aksi" href="gabung.html">Buka Perkakas &rarr;</a>
+        </div>
+      </div>
+
+      <div class="item-dropdown">
+        <button class="tombol-dropdown">Pecah PDF</button>
+        <div class="konten-dropdown">
+          <p>Mengambil halaman tertentu menjadi berkas baru, atau memecah seluruh dokumen menjadi satu berkas per halaman.</p>
+          <a class="tautan-aksi" href="pecah.html">Buka Perkakas &rarr;</a>
+        </div>
+      </div>
+
+      <div class="item-dropdown">
+        <button class="tombol-dropdown">Susun Halaman</button>
+        <div class="konten-dropdown">
+          <p>Menghapus halaman yang tidak perlu, memutar halaman yang miring, dan mengubah urutannya.</p>
+          <a class="tautan-aksi" href="susun.html">Buka Perkakas &rarr;</a>
+        </div>
+      </div>
+
+      <div class="item-dropdown">
+        <button class="tombol-dropdown">Penomor Halaman</button>
+        <div class="konten-dropdown">
+          <p>Membubuhkan nomor halaman pada posisi dan mulai dari nomor yang kamu tentukan.</p>
+          <a class="tautan-aksi" href="nomor.html">Buka Perkakas &rarr;</a>
+        </div>
+      </div>
+
+      <div class="item-dropdown">
+        <button class="tombol-dropdown">Watermark</button>
+        <div class="konten-dropdown">
+          <p>Menuliskan kata seperti SALINAN atau KONSEP secara menyerong di tengah tiap halaman.</p>
+          <a class="tautan-aksi" href="tanda-air.html">Buka Perkakas &rarr;</a>
+        </div>
+      </div>
+
+      <div class="item-dropdown">
+        <button class="tombol-dropdown">PDF dan gambar</button>
+        <div class="konten-dropdown">
+          <p>Mengubah tiap halaman PDF menjadi gambar, atau menyusun beberapa gambar menjadi satu PDF.</p>
+          <a class="tautan-aksi" href="gambar.html">Buka Perkakas &rarr;</a>
+        </div>
+      </div>
+
+      <div class="item-dropdown">
+        <button class="tombol-dropdown">Edit Teks</button>
+        <div class="konten-dropdown">
+          <p>Edit teks yang ada pada pdf.</p>
+          <a class="tautan-aksi" href="koreksi.html">Buka Perkakas &rarr;</a>
+        </div>
+      </div>
+
     </div>
   </section>
 
@@ -79,6 +200,24 @@
     Seluruh pengolahan berjalan di peramban dengan pustaka pdf.js dan pdf-lib. Tidak ada berkas yang diunggah, tidak ada yang disimpan, dan tidak ada catatan pemakaian.
   </footer>
 </div>
+
+<script>
+  document.querySelectorAll('.tombol-dropdown').forEach(button => {
+    button.addEventListener('click', () => {
+      const dropdownItem = button.parentElement;
+
+      // Opsional: Tutup item lain yang sedang terbuka
+      document.querySelectorAll('.item-dropdown').forEach(item => {
+        if (item !== dropdownItem) {
+          item.classList.remove('aktif');
+        }
+      });
+
+      // Buka/tutup item yang diklik
+      dropdownItem.classList.toggle('aktif');
+    });
+  });
+</script>
 
 <script src="bersama.js"></script>
 </body>
