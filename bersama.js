@@ -8,11 +8,11 @@
     { berkas: "index.html",     nama: "Beranda" },
     { berkas: "penanda.html",   nama: "Penanda TTE" },
     { berkas: "gabung.html",    nama: "Gabung PDF" },
-    { berkas: "pecah.html",     nama: "Pecah/Split PDF" },
+    { berkas: "pecah.html",     nama: "Pecah PDF" },
     { berkas: "susun.html",     nama: "Susun Halaman" },
     { berkas: "nomor.html",     nama: "Penomor Halaman" },
     { berkas: "tanda-air.html", nama: "Watermark" },
-    { berkas: "gambar.html",    nama: "PDF dan gambar" },
+    { berkas: "gambar.html",    nama: "PDF ke gambar" },
     { berkas: "panduan.html",   nama: "Panduan" }
   ];
 
