@@ -5,6 +5,7 @@
   "use strict";
 
   const HALAMAN = [
+    { berkas: "index.html",     nama: "Beranda" },
     { berkas: "penanda.html",   nama: "Penanda TTE" },
     { berkas: "gabung.html",    nama: "Gabung PDF" },
     { berkas: "pecah.html",     nama: "Pecah PDF" },
@@ -20,54 +21,55 @@
     const bar = document.createElement("nav");
     bar.className = "menu";
     bar.setAttribute("aria-label", "Menu utama");
-
+    
     const isi = document.createElement("div");
     isi.className = "menu-isi";
 
-    // Merek / Beranda
     const merek = document.createElement("a");
     merek.className = "menu-nama";
     merek.href = "index.html";
     merek.innerHTML = 'Perkakas PDF<span>.</span>';
     isi.appendChild(merek);
 
-    // Container Dropdown "Pilih Alat Editmu!"
-    const wrapper = document.createElement("div");
-    wrapper.className = "menu-dropdown-wrapper";
+    // Wrapper Dropdown
+    const container = document.createElement("div");
+    container.className = "menu-dropdown-wrapper";
 
     const tombol = document.createElement("button");
     tombol.className = "menu-dropdown-btn";
     tombol.type = "button";
-    tombol.innerHTML = 'Pilih Alat Editmu! <span class="panah">▼</span>';
+    tombol.innerHTML = 'Pilih Alat Editmu! <span class="panah">&#9660;</span>';
 
     const menuKonten = document.createElement("div");
     menuKonten.className = "menu-dropdown-content";
 
     HALAMAN.forEach((item) => {
+      if (item.berkas === "index.html") return;
       const a = document.createElement("a");
       a.href = item.berkas;
       a.textContent = item.nama;
       if (kini === item.berkas.toLowerCase()) {
         a.classList.add("aktif");
+        a.setAttribute("aria-current", "page");
       }
       menuKonten.appendChild(a);
     });
 
-    wrapper.appendChild(tombol);
-    wrapper.appendChild(menuKonten);
-    isi.appendChild(wrapper);
+    container.appendChild(tombol);
+    container.appendChild(menuKonten);
+    isi.appendChild(container);
 
     bar.appendChild(isi);
     document.body.insertBefore(bar, document.body.firstChild);
 
-    // Event listener untuk klik tombol & luar area
-    tombol.addEventListener("click", (e) => {
+    // Event Listener Klik
+    tombol.addEventListener("click", function (e) {
       e.stopPropagation();
-      wrapper.classList.toggle("terbuka");
+      container.classList.toggle("terbuka");
     });
 
-    document.addEventListener("click", () => {
-      wrapper.classList.remove("terbuka");
+    document.addEventListener("click", function () {
+      container.classList.remove("terbuka");
     });
   }
 
