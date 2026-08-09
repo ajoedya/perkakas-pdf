@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kompres PDF — Perkakas PDF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600&family=Public+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="gaya.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+</head>
+<body>
+
+<main class="bungkus lebar">
+  <div class="halaman-kop">
+    <p class="nomor">09</p>
+    <h1>Kompres PDF</h1>
+    <p class="subjudul">Mengecilkan ukuran berkas PDF secara langsung di perambanmu tanpa diunggah ke server.</p>
+  </div>
+
+  <section class="daerah-unggah" id="daerahUnggah" aria-label="Unggah berkas PDF">
+    <input type="file" id="inputBerkas" accept="application/pdf" style="display:none">
+    <div class="isi-daerah-unggah">
+      <p class="ikon-unggah">&#128194;</p>
+      <p class="teks-unggah">Seret berkas PDF ke sini, atau <button type="button" class="tombol-pilih" id="tombolPilih">pilih dari komputer</button></p>
+      <p class="ket-unggah">Pilih 1 berkas PDF yang ingin dikecilkan ukurannya.</p>
+    </div>
+  </section>
+
+  <section class="daerah-pratinjau" id="daerahAtur" style="display:none; margin-top:24px;">
+    <div class="kartu" style="background:var(--putih); padding:20px; border:1px solid var(--garis); border-radius:4px;">
+      <h2 style="margin-top:0;">Pengaturan Kompresi</h2>
+      <p id="infoBerkas" style="font-weight:600; color:var(--biru-tua);"></p>
+
+      <div style="margin: 16px 0;">
+        <label for="pilihKualitas" style="display:block; font-weight:600; margin-bottom:8px;">Tingkat Kualitas Gambar:</label>
+        <select id="pilihKualitas" style="width:100%; padding:10px; border:1px solid var(--garis); border-radius:4px; font-size:15px;">
+          <option value="0.3">Rendah (Ukuran Berkas Sangat Kecil, Kualitas Gambar Turun)</option>
+          <option value="0.5" selected>Sedang (Rekomendasi - Seimbang antara Ukuran dan Teks)</option>
+          <option value="0.75">Tinggi (Ukuran Berkas Sedikit Dikecilkan, Gambar Tetap Jelas)</option>
+        </select>
+      </div>
+
+      <div style="margin: 16px 0;">
+        <label for="pilihSkala" style="display:block; font-weight:600; margin-bottom:8px;">Resolusi Dimensi Halaman:</label>
+        <select id="pilihSkala" style="width:100%; padding:10px; border:1px solid var(--garis); border-radius:4px; font-size:15px;">
+          <option value="1.0">Standar (100%)</option>
+          <option value="0.75" selected>Hemat (75%)</option>
+          <option value="0.5">Sangat Hemat (50%)</option>
+        </select>
+      </div>
+
+      <div style="margin-top:24px; display:flex; gap:12px; align-items:center;">
+        <button type="button" class="tombol utamanya" id="tombolKompres" style="padding:10px 20px; cursor:pointer;">Mulai Kompresi</button>
+        <button type="button" class="tombol sekunder" id="tombolBatal" style="padding:10px 20px; cursor:pointer;">Ganti Berkas</button>
+      </div>
+    </div>
+
+    <div id="kotakStatus" style="display:none; margin-top:20px; padding:16px; border-radius:4px; background:var(--emas-muda); border:1px solid var(--emas);">
+      <p id="teksStatus" style="margin:0; font-weight:600; color:var(--tinta);"></p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  Seluruh pengolahan berjalan di peramban dengan pustaka PDF.js dan pdf-lib. Tidak ada berkas yang disimpan maupun diunggah.
+</footer>
+
+<script src="bersama.js"></script>
+
+<script>
+(function() {
+  "use strict";
+
+  // Setup PDF.js Worker
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+  const daerahUnggah = document.getElementById("daerahUnggah");
+  const inputBerkas = document.getElementById("inputBerkas");
+  const tombolPilih = document.getElementById("tombolPilih");
+  const daerahAtur = document.getElementById("daerahAtur");
+  const infoBerkas = document.getElementById("infoBerkas");
+  const tombolKompres = document.getElementById("tombolKompres");
+  const tombolBatal = document.getElementById("tombolBatal");
+  const kotakStatus = document.getElementById("kotakStatus");
+  const teksStatus = document.getElementById("teksStatus");
+
+  let berkasAktif = null;
+
+  // Event Klik Pilih File
+  tombolPilih.addEventListener("click", () => inputBerkas.click());
+  inputBerkas.addEventListener("change", (e) => {
+    if (e.target.files.length > 0) tanganiBerkas(e.target.files[0]);
+  });
+
+  // Event Drag & Drop
+  daerahUnggah.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    daerahUnggah.classList.add("dragover");
+  });
+  daerahUnggah.addEventListener("dragleave", () => daerahUnggah.classList.remove("dragover"));
+  daerahUnggah.addEventListener("drop", (e) => {
+    e.preventDefault();
+    daerahUnggah.classList.remove("dragover");
+    if (e.dataTransfer.files.length > 0 && e.dataTransfer.files[0].type === "application/pdf") {
+      tanganiBerkas(e.dataTransfer.files[0]);
+    }
+  });
+
+  function formatUkuran(byte) {
+    if (byte < 1024) return byte + " B";
+    if (byte < 1048576) return (byte / 1024).toFixed(1) + " KB";
+    return (byte / 1048576).toFixed(2) + " MB";
+  }
+
+  function tanganiBerkas(file) {
+    berkasAktif = file;
+    infoBerkas.textContent = `Nama: ${file.name} (${formatUkuran(file.size)})`;
+    daerahUnggah.style.display = "none";
+    daerahAtur.style.display = "block";
+    kotakStatus.style.display = "none";
+  }
+
+  tombolBatal.addEventListener("click", () => {
+    berkasAktif = null;
+    inputBerkas.value = "";
+    daerahAtur.style.display = "none";
+    daerahUnggah.style.display = "block";
+  });
+
+  // Proses Kompresi
+  tombolKompres.addEventListener("click", async () => {
+    if (!berkasAktif) return;
+
+    const kualitas = parseFloat(document.getElementById("pilihKualitas").value);
+    const skala = parseFloat(document.getElementById("pilihSkala").value);
+
+    tombolKompres.disabled = true;
+    tombolBatal.disabled = true;
+    kotakStatus.style.display = "block";
+
+    try {
+      teksStatus.textContent = "Membaca dokumen PDF...";
+      const arrayBuffer = await berkasAktif.arrayBuffer();
+      const pdfAsli = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const totalHalaman = pdfAsli.numPages;
+
+      const pdfBaru = await PDFLib.PDFDocument.create();
+
+      for (let i = 1; i <= totalHalaman; i++) {
+        teksStatus.textContent = `Mengompres halaman ${i} dari ${totalHalaman}...`;
+
+        const halaman = await pdfAsli.getPage(i);
+        const viewport = halaman.getViewport({ scale: skala });
+
+        // Buat canvas tersembunyi
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+
+        await halaman.render({ canvasContext: ctx, viewport: viewport }).promise;
+
+        // Render ke JPG terkompresi
+        const dataUrlJpg = canvas.toDataURL("image/jpeg", kualitas);
+        const imageJpg = await pdfBaru.embedJpg(dataUrlJpg);
+
+        const halBaru = pdfBaru.addPage([viewport.width, viewport.height]);
+        halBaru.drawImage(imageJpg, {
+          x: 0,
+          y: 0,
+          width: viewport.width,
+          height: viewport.height,
+        });
+      }
+
+      teksStatus.textContent = "Menyusun berkas PDF akhir...";
+      const pdfBytes = await pdfBaru.save();
+      const blob = new Blob([pdfBytes], { type: "application/pdf" });
+
+      const ukuranLama = berkasAktif.size;
+      const ukuranBaru = blob.size;
+      const hemat = (((ukuranLama - ukuranBaru) / ukuranLama) * 100).toFixed(1);
+
+      teksStatus.innerHTML = `Selesai! Ukuran awal: <b>${formatUkuran(ukuranLama)}</b> &rarr; Hasil: <b>${formatUkuran(ukuranBaru)}</b> (Hemat ${hemat}%).<br><br><a id="tautanUnduh" class="tombol utamanya" style="display:inline-block; text-decoration:none; color:white; padding:8px 16px;">Unduh Hasil Kompresi</a>`;
+
+      const tautanUnduh = document.getElementById("tautanUnduh");
+      tautanUnduh.href = URL.createObjectURL(blob);
+      tautanUnduh.download = `kompres_${berkasAktif.name}`;
+
+    } catch (err) {
+      console.error(err);
+      teksStatus.textContent = "Gagal mengompres berkas. Pastikan PDF tidak dikunci dengan kata sandi.";
+    } finally {
+      tombolKompres.disabled = false;
+      tombolBatal.disabled = false;
+    }
+  });
+
+})();
+</script>
+</body>
+</html>
