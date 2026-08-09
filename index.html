@@ -3,82 +3,195 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Perkakas PDF</title>
+<title>Kompres PDF — Perkakas PDF</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600&family=Public+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="gaya.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 </head>
 <body>
 
-<header class="kop">
-  <div class="kop-isi">
-    <h1>Perkakas Buat Edit <em>PDF</em>mu ini Ces!🏵️</h1>
-    <p>Proses pengolahan berkas dijalankan secara lokal pada peramban (browser) dan <em>tidak terkirim ke server mana pun</em>.</p>
+<main class="bungkus lebar">
+  <div class="halaman-kop">
+    <p class="nomor">09</p>
+    <h1>Kompres PDF</h1>
+    <p class="subjudul">Mengecilkan ukuran berkas PDF secara langsung di perambanmu tanpa diunggah ke server mana pun.</p>
   </div>
-</header>
 
-<div class="bungkus lebar">
-
-  <section>
-    <p class="nomor">Daftar Perkakas</p>
-    <h2>Pilih alat yang mau dipakai!</h2>
-    <div class="petak">
-      <a class="kartu" href="koreksi.html">
-        <strong>🐍 Edit Teks</strong>
-        <span>Sunting teks yang ada pada naskah kamu disini, bisa kamu gunakan untuk koreksi teks, menambah teks, menghapus teks, dll.</span>
-      </a>
-      <a class="kartu" href="gabung.html">
-        <strong>🦎 Gabung PDF</strong>
-        <span>Menyatukan beberapa PDF menjadi satu berkas, dengan urutan yang bisa kamu atur sendiri.</span>
-      </a>
-      <a class="kartu" href="pecah.html">
-        <strong>🐔 Pecah PDF</strong>
-        <span>Mengambil halaman tertentu menjadi berkas baru, atau memecah seluruh dokumen menjadi satu berkas per halaman.</span>
-      </a>
-      <a class="kartu" href="susun.html">
-        <strong>🕊️ Susun Halaman</strong>
-        <span>Menghapus halaman yang tidak perlu, memutar halaman yang miring, dan mengubah urutannya.</span>
-      </a>
-      <a class="kartu" href="nomor.html">
-        <strong>🐢 Penomor Halaman</strong>
-        <span>Membubuhkan nomor halaman pada posisi dan mulai dari nomor yang kamu tentukan.</span>
-      </a>
-      <a class="kartu" href="tanda-air.html">
-        <strong>🐵 Watermark</strong>
-        <span>Menuliskan kata seperti SALINAN atau KONSEP secara menyerong di tengah tiap halaman.</span>
-      </a>
-      <a class="kartu" href="gambar.html">
-        <strong>🦕 PDF dan gambar</strong>
-        <span>Mengubah tiap halaman PDF menjadi gambar, atau menyusun beberapa gambar menjadi satu PDF.</span>
-      </a>
-      <a class="kartu" href="penanda.html">
-        <strong>🐥 Penanda TTE</strong>
-        <span>Membubuhkan tulisan Ditandatangani secara elektronik di atas nama penandatangan, termasuk bila penandatangannya lebih dari satu.</span>
-      </a>
-      <a class="kartu" href="kompres.html">
-        <strong>🧬️ Kompres File PDF</strong>
-        <span>Bisa digunakan untuk mengurangi/mereduksi ukuran file <em>.PDF</em> yang kamu punya.</span>
-      </a>
+  <div id="langkah1">
+    <div class="daerah-unggah" id="daerahUnggah">
+      <p class="instruksi-unggah">Seret berkas PDF ke sini atau <label class="tombol-pilih">pilih berkas<input type="file" id="inputBerkas" accept="application/pdf" class="sembunyi"></label></p>
+      <p class="ket-unggah">Pilih 1 berkas PDF yang ingin dikurangi ukurannya. Seluruh pengolahan berjalan lokal.</p>
     </div>
-  </section>
+  </div>
 
-  <section>
-    <p class="nomor">🙇‍♂️ Yang perlu diketahui 🙋‍♂️</p>
-    <h2>Batas kemampuan tools kita ini</h2>
+  <div id="langkah2" class="sembunyi">
+    <div class="kotak-pilihan">
+      <p style="margin-top:0; font-weight:700;" id="namaBerkasInfo"></p>
+      
+      <div style="display:flex; gap:16px; flex-wrap:wrap; margin-top:16px;">
+        <div class="pilihan" style="flex:1; min-width:220px;">
+          <label for="pilihKualitas"><strong>Kualitas Gambar</strong></label>
+          <select id="pilihKualitas" style="width:100%; padding:8px; margin-top:6px; border:1px solid var(--garis); border-radius:3px;">
+            <option value="0.35">Rendah (Paling Hemat Ukuran)</option>
+            <option value="0.55" selected>Sedang (Direkomendasikan)</option>
+            <option value="0.75">Tinggi (Kualitas Gambar Jelas)</option>
+          </select>
+        </div>
 
-    <div class="janji">
-      <h3>Belum ada converter ke Word</h3>
-      <p>Hasil pengubahan PDF menjadi Word selalu berantakan pada dokumen bertabel dan berkop, bahkan pada layanan besar yang mengerjakannya di server. Menyediakan fitur yang hasilnya harus dirapikan ulang setengah jam hanya akan memindahkan pekerjaan, bukan meringankannya.</p>
+        <div class="pilihan" style="flex:1; min-width:220px;">
+          <label for="pilihResolusi"><strong>Resolusi Dimensi</strong></label>
+          <select id="pilihResolusi" style="width:100%; padding:8px; margin-top:6px; border:1px solid var(--garis); border-radius:3px;">
+            <option value="1000">Ringan (Maks. 1000px)</option>
+            <option value="1200" selected>Standar (Maks. 1200px)</option>
+            <option value="1500">Tinggi (Maks. 1500px)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-top:20px; display:flex; gap:12px; align-items:center;">
+        <button class="tombol utamanya" id="tombolProses">Mulai kompresi</button>
+        <button class="tombol sekunder" id="tombolBatal">Ganti berkas</button>
+      </div>
     </div>
+  </div>
 
-  </section>
+  <div id="kabar" class="kabar sembunyi" style="margin-top:16px;"></div>
+</main>
 
-  <footer>
-    Balikpapan - Indonesia ✈︎ Built by Ajoedya with Claude❤️
-  </footer>
-</div>
+<footer>
+  Seluruh pengolahan berjalan di peramban dengan pustaka pdf.js dan pdf-lib. Tidak ada berkas yang diunggah, tidak ada yang disimpan, dan tidak ada catatan pemakaian.
+</footer>
 
 <script src="bersama.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+  const el = (id) => document.getElementById(id);
+  const daerahUnggah = el("daerahUnggah");
+  const inputBerkas = el("inputBerkas");
+  const langkah1 = el("langkah1");
+  const langkah2 = el("langkah2");
+  const namaBerkasInfo = el("namaBerkasInfo");
+  const tombolProses = el("tombolProses");
+  const tombolBatal = el("tombolBatal");
+
+  let berkasAktif = null;
+
+  // Event Drag & Drop
+  daerahUnggah.addEventListener("dragover", (e) => { e.preventDefault(); daerahUnggah.classList.add("dragover"); });
+  daerahUnggah.addEventListener("dragleave", () => daerahUnggah.classList.remove("dragover"));
+  daerahUnggah.addEventListener("drop", (e) => {
+    e.preventDefault();
+    daerahUnggah.classList.remove("dragover");
+    if (e.dataTransfer.files.length > 0 && e.dataTransfer.files[0].type === "application/pdf") {
+      bukaBerkas(e.dataTransfer.files[0]);
+    }
+  });
+
+  inputBerkas.addEventListener("change", (e) => {
+    if (e.target.files.length > 0) bukaBerkas(e.target.files[0]);
+  });
+
+  function bukaBerkas(f) {
+    berkasAktif = f;
+    namaBerkasInfo.textContent = f.name + " (" + Bersama.ukuran(f.size) + ")";
+    langkah1.classList.add("sembunyi");
+    langkah2.classList.remove("sembunyi");
+    Bersama.pesan("kabar", "", "");
+    el("kabar").classList.add("sembunyi");
+  }
+
+  tombolBatal.addEventListener("click", () => {
+    berkasAktif = null;
+    inputBerkas.value = "";
+    langkah2.classList.add("sembunyi");
+    langkah1.classList.remove("sembunyi");
+    Bersama.pesan("kabar", "", "");
+    el("kabar").classList.add("sembunyi");
+  });
+
+  tombolProses.addEventListener("click", async () => {
+    if (!berkasAktif) return;
+
+    const kualitas = parseFloat(el("pilihKualitas").value);
+    const maxDimension = parseInt(el("pilihResolusi").value, 10);
+
+    tombolProses.disabled = true;
+    tombolBatal.disabled = true;
+    Bersama.pesan("kabar", "Membaca berkas PDF...", "proses");
+
+    try {
+      const buffer = await berkasAktif.arrayBuffer();
+      const pdfAsli = await pdfjsLib.getDocument({ data: buffer }).promise;
+      const totalHalaman = pdfAsli.numPages;
+
+      const pdfBaru = await PDFLib.PDFDocument.create();
+
+      for (let i = 1; i <= totalHalaman; i++) {
+        Bersama.pesan("kabar", "Mengompres halaman " + i + " dari " + totalHalaman + "...", "proses");
+
+        const page = await pdfAsli.getPage(i);
+        const viewportAwal = page.getViewport({ scale: 1.0 });
+
+        // Hitung skala agar tidak melebihi maxDimension
+        let skala = 1.0;
+        const dimensiTerbesar = Math.max(viewportAwal.width, viewportAwal.height);
+        if (dimensiTerbesar > maxDimension) {
+          skala = maxDimension / dimensiTerbesar;
+        }
+
+        const viewport = page.getViewport({ scale: skala });
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = Math.floor(viewport.width);
+        canvas.height = Math.floor(viewport.height);
+
+        await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+
+        const imgDataUrl = canvas.toDataURL("image/jpeg", kualitas);
+        const imgEmbed = await pdfBaru.embedJpg(imgDataUrl);
+
+        const halBaru = pdfBaru.addPage([viewport.width, viewport.height]);
+        halBaru.drawImage(imgEmbed, {
+          x: 0,
+          y: 0,
+          width: viewport.width,
+          height: viewport.height,
+        });
+      }
+
+      Bersama.pesan("kabar", "Menyusun dokumen PDF akhir...", "proses");
+      const hasilBytes = await pdfBaru.save();
+      const namaBaru = Bersama.tanpaAkhiran(berkasAktif.name) + "-kompres.pdf";
+
+      const ukuranAsli = berkasAktif.size;
+      const ukuranHasil = hasilBytes.length;
+
+      if (ukuranHasil < ukuranAsli) {
+        const hemat = (((ukuranAsli - ukuranHasil) / ukuranAsli) * 100).toFixed(0);
+        Bersama.unduh(hasilBytes, namaBaru);
+        Bersama.pesan("kabar", "Berhasil dikompres! Ukuran awal " + Bersama.ukuran(ukuranAsli) + " &rarr; " + Bersama.ukuran(ukuranHasil) + " (hemat " + hemat + "%). Berkas sudah diunduh.", "beres");
+      } else {
+        Bersama.unduh(hasilBytes, namaBaru);
+        Bersama.pesan("kabar", "Dokumen ini utamanya berisi teks vektor murni. Hasil kompresi gambar (" + Bersama.ukuran(ukuranHasil) + ") lebih besar dari berkas awal (" + Bersama.ukuran(ukuranAsli) + "). Coba turunkan opsi 'Kualitas Gambar' atau 'Resolusi' jika ingin lebih kecil.", "gagal");
+      }
+
+    } catch (err) {
+      console.error(err);
+      Bersama.pesan("kabar", "Gagal mengompres dokumen. Pastikan berkas PDF tidak dikunci kata sandi.", "gagal");
+    }
+
+    tombolProses.disabled = false;
+    tombolBatal.disabled = false;
+  });
+})();
+</script>
 </body>
 </html>
