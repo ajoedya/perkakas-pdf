@@ -12,17 +12,25 @@
   /* Warna penanda mengikuti warna cetaknya pada PDF, bukan corak situs. */
   .penanda{position:absolute;font-family:Helvetica,Arial,sans-serif;color:#8C8C8C;
     white-space:nowrap;cursor:grab;padding:1px 3px;
-    border:1px dashed transparent;touch-action:none;user-select:none;}
+    border:1px dashed transparent;touch-action:none;user-select:none;z-index:2;}
   .penanda:hover,.penanda:focus{border-color:var(--emas-tua);}
   .penanda:focus-visible{outline:none;border-color:var(--emas-tua);border-style:solid;}
   .penanda.digeser{cursor:grabbing;border-color:var(--emas-tua);}
   .penanda.hilang{border-color:var(--bahaya);border-style:solid;}
+  /* Bayangan kotak QR tanda tangan elektronik, hanya tampil di layar. */
+  .kotakQR{position:absolute;pointer-events:none;z-index:1;
+    border:1px dashed #3A7D44;background:rgba(58,125,68,.09);}
+  .kotakQR.bentrok{border-color:var(--bahaya);background:rgba(190,60,60,.12);}
+  .kotakQR span{position:absolute;left:2px;top:2px;font-size:9px;line-height:1.2;
+    font-family:Helvetica,Arial,sans-serif;color:#3A7D44;}
+  .kotakQR.bentrok span{color:var(--bahaya);}
   #navHalaman{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:12px;}
   #labelHalaman{font-weight:500;color:var(--biru-tua);}
   #daftarHalaman{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;}
   .cip{font-family:inherit;font-size:14px;padding:7px 12px;min-height:38px;cursor:pointer;
     border:1px solid var(--garis);background:var(--putih);border-radius:3px;color:var(--tinta);}
   .cip.ada{border-color:var(--emas);background:var(--emas-muda);font-weight:700;}
+  .cip.awas{border-color:var(--bahaya);}
   .cip.kini{background:var(--biru-tua);color:var(--putih);border-color:var(--biru-tua);}
   .cip:focus-visible{outline:3px solid var(--emas);outline-offset:2px;}
 </style>
@@ -32,7 +40,7 @@
 <header class="kop">
   <div class="kop-isi">
     <h1>Penanda tanda tangan elektronik</h1>
-    <p>Menambahkan tulisan <em>Ditandatangani secara elektronik</em> di atas setiap nama penandatangan, termasuk yang tersebar di beberapa halaman.</p>
+    <p>Menambahkan tulisan <em>Ditandatangani secara elektronik</em> di atas setiap nama penandatangan, termasuk beberapa nama pada satu halaman yang sama.</p>
   </div>
 </header>
 
@@ -54,7 +62,7 @@
     <p class="nomor">Langkah 2</p>
     <h2>Tulis nama penandatangan</h2>
     <div id="kabar2" class="kabar"></div>
-    <label for="daftarNama">Satu nama per baris. Tambahkan barisnya kalau penandatangannya lebih dari satu.</label>
+    <label for="daftarNama">Satu nama per baris. Tambahkan barisnya kalau penandatangannya lebih dari satu. Kalau satu nama menandatangani di dua tempat, tulis namanya dua kali.</label>
     <textarea id="daftarNama" spellcheck="false" placeholder="Contoh:&#10;Supitriana&#10;Budi Hartono"></textarea>
     <div class="baris-tombol">
       <button class="tombol" id="tandai">Tandai nama ini</button>
@@ -73,7 +81,7 @@
     </div>
     <div id="daftarHalaman"></div>
     <div class="panggung" id="panggung"></div>
-    <p class="petunjuk">Seret tulisan abu-abu ke tempat yang benar. Bisa juga diklik lalu digeser dengan tombol panah pada papan ketik, tahan Shift supaya bergeser lebih jauh, dan tekan Delete untuk menghapus penanda yang sedang terpilih.</p>
+    <p class="petunjuk">Kotak bergaris putus-putus adalah tempat QR tanda tangan elektronik akan muncul nanti. Kotak hijau berarti ruangnya lapang, kotak merah berarti QR akan menimpa tulisan atau garis di atasnya, jadi penandanya perlu kamu geser sendiri. Seret tulisan abu-abu ke tempat yang benar, atau klik lalu geser dengan tombol panah, tahan Shift supaya bergeser lebih jauh, dan tekan Delete untuk menghapus penanda yang sedang terpilih.</p>
     <div class="baris-tombol">
       <button class="tombol" id="simpan">Simpan dokumen</button>
       <button class="tombol sekunder" id="tambah">Tambah penanda di halaman ini</button>
@@ -96,7 +104,18 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 const TEKS = "Ditandatangani secara elektronik";
 const UKURAN = 10;                 // titik (pt)
 const ABU = [0.55, 0.55, 0.55];
-const JURANG = 25;                 // jarak mendatar yang dianggap pemisah antarkolom
+const JURANG = 22;                 // jarak mendatar yang dianggap pemisah antarkolom
+
+/* Angka di bawah ini diukur dari dokumen Kemenkeu yang sudah ber-TTE:
+   QR-nya 60 x 60 pt, tepi kirinya sama persis dengan tepi kiri tulisan penanda,
+   dan alasnya menempel pada tepi atas tulisan itu. Karena QR selalu tumbuh
+   ke atas, satu-satunya cara menghindarkannya dari tulisan di atasnya adalah
+   menurunkan penandanya serendah mungkin di atas nama. */
+const QR_SISI = 60;
+const RATA = "kiri";               // "kiri" mengikuti dokumen resmi, "tengah" gaya lama
+const AMBANG_GELAP = 232;          // batas kecerahan yang dianggap ada isinya
+const NAIK = 0.75;                 // tinggi huruf di atas garis dasar, kelipatan ukuran
+const TURUN = 0.21;                // ekor huruf di bawah garis dasar
 
 const el = (id) => document.getElementById(id);
 const langkah2 = el("langkah2"), langkah3 = el("langkah3");
@@ -126,12 +145,12 @@ async function muatBerkas(file) {
     const h = await dokJs.getPage(i);
     const v = h.getViewport({ scale: 1 });
     const isi = await h.getTextContent();
-    halaman.push({ no: i, lebarPt: v.width, tinggiPt: v.height, baris: susunBaris(isi.items) });
+    halaman.push({ no: i, lebarPt: v.width, tinggiPt: v.height, baris: susunBaris(isi.items), peta: null });
   }
 
   const tebakan = [];
   halaman.forEach((h) => tebakNama(h).forEach((n) => tebakan.push(n)));
-  const unik = [...new Set(tebakan)].slice(0, 8);
+  const unik = [...new Set(tebakan)].slice(0, 12);
   daftarNama.value = unik.join("\n");
 
   el("namaBerkas").textContent = file.name + " berhasil dibaca, " + dokJs.numPages + " halaman.";
@@ -144,49 +163,104 @@ async function muatBerkas(file) {
   langkah2.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-/* ========== 2. Menyusun potongan teks menjadi baris ========== */
+/* ========== 2. Menyusun potongan teks menjadi baris ==========
+   Tiap baris menyimpan letak setiap hurufnya, sebab satu baris bisa memuat
+   dua blok tanda tangan sekaligus dan penandanya harus menempel pada nama
+   yang tepat, bukan pada tengah-tengah seluruh barisnya. */
 function susunBaris(items) {
   const kumpulan = [];
   items.forEach((it) => {
     if (!it.str || !it.str.trim()) return;
     const x = it.transform[4], y = it.transform[5], w = it.width || 0;
+    const t = it.height || Math.abs(it.transform[3]) || UKURAN;
     const cocok = kumpulan.find((b) => Math.abs(b.y - y) < 2.5);
-    if (cocok) cocok.potongan.push({ x, w, s: it.str });
-    else kumpulan.push({ y, potongan: [{ x, w, s: it.str }] });
+    if (cocok) { cocok.potongan.push({ x, w, s: it.str }); cocok.t = Math.max(cocok.t, t); }
+    else kumpulan.push({ y, t, potongan: [{ x, w, s: it.str }] });
   });
   // Satu baris dipecah lagi menjadi segmen kalau ada jarak mendatar yang lebar,
   // sebab blok tanda tangan yang bersebelahan berbagi koordinat y yang sama.
   const hasil = [];
   kumpulan.forEach((b) => {
     b.potongan.sort((a, c) => a.x - c.x);
-    let segmen = [b.potongan[0]];
-    for (let i = 1; i < b.potongan.length; i++) {
-      const sebelum = b.potongan[i - 1], kini = b.potongan[i];
+    // Titik-titik penuntun pada kuitansi dibuang lebih dulu, sebab titik yang
+    // rapat membuat dua kolom terbaca sebagai satu baris utuh.
+    const bersih = b.potongan.filter((p) => !/^[.\u2026_\-\s]+$/.test(p.s));
+    if (!bersih.length) return;
+    let segmen = [bersih[0]];
+    for (let i = 1; i < bersih.length; i++) {
+      const sebelum = bersih[i - 1], kini = bersih[i];
       if (kini.x - (sebelum.x + sebelum.w) > JURANG) {
-        hasil.push(bentukBaris(segmen, b.y)); segmen = [kini];
+        hasil.push(bentukBaris(segmen, b.y, b.t)); segmen = [kini];
       } else segmen.push(kini);
     }
-    hasil.push(bentukBaris(segmen, b.y));
+    hasil.push(bentukBaris(segmen, b.y, b.t));
   });
   return hasil.filter((r) => r.teks).sort((a, b) => b.y - a.y);
 }
-function bentukBaris(segmen, y) {
+
+function bentukBaris(segmen, y, tinggi) {
+  let mentah = "";
+  const posisi = [];
+  segmen.forEach((p, i) => {
+    if (i > 0) {
+      const sebelum = segmen[i - 1], sela = p.x - (sebelum.x + sebelum.w);
+      if (sela > 0.6) { mentah += " "; posisi.push({ x: sebelum.x + sebelum.w, w: sela }); }
+    }
+    const n = p.s.length, lebarHuruf = n ? p.w / n : 0;
+    for (let k = 0; k < n; k++) { mentah += p.s[k]; posisi.push({ x: p.x + k * lebarHuruf, w: lebarHuruf }); }
+  });
   const kiri = segmen[0].x, akhir = segmen[segmen.length - 1];
-  return { teks: segmen.map((p) => p.s).join("").replace(/\s+/g, " ").trim(),
-           y, x: kiri, lebar: (akhir.x + akhir.w) - kiri };
+  return {
+    teks: mentah.replace(/\s+/g, " ").trim(),
+    mentah, posisi,
+    // Bentuk polos dipakai untuk mencocokkan nama. Panjangnya sengaja dijaga
+    // sama dengan mentah supaya nomor huruf tetap menunjuk letak yang benar.
+    polos: mentah.toLowerCase().replace(/[^a-z0-9]/g, " "),
+    y, x: kiri, lebar: (akhir.x + akhir.w) - kiri, tinggi: tinggi || UKURAN
+  };
 }
-function sekolom(a, b) { return !(a.x + a.lebar < b.x || b.x + b.lebar < a.x); }
+
+function jangkauan(baris, awal, akhir) {
+  const p = baris.posisi;
+  if (!p.length || awal < 0 || awal >= p.length) return null;
+  const b = Math.min(akhir, p.length) - 1;
+  if (b < awal) return null;
+  return { x: p[awal].x, lebar: (p[b].x + p[b].w) - p[awal].x };
+}
+function tumpang(a, b) { return !(a.x + a.lebar < b.x - 6 || b.x + b.lebar < a.x - 6); }
+
+// Mengambil kata-kata pada suatu baris yang letaknya sejajar dengan rentang tertentu.
+function petikTumpang(baris, jk) {
+  const p = baris.posisi, m = baris.mentah;
+  let a = -1, z = -1;
+  for (let i = 0; i < p.length; i++) {
+    if (!/\S/.test(m[i])) continue;   // spasi antarkolom jangan dihitung, nanti menyeret nama tetangga
+    if (p[i].x + p[i].w > jk.x - 8 && p[i].x < jk.x + jk.lebar + 8) { if (a < 0) a = i; z = i; }
+  }
+  if (a < 0) return "";
+  while (a > 0 && /\S/.test(m[a - 1])) a--;
+  while (z < m.length - 1 && /\S/.test(m[z + 1])) z++;
+  return m.slice(a, z + 1).replace(/\s+/g, " ").trim();
+}
 
 /* ========== 3. Menebak nama ========== */
-const TERLARANG = /^(yth|dari|sifat|lampiran|hal|tanggal|tembusan|nomor|nota dinas|kepala|direktorat|kantor|kementerian|jalan|telepon|laman|nip|ditandatangani|dokumen ini|atas perhatian|pihak|demikian|mengetahui|menyetujui|halaman)\b/i;
+const TERLARANG = /^(yth|dari|sifat|lampiran|hal|tanggal|tembusan|nomor|nota dinas|kepala|direktorat|kantor|kementerian|jalan|telepon|laman|nip|ditandatangani|dokumen ini|atas perhatian|pihak|demikian|mengetahui|menyetujui|menyerahkan|setuju|diterima|bendahara|pejabat|kuasa|pengguna|dicetak|halaman)\b/i;
+const POLA_NIP = /nip\s*(\d[\d\s]{11,}\d)/g;
 
 function tebakNama(hal) {
   const hasil = [], b = hal.baris;
   b.forEach((baris) => {
-    if (!/\bNIP\.?\s*\d[\d\s.]{15,}/i.test(baris.teks)) return;
-    const atas = b.filter((x) => x.y > baris.y && x.y - baris.y < 40 && sekolom(x, baris))
-                  .sort((p, q) => p.y - q.y)[0];
-    if (atas && atas.teks.length > 2 && !TERLARANG.test(atas.teks)) hasil.push(atas.teks);
+    POLA_NIP.lastIndex = 0;
+    let m;
+    while ((m = POLA_NIP.exec(baris.polos)) !== null) {
+      const jk = jangkauan(baris, m.index, m.index + m[0].length);
+      if (!jk) continue;
+      const atas = b.filter((x) => x.y > baris.y && x.y - baris.y < 40 && tumpang(x, jk))
+                    .sort((p, q) => p.y - q.y)[0];
+      if (!atas) continue;
+      const cuil = petikTumpang(atas, jk) || atas.teks;
+      if (cuil.length > 2 && !TERLARANG.test(cuil)) hasil.push(cuil);
+    }
   });
   if (!hasil.length) {
     b.forEach((baris) => {
@@ -203,41 +277,56 @@ function tebakNama(hal) {
   return [...new Set(hasil)];
 }
 
-/* ========== 4. Mencocokkan nama ========== */
-const rapikan = (s) => s.toLowerCase().replace(/[^a-z ]/g, " ").replace(/\s+/g, " ").trim();
-// Pencocokan berbatas kata, supaya "Ari" tidak dianggap cocok dengan "Dari".
-const kataUtuh = (teks, cari) => (" " + teks + " ").includes(" " + cari + " ");
+/* ========== 4. Mencocokkan nama ==========
+   Satu nama dicarikan semua kemunculannya lebih dulu, baru dipilih yang
+   paling meyakinkan dan belum dipakai penanda lain. Dengan cara ini dua
+   nama pada satu baris yang sama tetap mendapat penandanya masing-masing. */
+const lolosPola = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-function nilaiBaris(baris, hal, n) {
-  const t = rapikan(baris.teks);
-  let setara = false;
-  if (t === n) setara = true;
-  else if (kataUtuh(t, n)) setara = true;
-  else if (kataUtuh(n, t) && t.length >= 4) setara = true;
-  if (!setara) return -1;
+function polaNama(n) {
+  const kata = n.toLowerCase().replace(/[^a-z0-9]/g, " ").split(/\s+/).filter(Boolean);
+  if (!kata.length || kata.join("").length < 3) return null;
+  return new RegExp("(?:^|[^a-z0-9])(" + kata.map(lolosPola).join("[^a-z0-9]+") + ")(?![a-z0-9])", "g");
+}
+
+function adaNipDiBawah(hal, baris, jk) {
+  return hal.baris.some((x) => x.y < baris.y && baris.y - x.y < 34 &&
+    tumpang(x, jk) && /nip\s*\d/.test(x.polos));
+}
+
+function nilaiJangkar(baris, hal, jk, cocok) {
   let nilai = 0;
-  if (t === n) nilai += 40;
-  if (baris.y < hal.tinggiPt * 0.55) nilai += 30;
-  if (!baris.teks.includes(":")) nilai += 12;
+  const utuh = baris.teks.toLowerCase().replace(/[^a-z0-9]/g, " ").replace(/\s+/g, " ").trim();
+  if (utuh === cocok.replace(/\s+/g, " ").trim()) nilai += 40;
+  if (adaNipDiBawah(hal, baris, jk)) nilai += 35;
+  if (baris.y < hal.tinggiPt * 0.6) nilai += 25;
+  if (!baris.teks.includes(":")) nilai += 10;
   if (baris.teks.length <= 45) nilai += 10;
   nilai += (1 - baris.y / hal.tinggiPt) * 8;
   return nilai;
 }
 
-// Kalau nilainya seri, halaman belakang yang menang sebab blok tanda tangan ada di sana.
-function letakTerbaik(n) {
-  const cari = rapikan(n);
-  if (cari.length < 3) return null;
-  let juara = null;
+function semuaJangkar(n) {
+  const pola = polaNama(n);
+  if (!pola) return [];
+  const daftar = [];
   halaman.forEach((hal) => {
     hal.baris.forEach((baris) => {
-      const nilai = nilaiBaris(baris, hal, cari);
-      if (nilai < 0) return;
-      if (!juara || nilai >= juara.nilai) juara = { nilai, baris, hal };
+      pola.lastIndex = 0;
+      let m;
+      while ((m = pola.exec(baris.polos)) !== null) {
+        const awal = m.index + m[0].length - m[1].length;
+        const jk = jangkauan(baris, awal, awal + m[1].length);
+        if (jk) daftar.push({ hal, baris, x: jk.x, lebar: jk.lebar, y: baris.y,
+                              tinggi: baris.tinggi, nilai: nilaiJangkar(baris, hal, jk, m[1]) });
+        if (pola.lastIndex <= m.index) pola.lastIndex = m.index + 1;
+      }
     });
   });
-  return juara;
+  return daftar.sort((a, b) => b.nilai - a.nilai);
 }
+
+const kunciJangkar = (j) => j.hal.no + ":" + Math.round(j.x) + ":" + Math.round(j.y);
 
 function lebarTeksPt() {
   const bayangan = document.createElement("span");
@@ -250,6 +339,81 @@ function lebarTeksPt() {
   return w;
 }
 
+/* ========== 5. Mengukur ruang kosong untuk QR ==========
+   Halaman digambar sekali ke kanvas tersembunyi lalu titik-titik warnanya
+   dibaca. Cara ini menangkap apa pun yang ada di atas penanda, baik tulisan,
+   garis tabel, maupun gambar, tanpa perlu membedakan jenisnya. */
+async function petaHalaman(no) {
+  const hal = halaman[no - 1];
+  if (hal.peta) return hal.peta;
+  const h = await dokJs.getPage(no);
+  const vp = h.getViewport({ scale: 1 });
+  const kanvas = document.createElement("canvas");
+  kanvas.width = Math.ceil(vp.width); kanvas.height = Math.ceil(vp.height);
+  const ktx = kanvas.getContext("2d", { willReadFrequently: true });
+  ktx.fillStyle = "#ffffff"; ktx.fillRect(0, 0, kanvas.width, kanvas.height);
+  await h.render({ canvasContext: ktx, viewport: vp }).promise;
+  hal.peta = { data: ktx.getImageData(0, 0, kanvas.width, kanvas.height).data,
+               w: kanvas.width, h: kanvas.height };
+  return hal.peta;
+}
+
+async function ruangDiAtas(p) {
+  const hal = halaman[p.halamanNo - 1];
+  let peta;
+  try { peta = await petaHalaman(p.halamanNo); } catch (e) { return QR_SISI; }
+  const atasPt = p.y + UKURAN * NAIK;                       // tepi atas penanda, sekaligus alas QR
+  const x0 = Math.max(0, Math.round(p.x));
+  const x1 = Math.min(peta.w, Math.round(p.x + QR_SISI));
+  if (x1 <= x0) return 0;
+  const mulai = Math.round(hal.tinggiPt - atasPt);          // koordinat kanvas dihitung dari atas
+  const henti = Math.max(0, mulai - (QR_SISI + 8));
+  const d = peta.data;
+  for (let yy = mulai - 1; yy >= henti; yy--) {
+    if (yy < 0 || yy >= peta.h) continue;
+    for (let xx = x0; xx < x1; xx++) {
+      const i = (yy * peta.w + xx) * 4;
+      const terang = d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114;
+      if (d[i + 3] > 10 && terang < AMBANG_GELAP) return mulai - yy;
+    }
+  }
+  return mulai - henti;
+}
+
+// Jarak baku meniru dokumen resmi, yaitu dasar penanda kira-kira 13 pt
+// di atas dasar nama untuk huruf 11 pt.
+function jarakBaku(tinggiNama) { return Math.max(UKURAN + 1, tinggiNama * NAIK + 2 + UKURAN * TURUN); }
+function jarakRapat(tinggiNama) { return Math.max(UKURAN, tinggiNama * NAIK + 0.8 + UKURAN * TURUN); }
+
+async function setelJarak(p) {
+  if (p.yNama == null) { p.sisa = await ruangDiAtas(p); p.bentrok = p.sisa < QR_SISI; return; }
+  const baku = jarakBaku(p.tinggiNama), rapat = jarakRapat(p.tinggiNama);
+  const coba = [baku, (baku + rapat) / 2, rapat];
+  let terbaik = null;
+  for (const jarak of coba) {
+    p.y = p.yNama + jarak;
+    const sisa = await ruangDiAtas(p);
+    if (!terbaik || sisa > terbaik.sisa) terbaik = { jarak, sisa };
+    if (sisa >= QR_SISI) { p.sisa = sisa; p.bentrok = false; return; }
+  }
+  p.y = p.yNama + terbaik.jarak;
+  p.sisa = terbaik.sisa;
+  p.bentrok = true;
+}
+
+async function periksaRuang(p) {
+  p.sisa = await ruangDiAtas(p);
+  p.bentrok = p.sisa < QR_SISI;
+  if (p.kotak) {
+    p.kotak.classList.toggle("bentrok", p.bentrok);
+    p.kotak.title = p.bentrok
+      ? "Ruang di atas hanya " + Math.round(p.sisa) + " pt, sedangkan QR memerlukan " + QR_SISI + " pt."
+      : "Ruang di atas cukup untuk QR.";
+  }
+  perbaruiNav();
+}
+
+/* ========== 6. Memasang penanda ========== */
 el("tandai").addEventListener("click", tandaiNama);
 
 async function tandaiNama() {
@@ -258,39 +422,59 @@ async function tandaiNama() {
     Bersama.pesan("kabar2", "Kolom nama masih kosong. Tulis dulu paling sedikit satu nama penandatangan.", "gagal");
     return;
   }
+  const tombol = el("tandai");
+  tombol.disabled = true; tombol.textContent = "Memeriksa halaman...";
+
   const lebarTeks = lebarTeksPt();
   penandaList = [];
-  const tidakKetemu = [];
+  const tidakKetemu = [], terpakai = new Set();
   let geseran = 0;
 
-  nama.forEach((n) => {
-    const juara = letakTerbaik(n);
-    if (juara) {
-      penandaList.push({ nama: n, halamanNo: juara.hal.no, ketemu: true,
-        x: juara.baris.x + juara.baris.lebar / 2 - lebarTeks / 2,
-        y: juara.baris.y + UKURAN + 4, el: null });
+  for (const n of nama) {
+    const pilihan = semuaJangkar(n).find((j) => !terpakai.has(kunciJangkar(j)));
+    if (pilihan) {
+      terpakai.add(kunciJangkar(pilihan));
+      const p = {
+        nama: n, halamanNo: pilihan.hal.no, ketemu: true,
+        x: RATA === "tengah" ? pilihan.x + pilihan.lebar / 2 - lebarTeks / 2 : pilihan.x,
+        yNama: pilihan.y, tinggiNama: pilihan.tinggi, y: pilihan.y + jarakBaku(pilihan.tinggi),
+        el: null, kotak: null
+      };
+      await setelJarak(p);
+      penandaList.push(p);
     } else {
       const akhir = halaman[halaman.length - 1];
-      penandaList.push({ nama: n, halamanNo: akhir.no, ketemu: false,
-        x: akhir.lebarPt * 0.55, y: akhir.tinggiPt * 0.34 - geseran * 26, el: null });
+      const p = { nama: n, halamanNo: akhir.no, ketemu: false, yNama: null, tinggiNama: UKURAN * 1.1,
+        x: akhir.lebarPt * 0.55, y: akhir.tinggiPt * 0.34 - geseran * 26, el: null, kotak: null };
+      await setelJarak(p);
+      penandaList.push(p);
       geseran++; tidakKetemu.push(n);
     }
-  });
+  }
 
   const halBerpenanda = [...new Set(penandaList.map((p) => p.halamanNo))].sort((a, b) => a - b);
+  const sempit = penandaList.filter((p) => p.bentrok && p.ketemu);
   let isi = tidakKetemu.length
     ? "Nama berikut tidak ditemukan di dokumen, jadi penandanya ditaruh di halaman terakhir dan harus kamu geser sendiri.<ul><li>" +
       tidakKetemu.map(Bersama.lolos).join("</li><li>") + "</li></ul>"
     : "Semua nama ditemukan. Penanda dipasang pada halaman " + halBerpenanda.join(", ") + ".";
   if (halBerpenanda.length > 1) isi += " Periksa tiap halaman lewat tombol navigasi di bawah.";
-  Bersama.pesan("kabar3", isi, tidakKetemu.length ? "gagal" : "");
+  if (sempit.length) {
+    isi += "<p>Ruang di atas nama berikut lebih sempit daripada " + QR_SISI +
+      " pt, sehingga QR tanda tangan elektronik akan menimpa tulisan atau garis di atasnya. " +
+      "Jarak penandanya sudah dirapatkan sebisanya, selebihnya geser sendiri penandanya ke ruang yang lapang.</p><ul><li>" +
+      sempit.map((p) => Bersama.lolos(p.nama) + ", tersisa " + Math.round(p.sisa) + " pt").join("</li><li>") +
+      "</li></ul>";
+  }
+  Bersama.pesan("kabar3", isi, (tidakKetemu.length || sempit.length) ? "gagal" : "");
 
   langkah3.classList.remove("sembunyi");
   await tampilkanHalaman(halBerpenanda[0]);
+  tombol.disabled = false; tombol.textContent = "Tandai nama ini";
   langkah3.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-/* ========== 5. Menggambar halaman dan penanda ========== */
+/* ========== 7. Menggambar halaman dan penanda ========== */
 async function tampilkanHalaman(no) {
   halamanTampil = no;
   const hal = halaman[no - 1];
@@ -299,9 +483,22 @@ async function tampilkanHalaman(no) {
   panggung.innerHTML = "";
   panggung.appendChild(await Bersama.halamanKeKanvas(dokJs, no, lebarLayar));
   penandaList.filter((p) => p.halamanNo === no).forEach((p) => {
-    p.el = buatElemenPenanda(p); letakkan(p);
+    p.kotak = buatKotakQR(p);
+    p.el = buatElemenPenanda(p);
+    letakkan(p);
   });
   perbaruiNav();
+}
+
+function buatKotakQR(p) {
+  const k = document.createElement("div");
+  k.className = "kotakQR" + (p.bentrok ? " bentrok" : "");
+  k.innerHTML = "<span>QR TTE</span>";
+  k.title = p.bentrok
+    ? "Ruang di atas hanya " + Math.round(p.sisa || 0) + " pt, sedangkan QR memerlukan " + QR_SISI + " pt."
+    : "Ruang di atas cukup untuk QR.";
+  panggung.appendChild(k);
+  return k;
 }
 
 function buatElemenPenanda(p) {
@@ -322,10 +519,18 @@ function letakkan(p) {
   const hal = halaman[p.halamanNo - 1];
   p.x = Math.max(0, Math.min(p.x, hal.lebarPt - 10));
   p.y = Math.max(0, Math.min(p.y, hal.tinggiPt - 4));
-  if (!p.el) return;
-  p.el.style.left = (p.x * skala) + "px";
-  // koordinat PDF dihitung dari bawah, koordinat layar dari atas
-  p.el.style.top = ((hal.tinggiPt - p.y - UKURAN) * skala) + "px";
+  if (p.el) {
+    p.el.style.left = (p.x * skala) + "px";
+    // koordinat PDF dihitung dari bawah, koordinat layar dari atas
+    p.el.style.top = ((hal.tinggiPt - p.y - UKURAN) * skala) + "px";
+  }
+  if (p.kotak) {
+    const atasPt = p.y + UKURAN * NAIK;
+    p.kotak.style.left = (p.x * skala) + "px";
+    p.kotak.style.top = ((hal.tinggiPt - atasPt - QR_SISI) * skala) + "px";
+    p.kotak.style.width = (QR_SISI * skala) + "px";
+    p.kotak.style.height = (QR_SISI * skala) + "px";
+  }
 }
 
 function pasangGeser(d, p) {
@@ -341,13 +546,17 @@ function pasangGeser(d, p) {
     letakkan(p);
   });
   ["pointerup","pointercancel"].forEach((n) => d.addEventListener(n, () => {
-    geser = false; d.classList.remove("digeser"); d.classList.remove("hilang"); p.ketemu = true;
+    if (!geser) return;
+    geser = false; d.classList.remove("digeser"); d.classList.remove("hilang");
+    p.ketemu = true; p.yNama = null;
+    periksaRuang(p);
   }));
   d.addEventListener("keydown", (e) => {
     if (e.key === "Delete" || e.key === "Backspace") {
       e.preventDefault();
       penandaList = penandaList.filter((q) => q !== p);
-      d.remove(); perbaruiNav();
+      d.remove(); if (p.kotak) p.kotak.remove();
+      perbaruiNav();
       return;
     }
     const l = e.shiftKey ? 10 : 1;
@@ -355,26 +564,33 @@ function pasangGeser(d, p) {
     if (!arah) return;
     e.preventDefault();
     p.x += arah[0]; p.y += arah[1];
-    d.classList.remove("hilang"); p.ketemu = true;
+    d.classList.remove("hilang"); p.ketemu = true; p.yNama = null;
     letakkan(p);
+    clearTimeout(p.jeda);
+    p.jeda = setTimeout(() => periksaRuang(p), 250);
   });
 }
 
-/* ========== 6. Navigasi halaman ========== */
+/* ========== 8. Navigasi halaman ========== */
 function perbaruiNav() {
   const total = halaman.length;
   const berpenanda = new Set(penandaList.map((p) => p.halamanNo));
-  const jml = penandaList.filter((p) => p.halamanNo === halamanTampil).length;
-  el("labelHalaman").textContent = "Halaman " + halamanTampil + " dari " + total + ", " + jml + " penanda";
+  const berbentrok = new Set(penandaList.filter((p) => p.bentrok).map((p) => p.halamanNo));
+  const diHalaman = penandaList.filter((p) => p.halamanNo === halamanTampil);
+  const sempit = diHalaman.filter((p) => p.bentrok).length;
+  el("labelHalaman").textContent = "Halaman " + halamanTampil + " dari " + total + ", " +
+    diHalaman.length + " penanda" + (sempit ? ", " + sempit + " kekurangan ruang QR" : "");
   el("halSebelum").disabled = halamanTampil <= 1;
   el("halSesudah").disabled = halamanTampil >= total;
   const wadah = el("daftarHalaman");
   wadah.innerHTML = "";
   halaman.forEach((h) => {
     const b = document.createElement("button");
-    b.className = "cip" + (berpenanda.has(h.no) ? " ada" : "") + (h.no === halamanTampil ? " kini" : "");
+    b.className = "cip" + (berpenanda.has(h.no) ? " ada" : "") +
+      (berbentrok.has(h.no) ? " awas" : "") + (h.no === halamanTampil ? " kini" : "");
     b.textContent = h.no;
-    b.title = "Buka halaman " + h.no + (berpenanda.has(h.no) ? ", ada penanda" : "");
+    b.title = "Buka halaman " + h.no + (berpenanda.has(h.no) ? ", ada penanda" : "") +
+      (berbentrok.has(h.no) ? ", ada penanda yang kekurangan ruang QR" : "");
     b.addEventListener("click", () => tampilkanHalaman(h.no));
     wadah.appendChild(b);
   });
@@ -382,16 +598,18 @@ function perbaruiNav() {
 el("halSebelum").addEventListener("click", () => tampilkanHalaman(halamanTampil - 1));
 el("halSesudah").addEventListener("click", () => tampilkanHalaman(halamanTampil + 1));
 
-el("tambah").addEventListener("click", () => {
+el("tambah").addEventListener("click", async () => {
   const hal = halaman[halamanTampil - 1];
-  const p = { nama: "", halamanNo: halamanTampil, ketemu: false,
-    x: hal.lebarPt * 0.55, y: hal.tinggiPt * 0.34, el: null };
+  const p = { nama: "", halamanNo: halamanTampil, ketemu: false, yNama: null, tinggiNama: UKURAN * 1.1,
+    x: hal.lebarPt * 0.55, y: hal.tinggiPt * 0.34, el: null, kotak: null };
   penandaList.push(p);
-  p.el = buatElemenPenanda(p); letakkan(p); p.el.focus();
-  perbaruiNav();
+  p.kotak = buatKotakQR(p);
+  p.el = buatElemenPenanda(p);
+  letakkan(p); p.el.focus();
+  await periksaRuang(p);
 });
 
-/* ================= 7. Menyimpan ================= */
+/* ================= 9. Menyimpan ================= */
 el("simpan").addEventListener("click", async () => {
   const tombol = el("simpan");
   if (!penandaList.length) {
@@ -410,8 +628,11 @@ el("simpan").addEventListener("click", async () => {
     });
     Bersama.unduh(await dok.save(), Bersama.tanpaAkhiran(namaAsli) + "-bertanda.pdf");
     const hal = [...new Set(penandaList.map((p) => p.halamanNo))].sort((a, b) => a - b);
+    const sempit = penandaList.filter((p) => p.bentrok).length;
     Bersama.pesan("kabar3", "Dokumen tersimpan di folder unduhan, memuat " + penandaList.length +
-      " penanda pada halaman " + hal.join(", ") + ". Tandatangani dokumen ini melalui aplikasi tanda tangan elektronik.", "beres");
+      " penanda pada halaman " + hal.join(", ") + ". " +
+      (sempit ? "Masih ada " + sempit + " penanda yang ruang QR-nya kurang, periksa hasilnya setelah ditandatangani. " : "") +
+      "Tandatangani dokumen ini melalui aplikasi tanda tangan elektronik.", sempit ? "gagal" : "beres");
   } catch (err) {
     Bersama.pesan("kabar3", "Dokumen gagal disimpan. Muat ulang halaman lalu pilih berkasnya sekali lagi.", "gagal");
     console.error(err);
