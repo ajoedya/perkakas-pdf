@@ -11,7 +11,7 @@
 <style>
   #panggung { cursor: crosshair; overflow: hidden; position: relative; user-select: none; }
   
-  /* Elemen elemen tambal / teks yang bisa digeser (Drag & Drop) */
+  /* Elemen tambal / teks yang bisa digeser (Drag & Drop) */
   .tambal {
     position: absolute;
     box-sizing: border-box;
@@ -40,10 +40,6 @@
   .kartu-kepala { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
   .kartu-kepala b { color: var(--biru-tua); font-size: 15px; }
   .lama { font-size: 14px; color: var(--tinta-lembut); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .lencana { display: inline-block; font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 3px; }
-  .lencana.hapus { background: var(--hijau-muda); color: var(--hijau); }
-  .lencana.tutup { background: var(--bahaya-muda); color: var(--bahaya); }
-  .lencana.baru { background: var(--biru-muda); color: var(--biru-tua); }
   
   .ladang { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; margin-top: 12px; }
   .ladang .satu { flex: 0 0 auto; }
@@ -288,12 +284,11 @@ function pasangInteraksiGeser(d, k) {
     k.y = Math.round((origY - dy) * 10) / 10;
     perbaruiTambal(k);
     
-    // Update input posisi di kartu jika aktif
     if (k.inputX) k.inputX.value = k.x;
     if (k.inputY) k.inputY.value = k.y;
   });
 
-  const stopGeser = (e) => {
+  const stopGeser = () => {
     if (sedangGeser) {
       sedangGeser = false;
       d.classList.remove("digeser");
@@ -303,7 +298,6 @@ function pasangInteraksiGeser(d, k) {
   d.addEventListener("pointerup", stopGeser);
   d.addEventListener("pointercancel", stopGeser);
 
-  // Navigasi Keyboard Presisi (Panah)
   d.addEventListener("keydown", (e) => {
     if (terpilih !== k) return;
     const step = e.shiftKey ? 10 : 1;
@@ -322,7 +316,6 @@ function pasangInteraksiGeser(d, k) {
   });
 }
 
-/* Klik pada area Panggung (Deteksi Teks Asli) */
 panggung.addEventListener("click", (e) => {
   if (!kanvasKini || e.target !== kanvasKini) return;
   const kotak = kanvasKini.getBoundingClientRect();
@@ -456,7 +449,7 @@ function gambarDaftar() {
     }));
     kartu.appendChild(bPos);
 
-    // Baris 3: Font, Perataan, Gaya (Bold/Italic/Underline)
+    // Baris 3: Font, Perataan, Gaya
     const b2 = document.createElement("div");
     b2.className = "ladang";
     b2.appendChild(pilihan("Jenis Huruf", [
@@ -469,7 +462,6 @@ function gambarDaftar() {
       k.rata = v; perbaruiTambal(k);
     }));
 
-    // Group Tombol Gaya
     const bungkusGaya = document.createElement("div");
     bungkusGaya.className = "satu";
     const labelG = document.createElement("label"); labelG.textContent = "Format Teks";
@@ -597,9 +589,29 @@ el("halSesudah").addEventListener("click", () => tampilkanHalaman(halamanTampil 
    BAGIAN D. Proses Simpan Ekspor PDF
    ================================================================ */
 
+// Sanitasi teks agar kompatibel dengan font WinAnsi standar pdf-lib
+function bersihkanTeks(str) {
+  if (!str) return "";
+  return String(str)
+    .replace(/[“”„]/g, '"')
+    .replace(/[‘’`]/g, "'")
+    .replace(/—/g, "-")
+    .replace(/–/g, "-")
+    .replace(/…/g, "...")
+    .replace(/[^\x00-\xFF]/g, ""); // Hapus karakter non-Latin1 / emotikon
+}
+
 function keRgb(hex) {
+  if (!hex || typeof hex !== "string" || !hex.startsWith("#")) {
+    return PDFLib.rgb(0, 0, 0);
+  }
   const h = hex.replace("#", "");
-  return PDFLib.rgb(parseInt(h.slice(0,2),16)/255, parseInt(h.slice(2,4),16)/255, parseInt(h.slice(4,6),16)/255);
+  if (h.length !== 6) return PDFLib.rgb(0, 0, 0);
+  return PDFLib.rgb(
+    parseInt(h.slice(0,2),16)/255,
+    parseInt(h.slice(2,4),16)/255,
+    parseInt(h.slice(4,6),16)/255
+  );
 }
 
 el("simpan").addEventListener("click", async () => {
@@ -615,7 +627,6 @@ el("simpan").addEventListener("click", async () => {
     const dok = await PDFLib.PDFDocument.load(bytesAsli.slice(0));
     const semua = dok.getPages();
 
-    // Embed Standard Fonts
     const fHelvetica = await dok.embedFont(PDFLib.StandardFonts.Helvetica);
     const fHelveticaBold = await dok.embedFont(PDFLib.StandardFonts.HelveticaBold);
     const fHelveticaOblique = await dok.embedFont(PDFLib.StandardFonts.HelveticaOblique);
@@ -634,7 +645,6 @@ el("simpan").addEventListener("click", async () => {
         return fTimes;
       }
       if (k.huruf === "courier") return fCourier;
-      // Default Helvetica
       if (k.tebal && k.miring) return fHelveticaBoldOblique;
       if (k.tebal) return fHelveticaBold;
       if (k.miring) return fHelveticaOblique;
@@ -644,40 +654,47 @@ el("simpan").addEventListener("click", async () => {
     koreksiList.forEach((k) => {
       const hal = semua[k.halamanNo - 1];
       const font = dapatkanFont(k);
+      const teksAman = bersihkanTeks(k.teksBaru);
 
-      // 1. Gambar Kotak Penutup (Background Overwrite) jika diaktifkan
+      const x = isNaN(k.x) ? 0 : k.x;
+      const y = isNaN(k.y) ? 0 : k.y;
+      const lebar = isNaN(k.lebar) ? 50 : k.lebar;
+      const tinggi = isNaN(k.tinggi) ? 12 : k.tinggi;
+      const ukuran = isNaN(k.ukuran) ? 10 : k.ukuran;
+
+      // 1. Gambar Kotak Penutup (Background Overwrite)
       if (k.pakaiKotak) {
         hal.drawRectangle({
-          x: k.x - 2,
-          y: k.y - 2,
-          width: k.lebar + 4,
-          height: k.tinggi + 4,
+          x: x - 2,
+          y: y - 2,
+          width: lebar + 4,
+          height: tinggi + 4,
           color: keRgb(k.warnaKotak),
           rotate: PDFLib.degrees(k.rotasi || 0)
         });
       }
 
-      // 2. Gambar Teks Pengganti/Teks Baru
-      if (k.teksBaru) {
-        const w = font.widthOfTextAtSize(k.teksBaru, k.ukuran);
-        let posX = k.x;
-        if (k.rata === "center") posX = k.x + (k.lebar - w) / 2;
-        if (k.rata === "right") posX = k.x + k.lebar - w;
+      // 2. Gambar Teks Pengganti
+      if (teksAman) {
+        const w = font.widthOfTextAtSize(teksAman, ukuran);
+        let posX = x;
+        if (k.rata === "center") posX = x + (lebar - w) / 2;
+        if (k.rata === "right") posX = x + lebar - w;
 
-        hal.drawText(k.teksBaru, {
+        hal.drawText(teksAman, {
           x: posX,
-          y: k.y,
-          size: k.ukuran,
+          y: y,
+          size: ukuran,
           font: font,
           color: keRgb(k.warnaTeks),
           rotate: PDFLib.degrees(k.rotasi || 0)
         });
 
-        // 3. Efek Underline manual jika diaktifkan
+        // 3. Garis Bawah (Underline)
         if (k.garisBawah) {
           hal.drawLine({
-            start: { x: posX, y: k.y - 2 },
-            end: { x: posX + w, y: k.y - 2 },
+            start: { x: posX, y: y - 2 },
+            end: { x: posX + w, y: y - 2 },
             thickness: 1,
             color: keRgb(k.warnaTeks),
             rotate: PDFLib.degrees(k.rotasi || 0)
@@ -690,8 +707,8 @@ el("simpan").addEventListener("click", async () => {
     Bersama.unduh(hasilBytes, Bersama.tanpaAkhiran(namaAsli) + "-teredit.pdf");
     Bersama.pesan("kabar", "Dokumen berhasil disimpan dan diunduh!", "beres");
   } catch (err) {
-    Bersama.pesan("kabar", "Gagal menyimpan dokumen PDF.", "gagal");
-    console.error(err);
+    Bersama.pesan("kabar", "Gagal menyimpan dokumen PDF. Pastikan teks tidak memuat karakter khusus yang rusak.", "gagal");
+    console.error("Gagal simpan PDF:", err);
   }
 
   tombolSimpan.disabled = false;
