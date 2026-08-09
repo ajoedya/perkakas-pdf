@@ -28,7 +28,7 @@
     const merek = document.createElement("a");
     merek.className = "menu-nama";
     merek.href = "index.html";
-    merek.innerHTML = 'Penyunting PDF ini Ces<span>.</span>';
+    merek.innerHTML = 'Pengolah Andal ini Ces<span>.</span>';
     isi.appendChild(merek);
 
     // Wrapper Dropdown
