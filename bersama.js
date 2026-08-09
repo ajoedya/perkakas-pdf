@@ -74,6 +74,33 @@
   }
 
   // ============================================================
+  // Pemasang Favicon
+  //
+  // Alamatnya ditulis relatif, jadi tetap benar meski situs berada di
+  // dalam folder seperti /perkakas-pdf/. Peramban hanya mencari favicon
+  // otomatis di akar domain, dan itu tidak berlaku untuk situs proyek,
+  // sehingga tag link ini memang wajib ada.
+  // ============================================================
+  function pasangIkon() {
+    const daftar = [
+      { rel: "icon",             href: "favicon.ico",     jenis: "image/x-icon", ukuran: null },
+      { rel: "icon",             href: "favicon-32.png",  jenis: "image/png",    ukuran: "32x32" },
+      { rel: "icon",             href: "favicon-16.png",  jenis: "image/png",    ukuran: "16x16" },
+      { rel: "apple-touch-icon", href: "favicon-180.png", jenis: "image/png",    ukuran: "180x180" }
+    ];
+    daftar.forEach((i) => {
+      // Kalau halaman sudah punya tag serupa, yang itu dibiarkan.
+      if (document.querySelector('link[rel="' + i.rel + '"][href="' + i.href + '"]')) return;
+      const t = document.createElement("link");
+      t.rel = i.rel;
+      t.href = i.href;
+      if (i.jenis) t.type = i.jenis;
+      if (i.ukuran) t.sizes = i.ukuran;
+      document.head.appendChild(t);
+    });
+  }
+
+  // ============================================================
   // Objek Bersama: Pustaka Utama Penanganan Berkas & Utilities
   // ============================================================
   window.Bersama = {
@@ -231,9 +258,14 @@
     }
   };
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", pasangMenu);
-  } else {
+  function mulai() {
+    pasangIkon();
     pasangMenu();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", mulai);
+  } else {
+    mulai();
   }
 })();
