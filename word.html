@@ -22,7 +22,7 @@
 
   <section>
     <div class="kabar" style="border-left-color: var(--bahaya); background: var(--bahaya-muda); color: var(--bahaya);">
-      <b>Hasilnya tidak rapi.</b> Alat ini hanya menyalin teksnya apa adanya, baris demi baris. Tata letak, tabel, kop, dan kolom pada PDF <b>tidak dipertahankan</b>, dan gambar tidak ikut disalin. Cocok untuk mengambil isi tulisannya saja, bukan untuk menjiplak tampilan dokumen.
+      <b>Hasilnya perkiraan, bukan tiruan persis.</b> Alat ini menyalin teks beserta perkiraan posisi, perataan, jarak antar baris, dan ukuran/gaya font dari PDF. Tabel bergaris, kop bertingkat, kolom koran, dan gambar <b>tidak dipertahankan</b>. Cocok untuk dokumen berbasis teks biasa, bukan formulir atau tabel rumit.
     </div>
 
     <p class="nomor">Langkah 1</p>
@@ -223,7 +223,8 @@ const DOC_RELS =
 const STYLES_XML =
 `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-<w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="22"/></w:rPr></w:rPrDefault></w:docDefaults>
+<w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="22"/></w:rPr></w:rPrDefault>
+<w:pPrDefault><w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults>
 <w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style>
 </w:styles>`;
 
@@ -239,31 +240,42 @@ const APP_XML =
 <Application>Perkakas PDF</Application>
 </Properties>`;
 
-/* halamanBaris: array per halaman, tiap halaman array baris, tiap baris array potongan {teks, tebal, miring} */
+const PT_KE_TWIP = 20;
+
+/* halamanBaris: array per halaman, tiap halaman {lebar, tinggi, baris:[{y, indentTwip, align, spacingBefore, potongan:[{teks,tebal,miring,szHalf}]}]} */
 function susunDocumentXml(halamanBaris) {
   const bagian = [];
-  halamanBaris.forEach((baris, iHalaman) => {
+  const dims = halamanBaris.length ? halamanBaris[0] : { lebar: 595, tinggi: 842 };
+  const pgW = Math.round(dims.lebar * PT_KE_TWIP);
+  const pgH = Math.round(dims.tinggi * PT_KE_TWIP);
+  const margin = 850; // ~0.6in, biar posisi indentasi tidak langsung terpotong
+
+  halamanBaris.forEach((halaman, iHalaman) => {
     if (iHalaman > 0) {
       bagian.push('<w:p><w:r><w:br w:type="page"/></w:r></w:p>');
     }
-    if (!baris.length) {
+    if (!halaman.baris.length) {
       bagian.push('<w:p/>');
       return;
     }
-    baris.forEach((potongan) => {
-      const runs = potongan.map((p) => {
-        const rpr = (p.tebal || p.miring)
-          ? '<w:rPr>' + (p.tebal ? '<w:b/>' : '') + (p.miring ? '<w:i/>' : '') + '</w:rPr>'
-          : '';
-        return '<w:r>' + rpr + '<w:t xml:space="preserve">' + lolosXml(p.teks) + '</w:t></w:r>';
+    halaman.baris.forEach((b) => {
+      const runs = b.potongan.map((p) => {
+        const gaya = (p.tebal ? '<w:b/>' : '') + (p.miring ? '<w:i/>' : '') + '<w:sz w:val="' + p.szHalf + '"/>';
+        return '<w:r><w:rPr>' + gaya + '</w:rPr><w:t xml:space="preserve">' + lolosXml(p.teks) + '</w:t></w:r>';
       }).join('');
-      bagian.push('<w:p>' + runs + '</w:p>');
+      const ppr = [];
+      if (b.align === 'center') ppr.push('<w:jc w:val="center"/>');
+      else if (b.align === 'right') ppr.push('<w:jc w:val="right"/>');
+      else if (b.indentTwip > 20) ppr.push('<w:ind w:left="' + Math.round(b.indentTwip) + '"/>');
+      if (b.spacingBefore > 0) ppr.push('<w:spacing w:before="' + Math.round(b.spacingBefore) + '"/>');
+      const pprXml = ppr.length ? '<w:pPr>' + ppr.join('') + '</w:pPr>' : '';
+      bagian.push('<w:p>' + pprXml + runs + '</w:p>');
     });
   });
 
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-<w:body>${bagian.join('')}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1417" w:right="1417" w:bottom="1417" w:left="1417"/></w:sectPr></w:body>
+<w:body>${bagian.join('')}<w:sectPr><w:pgSz w:w="${pgW}" w:h="${pgH}"/><w:pgMar w:top="${margin}" w:right="${margin}" w:bottom="${margin}" w:left="${margin}"/></w:sectPr></w:body>
 </w:document>`;
 }
 
@@ -298,29 +310,68 @@ function gayaFont(page, fontName) {
 async function ambilBarisHalaman(dok, no) {
   const page = await dok.getPage(no);
   const isi = await page.getTextContent();
-  const items = isi.items.filter((it) => it.str !== "");
+  const items = isi.items.filter((it) => it.str.trim() !== "");
+  const lebarHalaman = page.view[2] - page.view[0];
+  const tinggiHalaman = page.view[3] - page.view[1];
 
   const baris = [];
   items.forEach((it) => {
     const x = it.transform[4], y = it.transform[5];
+    const tinggiFont = Math.hypot(it.transform[2], it.transform[3]) || Math.hypot(it.transform[0], it.transform[1]) || 10;
     const gaya = gayaFont(page, it.fontName);
     const cocok = baris.find((b) => Math.abs(b.y - y) < 2.5);
-    const potongan = { x, teks: it.str, tebal: gaya.tebal, miring: gaya.miring };
+    const potongan = { x, lebar: it.width || 0, teks: it.str, tebal: gaya.tebal, miring: gaya.miring, fontPt: tinggiFont };
     if (cocok) cocok.potongan.push(potongan);
     else baris.push({ y, potongan: [potongan] });
   });
 
   baris.sort((a, b) => b.y - a.y);
-  return baris.map((b) => {
+
+  const hasil = [];
+  let ySebelumnya = null;
+  baris.forEach((b) => {
     b.potongan.sort((p, q) => p.x - q.x);
+    const xMulai = b.potongan[0].x;
+    const xAkhir = Math.max(...b.potongan.map((p) => p.x + p.lebar));
+    const lebarBaris = xAkhir - xMulai;
+    const fontRata = b.potongan.reduce((s, p) => s + p.fontPt, 0) / b.potongan.length;
+
+    // deteksi rata tengah / kanan berdasar jarak simetris ke tepi halaman
+    const sisaKiri = xMulai;
+    const sisaKanan = lebarHalaman - xAkhir;
+    let align = 'left';
+    if (Math.abs(sisaKiri - sisaKanan) < lebarHalaman * 0.06 && sisaKiri > lebarHalaman * 0.12) align = 'center';
+    else if (sisaKanan < lebarHalaman * 0.08 && sisaKiri > lebarHalaman * 0.2) align = 'right';
+
+    // jarak vertikal ke baris sebelumnya jadi spacing-before (indikasi paragraf/spasi ekstra)
+    let spacingBefore = 0;
+    if (ySebelumnya !== null) {
+      const jarak = ySebelumnya - b.y;
+      const jarakNormal = fontRata * 1.25;
+      spacingBefore = Math.max(0, (jarak - jarakNormal)) * PT_KE_TWIP;
+    }
+    ySebelumnya = b.y;
+
     const runs = [];
     b.potongan.forEach((p) => {
       const akhir = runs[runs.length - 1];
-      if (akhir && akhir.tebal === p.tebal && akhir.miring === p.miring) akhir.teks += p.teks;
-      else runs.push({ teks: p.teks, tebal: p.tebal, miring: p.miring });
+      if (akhir && akhir.tebal === p.tebal && akhir.miring === p.miring && Math.abs(akhir.fontPt - p.fontPt) < 0.5) {
+        akhir.teks += p.teks;
+      } else {
+        runs.push({ teks: p.teks, tebal: p.tebal, miring: p.miring, fontPt: p.fontPt, szHalf: Math.max(12, Math.round(p.fontPt * 2)) });
+      }
     });
-    return runs;
+
+    hasil.push({
+      y: b.y,
+      indentTwip: align === 'left' ? xMulai * PT_KE_TWIP : 0,
+      align,
+      spacingBefore,
+      potongan: runs
+    });
   });
+
+  return { lebar: lebarHalaman, tinggi: tinggiHalaman, baris: hasil };
 }
 
 /* ================================================================
@@ -338,11 +389,11 @@ el("konversi").addEventListener("click", async () => {
     try {
       const bytes = await b.file.arrayBuffer();
       const dok = await pdfjsLib.getDocument({ data: bytes.slice(0) }).promise;
-      const halamanBaris = [];
+      const halaman = [];
       for (let h = 1; h <= dok.numPages; h++) {
-        halamanBaris.push(await ambilBarisHalaman(dok, h));
+        halaman.push(await ambilBarisHalaman(dok, h));
       }
-      const docxBytes = buatDocxBytes(halamanBaris);
+      const docxBytes = buatDocxBytes(halaman);
       const blob = new Blob([docxBytes], { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
