@@ -6,14 +6,14 @@
 
   const HALAMAN = [
     { berkas: "index.html",     nama: "Beranda" },
-    { berkas: "penanda.html",   nama: "Penanda TTE" },
+    { berkas: "koreksi.html",   nama: "Edit Teks" },
     { berkas: "gabung.html",    nama: "Gabung PDF" },
     { berkas: "pecah.html",     nama: "Pecah PDF" },
     { berkas: "susun.html",     nama: "Susun Halaman" },
     { berkas: "nomor.html",     nama: "Penomor Halaman" },
     { berkas: "tanda-air.html", nama: "Watermark" },
     { berkas: "gambar.html",    nama: "PDF dan Gambar" },
-    { berkas: "koreksi.html",   nama: "Edit Teks" }
+    { berkas: "penanda.html",   nama: "Penanda TTE" }
   ];
 
   function pasangMenu() {
