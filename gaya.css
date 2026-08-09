@@ -1,7 +1,7 @@
 /* ============================================================
    Gaya Bersama - Modern & Sleek UI
    Identitas Warna Kementerian Keuangan (Biru Tua & Emas)
-   Dengan Sentuhan Ornamen Khas Kota Balikpapan & Kaltim
+   Dengan Ornamen Khas Kota Balikpapan & Kaltim
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;1,6..72,500&display=swap');
@@ -39,7 +39,9 @@
   --transisi: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Reset Dasar & Latar Belakang Berpola Balikpapan */
+/* ------------------------------------------------------------
+   1. RESET DASAR & LATAR BELAKANG BALIKPAPAN
+   ------------------------------------------------------------ */
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -61,7 +63,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Layout Pembungkus Utama */
+/* Pembungkus Utama */
 .bungkus {
   max-width: 960px;
   margin: 0 auto;
@@ -72,37 +74,37 @@ body {
   max-width: 1080px;
 }
 
-/* Utility Class untuk Sembunyi */
 .sembunyi {
   display: none !important;
 }
 
-/* Header & Navigation Bar dengan Aksen Batik Kaltim */
+/* ------------------------------------------------------------
+   2. NAVBAR & DROPDOWN MENU MODERN
+   ------------------------------------------------------------ */
 .menu {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--garis);
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 1000;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.03);
 }
 
-/* List Ornamen Emas-Biru Khas Kaltim di Atas Navbar */
+/* Aksen List Warna Kemenkeu & Kaltim di Atas Navbar */
 .menu::before {
   content: "";
   display: block;
-  height: 4px;
+  height: 3px;
   width: 100%;
-  background: repeating-linear-gradient(
+  background: linear-gradient(
     90deg,
-    var(--biru-tua) 0px,
-    var(--biru-tua) 20px,
-    var(--emas) 20px,
-    var(--emas) 40px,
-    var(--emas-tua) 40px,
-    var(--emas-tua) 60px
+    var(--biru-tua) 0%,
+    var(--biru) 40%,
+    var(--emas) 70%,
+    var(--emas-tua) 100%
   );
-  opacity: 0.9;
 }
 
 .menu-isi {
@@ -112,17 +114,18 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 64px;
+  height: 60px;
 }
 
 .menu-nama {
   font-weight: 800;
-  font-size: 18px;
+  font-size: 17px;
   color: var(--biru-tua);
   text-decoration: none;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  letter-spacing: -0.01em;
 }
 
 .menu-nama span {
@@ -156,7 +159,120 @@ body {
   font-weight: 700;
 }
 
-/* Kop / Banner Halaman dengan Motif Kaltim Overlay */
+/* Wrapper Dropdown */
+.menu-dropdown-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+/* Tombol Pemicu Dropdown (Tombol Kapsul) */
+.menu-dropdown-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--biru-muda);
+  color: var(--biru-tua);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 47, 95, 0.12);
+  cursor: pointer;
+  transition: var(--transisi);
+  user-select: none;
+}
+
+.menu-dropdown-trigger:hover {
+  background-color: #E2EEFF;
+  border-color: var(--biru);
+  transform: translateY(-1px);
+}
+
+.menu-dropdown-trigger::after {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-right: 2px solid var(--biru-tua);
+  border-bottom: 2px solid var(--biru-tua);
+  transform: rotate(45deg);
+  margin-top: -2px;
+  transition: transform 0.2s ease;
+}
+
+.menu-dropdown-wrapper.terbuka .menu-dropdown-trigger::after {
+  transform: rotate(-135deg);
+  margin-top: 2px;
+}
+
+/* Kontainer Dropdown Menu */
+.menu-dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  width: 270px;
+  background: var(--putih);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: var(--radius-md);
+  padding: 8px;
+  box-shadow: 
+    0 20px 25px -5px rgba(15, 23, 42, 0.1),
+    0 8px 10px -6px rgba(15, 23, 42, 0.04);
+  z-index: 1000;
+  opacity: 0;
+  transform: translateY(-8px) scale(0.97);
+  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.menu-dropdown-wrapper.terbuka .menu-dropdown-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.menu-dropdown-content a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  color: var(--tinta) !important;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  border-bottom: none !important;
+  transition: var(--transisi);
+}
+
+.menu-dropdown-content a:hover {
+  background-color: var(--biru-muda);
+  color: var(--biru-tua) !important;
+  padding-left: 18px;
+}
+
+.menu-dropdown-content a.aktif {
+  background-color: var(--emas-muda);
+  color: var(--biru-tua) !important;
+  font-weight: 700;
+  border-left: 3px solid var(--emas-tua);
+}
+
+.menu-dropdown-content a.aktif::after {
+  content: "✓";
+  font-size: 12px;
+  color: var(--emas-tua);
+  font-weight: 800;
+}
+
+/* ------------------------------------------------------------
+   3. HEADER / KOP HALAMAN
+   ------------------------------------------------------------ */
 .kop {
   background: linear-gradient(135deg, var(--biru-tua) 0%, #001f3f 100%);
   color: var(--putih);
@@ -230,7 +346,9 @@ body {
   margin: 0;
 }
 
-/* Grid Kartu Perkakas & Watermark Aksen Balikpapan */
+/* ------------------------------------------------------------
+   4. KARTU PERKAKAS & WATERMARK KHAS BALIKPAPAN
+   ------------------------------------------------------------ */
 .petak {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -254,7 +372,7 @@ body {
   overflow: hidden;
 }
 
-/* Motif Ukiran Kaltim Samar pada Pojok Kartu */
+/* Watermark Motif Ukiran Kaltim di Pojok Kartu */
 .kartu::after {
   content: "";
   position: absolute;
@@ -295,7 +413,9 @@ body {
   line-height: 1.5;
 }
 
-/* Daerah Unggah (Dropzone) */
+/* ------------------------------------------------------------
+   5. KOMPONEN KONTEN & FORM
+   ------------------------------------------------------------ */
 .daerah-unggah {
   background: var(--putih);
   border: 2px dashed var(--garis-fokus);
@@ -330,7 +450,6 @@ body {
   margin: 0;
 }
 
-/* Elemen Tombol */
 .tombol {
   display: inline-flex;
   align-items: center;
@@ -371,7 +490,6 @@ body {
   cursor: not-allowed;
 }
 
-/* Kotak Pilihan & Form Control */
 .kotak-pilihan {
   background: var(--putih);
   border: 1px solid var(--garis);
@@ -387,7 +505,6 @@ body {
   margin-bottom: 4px;
 }
 
-/* Kabar / Alert Message */
 .kabar {
   padding: 16px;
   border-radius: var(--radius-sm);
@@ -416,7 +533,6 @@ body {
   border-color: rgba(220, 38, 38, 0.2);
 }
 
-/* Seksi Janji / Informasi Batasan */
 .janji {
   background: var(--putih);
   border: 1px solid var(--garis);
@@ -438,7 +554,9 @@ body {
   color: var(--tinta-lembut);
 }
 
-/* Footer */
+/* ------------------------------------------------------------
+   6. FOOTER
+   ------------------------------------------------------------ */
 footer {
   text-align: center;
   padding: 32px 24px;
@@ -446,67 +564,4 @@ footer {
   color: var(--tinta-lembut);
   border-top: 1px solid var(--garis);
   margin-top: 64px;
-}
-
-/* Dropdown Menu untuk Navigasi */
-.menu-dropdown-wrapper {
-  position: relative;
-  display: inline-block;
-}
-
-.menu-dropdown-content {
-  display: none;
-  position: absolute;
-  right: 0;
-  top: 100%;
-  background-color: var(--putih);
-  min-width: 220px;
-  border: 1px solid var(--garis);
-  border-radius: var(--radius-md);
-  box-shadow: var(--bayangan-lg);
-  z-index: 1000;
-  overflow: hidden;
-  animation: dropdownMasuk 0.2s ease-out forwards;
-}
-
-@keyframes dropdownMasuk {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.menu-dropdown-wrapper.terbuka .menu-dropdown-content {
-  display: block;
-}
-
-.menu-dropdown-content a {
-  display: block;
-  padding: 12px 18px;
-  color: var(--tinta) !important;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-  border-bottom: 1px solid var(--garis);
-  transition: var(--transisi);
-}
-
-.menu-dropdown-content a:last-child {
-  border-bottom: none;
-}
-
-.menu-dropdown-content a:hover {
-  background-color: var(--biru-muda);
-  color: var(--biru-tua) !important;
-  padding-left: 22px;
-}
-
-.menu-dropdown-content a.aktif {
-  background-color: var(--emas-muda);
-  color: var(--tinta) !important;
-  font-weight: 700;
 }
