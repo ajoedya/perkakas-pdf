@@ -16,6 +16,17 @@
     { berkas: "penanda.html",   nama: "Penanda TTE" }
   ];
 
+  // Memasang favicon secara otomatis jika belum ada di tag <head>
+  function pasangFavicon() {
+    if (!document.querySelector("link[rel*='icon']")) {
+      const link = document.createElement("link");
+      link.rel = "icon";
+      link.type = "image/x-icon";
+      link.href = "favicon.ico";
+      document.head.appendChild(link);
+    }
+  }
+
   function pasangMenu() {
     const kini = (location.pathname.split("/").pop() || "index.html").toLowerCase();
     const bar = document.createElement("nav");
@@ -231,9 +242,14 @@
     }
   };
 
+  // Inisialisasi favicon dan menu saat DOM siap
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", pasangMenu);
+    document.addEventListener("DOMContentLoaded", function () {
+      pasangFavicon();
+      pasangMenu();
+    });
   } else {
+    pasangFavicon();
     pasangMenu();
   }
 })();
