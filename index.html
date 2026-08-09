@@ -18,7 +18,7 @@
 </template>
 <style>
   .kop.beranda { padding-bottom: 0; }
-  .kop-isi.beranda-isi { padding-bottom: 64px; }
+  .kop-isi.beranda-isi { padding: 32px 24px 40px; }
   .lencana-percaya {
     display: inline-flex; align-items: center; gap: 8px;
     background: rgba(245, 179, 1, 0.14); border: 1px solid rgba(245, 179, 1, 0.4);
@@ -26,24 +26,29 @@
     padding: 7px 14px; border-radius: 999px; margin-bottom: 20px;
   }
   .strip-percaya {
-    display: grid; gap: 16px;
+    display: grid; gap: 12px;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    max-width: 1160px; margin: -40px auto 0; padding: 0 24px;
+    max-width: 1160px; margin: -28px auto 0; padding: 0 24px;
     position: relative; z-index: 2;
   }
   .kartu-percaya {
     background: var(--putih); border: 1px solid var(--garis);
-    border-radius: var(--radius-md); padding: 18px 20px;
+    border-radius: var(--radius-md); padding: 14px 16px;
     box-shadow: var(--bayangan-lg); display: flex; gap: 12px; align-items: flex-start;
   }
   .kartu-percaya .ikon { font-size: 22px; line-height: 1; }
   .kartu-percaya strong { display: block; font-size: 14px; color: var(--biru-tua); margin-bottom: 2px; }
   .kartu-percaya span { font-size: 13px; color: var(--tinta-lembut); line-height: 1.5; }
-  section.alat-section { padding-top: 88px; }
+  section.alat-section { padding-top: 12px; }
+  .bungkus.lebar { padding: 12px 24px 32px; }
+  .pita-motif-kecil { width: 120px; height: 8px; margin: 0 0 14px; }
+  .pita-motif-kecil svg { display: block; width: 100%; height: 100%; }
+  .sudut-ukir { position: absolute; top: 18px; right: 24px; opacity: 0.5; }
+  footer { margin-top: 16px; }
   .kartu-alat {
     display: flex; flex-direction: column; background: var(--putih);
     border: 1px solid var(--garis); border-radius: var(--radius-md);
-    padding: 26px; text-decoration: none; color: inherit;
+    padding: 18px; text-decoration: none; color: inherit;
     transition: var(--transisi); box-shadow: var(--bayangan-sm); position: relative;
   }
   .kartu-alat:hover { transform: translateY(-4px); box-shadow: var(--bayangan-lg); border-color: var(--emas); }
@@ -52,19 +57,46 @@
     background: var(--biru-muda); display: flex; align-items: center; justify-content: center;
     font-size: 22px; margin-bottom: 16px;
   }
-  .kartu-alat strong { font-family: "Newsreader", Georgia, serif; font-size: 19px; color: var(--biru-tua); margin-bottom: 8px; }
-  .kartu-alat span { font-size: 14px; color: var(--tinta-lembut); line-height: 1.55; flex: 1; }
-  .kartu-alat .buka { font-size: 13px; font-weight: 700; color: var(--biru); margin-top: 14px; }
+  .kartu-alat strong { font-family: "Public Sans", system-ui, sans-serif; font-size: 18px; color: var(--biru-tua); margin-bottom: 6px; }
+  .kartu-alat span { font-size: 13px; color: var(--tinta-lembut); line-height: 1.5; flex: 1; }
+  .kartu-alat .buka { font-size: 13px; font-weight: 700; color: var(--biru); margin-top: 10px; }
   .kartu-alat:hover .buka { color: var(--emas-tua); }
+  .petak { gap: 14px !important; }
+  .pita-motif { width: 100%; line-height: 0; }
+  .pita-motif svg { display: block; width: 100%; height: 10px; }
+  .lencana-baris { display: flex; gap: 10px; flex-wrap: wrap; }
+  .lencana-daerah {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #CBDCEF; font-size: 13px; font-weight: 600;
+    padding: 7px 14px; border-radius: 999px; margin-bottom: 20px;
+  }
 </style>
 </head>
 <body>
 
 <header class="kop beranda">
   <div class="kop-isi beranda-isi">
-    <span class="lencana-percaya">🔒 Keamanan Data Terjamin 🔒</span>
-    <h1>Penyunting PDF KPKNL <em>Balikpapan</em>🏵️</h1>
+    <div class="lencana-baris">
+      <span class="lencana-percaya">🔒 Keamanan Data Terjamin 🔒</span>
+      <span class="lencana-daerah">🐻 Kota Beruang Madu, Kalimantan Timur 🐻</span>
+    </div>
+    <h1>Bubuhan <em>Balikpapan</em>🏵️</h1>
     <p>Pengolah <i>file</i> <b>PDF</b> gratis, semua proses dijalankan secara lokal pada peramban dan <em>tidak terkirim ke server mana pun</em>.</p>
+  </div>
+  <svg class="sudut-ukir" width="64" height="64" viewBox="0 0 64 64" aria-hidden="true">
+    <polygon points="32,4 44,16 32,28 20,16" fill="none" stroke="#F5B301" stroke-width="2"/>
+    <polygon points="32,20 40,28 32,36 24,28" fill="none" stroke="#F5B301" stroke-width="2"/>
+    <circle cx="32" cy="48" r="5" fill="none" stroke="#F5B301" stroke-width="2"/>
+  </svg>
+  <div class="pita-motif" aria-hidden="true">
+    <svg viewBox="0 0 40 10" preserveAspectRatio="none">
+      <pattern id="motifKaltim" width="20" height="10" patternUnits="userSpaceOnUse">
+        <polygon points="10,0 20,5 10,10 0,5" fill="#F5B301"/>
+        <polygon points="10,2.5 15,5 10,7.5 5,5" fill="#002F5F"/>
+      </pattern>
+      <rect width="40" height="10" fill="url(#motifKaltim)"/>
+    </svg>
   </div>
 </header>
 
@@ -79,7 +111,7 @@
   </div>
   <div class="kartu-percaya">
     <span class="ikon">⚡</span>
-    <div><strong>Delapan alat siap pakai</strong><span>Dari edit teks sampai penanda tanda tangan elektronik.</span></div>
+    <div><strong>Sembilan alat siap pakai</strong><span>Dari edit teks sampai penanda tanda tangan elektronik.</span></div>
   </div>
 </div>
 
@@ -88,6 +120,15 @@
   <section class="alat-section" id="alat">
     <p class="nomor">Daftar Perkakas</p>
     <h2>Pilih alat yang mau dipakai!</h2>
+    <div class="pita-motif-kecil" aria-hidden="true">
+      <svg viewBox="0 0 24 8" preserveAspectRatio="none">
+        <pattern id="motifKecil" width="12" height="8" patternUnits="userSpaceOnUse">
+          <polygon points="6,0 12,4 6,8 0,4" fill="var(--emas)"/>
+          <polygon points="6,1.5 9,4 6,6.5 3,4" fill="var(--biru-tua)"/>
+        </pattern>
+        <rect width="24" height="8" fill="url(#motifKecil)"/>
+      </svg>
+    </div>
     <div class="petak">
       <a class="kartu-alat" href="koreksi.html">
         <strong>Edit Teks</strong>
@@ -136,6 +177,16 @@
       </a>
     </div>
   </section>
+
+  <div class="pita-motif" aria-hidden="true" style="margin-top: 20px;">
+    <svg viewBox="0 0 40 10" preserveAspectRatio="none">
+      <pattern id="motifKaltimBawah" width="20" height="10" patternUnits="userSpaceOnUse">
+        <polygon points="10,0 20,5 10,10 0,5" fill="var(--emas)"/>
+        <polygon points="10,2.5 15,5 10,7.5 5,5" fill="var(--biru-tua)"/>
+      </pattern>
+      <rect width="40" height="10" fill="url(#motifKaltimBawah)"/>
+    </svg>
+  </div>
 
   <footer>
     Balikpapan - Indonesia ✈︎ Built by Ajoedya ft. Claude & Gemini❤️

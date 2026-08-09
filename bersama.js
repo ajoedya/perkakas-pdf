@@ -36,11 +36,14 @@
     
     const isi = document.createElement("div");
     isi.className = "menu-isi";
+    isi.style.backgroundColor = "#F5B301";
 
     const merek = document.createElement("a");
     merek.className = "menu-nama";
     merek.href = "index.html";
-    merek.innerHTML = 'Pengolah Andal ini Ces<span>.</span>';
+    merek.style.color = "#002A55";
+    merek.style.fontWeight = "700";
+    merek.innerHTML = 'Pengolah Andal ini Ces!';
     isi.appendChild(merek);
 
     // Wrapper Dropdown
