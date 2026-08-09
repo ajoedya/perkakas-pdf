@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PDF ke Word — Perkakas PDF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600&family=Public+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="gaya.css">
+</head>
+<body>
+
+<header class="kop">
+  <div class="kop-isi">
+    <h1>PDF ke Word</h1>
+    <p>Mengubah teks pada PDF menjadi berkas .docx yang bisa disunting di Word. Seluruh pengolahan berjalan di peramban, tidak ada berkas yang diunggah ke server mana pun.</p>
+  </div>
+</header>
+
+<div class="bungkus">
+
+  <section>
+    <div class="kabar" style="border-left-color: var(--bahaya); background: var(--bahaya-muda); color: var(--bahaya);">
+      <b>Hasilnya tidak rapi.</b> Alat ini hanya menyalin teksnya apa adanya, baris demi baris. Tata letak, tabel, kop, dan kolom pada PDF <b>tidak dipertahankan</b>, dan gambar tidak ikut disalin. Cocok untuk mengambil isi tulisannya saja, bukan untuk menjiplak tampilan dokumen.
+    </div>
+
+    <p class="nomor">Langkah 1</p>
+    <h2>Pilih berkas</h2>
+    <div class="jatuhan" id="jatuhan" tabindex="0" role="button" aria-label="Pilih berkas PDF">
+      <strong>Seret satu atau beberapa berkas PDF ke sini</strong>
+      <span>atau klik untuk memilih, bisa dipilih berkali-kali</span>
+    </div>
+    <input type="file" id="berkas" accept="application/pdf" multiple class="sembunyi">
+    <div id="kabar" class="kabar"></div>
+  </section>
+
+  <section id="bagianDaftar" class="sembunyi">
+    <p class="nomor">Langkah 2</p>
+    <h2>Konversi menjadi .docx</h2>
+    <ul class="daftar" id="daftar"></ul>
+    <div class="baris-tombol">
+      <button class="tombol" id="konversi">Konversi semua ke Word</button>
+      <button class="tombol sekunder" id="kosongkan">Kosongkan daftar</button>
+    </div>
+    <p class="petunjuk">Tiap PDF menghasilkan satu berkas .docx. Kalau muncul permintaan izin untuk beberapa unduhan sekaligus, pilih Izinkan.</p>
+  </section>
+
+  <footer>
+    Seluruh pengolahan berjalan di peramban. Tidak ada berkas yang diunggah ke server mana pun.
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="bersama.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+const el = (id) => document.getElementById(id);
+const jeda = (ms) => new Promise((r) => setTimeout(r, ms));
+let antrean = [];   // [{nama, file}]
+
+Bersama.pasangJatuhan(el("jatuhan"), el("berkas"), (daftar) => {
+  const pdf = Bersama.pdfSaja(daftar);
+  const ditolak = daftar.length - pdf.length;
+  pdf.forEach((f) => antrean.push({ nama: f.name, file: f }));
+  if (ditolak) Bersama.pesan("kabar", ditolak + " berkas dilewati sebab bukan PDF.", "gagal");
+  else if (antrean.length) Bersama.pesan("kabar", antrean.length + " berkas siap dikonversi.", "");
+  gambarDaftar();
+});
+
+function gambarDaftar() {
+  const wadah = el("daftar");
+  wadah.innerHTML = "";
+  antrean.forEach((b, i) => {
+    const li = document.createElement("li");
+    const urut = document.createElement("span");
+    urut.className = "urut"; urut.textContent = (i + 1) + ".";
+    const nama = document.createElement("span");
+    nama.className = "nama"; nama.textContent = b.nama; nama.title = b.nama;
+    const rinci = document.createElement("span");
+    rinci.className = "rinci"; rinci.textContent = Bersama.ukuran(b.file.size);
+    li.append(urut, nama, rinci);
+    const buang = document.createElement("button");
+    buang.className = "tombol sekunder kecil"; buang.textContent = "Buang";
+    buang.addEventListener("click", () => { antrean.splice(i, 1); gambarDaftar(); });
+    li.appendChild(buang);
+    wadah.appendChild(li);
+  });
+  el("bagianDaftar").classList.toggle("sembunyi", !antrean.length);
+}
+
+el("kosongkan").addEventListener("click", () => {
+  antrean = []; gambarDaftar();
+  Bersama.pesan("kabar", "", "");
+});
+
+/* ================================================================
+   BAGIAN A. Pembuat ZIP (tanpa mampatan) untuk membungkus .docx
+   ================================================================ */
+
+const TABEL_CRC = (() => {
+  const t = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) {
+    let c = n;
+    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+    t[n] = c;
+  }
+  return t;
+})();
+
+function crc32(u8) {
+  let c = 0xFFFFFFFF;
+  for (let i = 0; i < u8.length; i++) c = TABEL_CRC[(c ^ u8[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+
+function keUtf8(str) { return new TextEncoder().encode(str); }
+
+function tulisU32(arr, v) { arr.push(v & 0xFF, (v >>> 8) & 0xFF, (v >>> 16) & 0xFF, (v >>> 24) & 0xFF); }
+function tulisU16(arr, v) { arr.push(v & 0xFF, (v >>> 8) & 0xFF); }
+
+/* Menyusun berkas ZIP sederhana (metode simpan, tanpa mampatan). */
+function susunZip(daftarBerkas) {
+  const bagianLokal = [], bagianTengah = [];
+  let offset = 0;
+
+  daftarBerkas.forEach((b) => {
+    const namaU8 = keUtf8(b.nama);
+    const isiU8 = b.data instanceof Uint8Array ? b.data : keUtf8(b.data);
+    const crc = crc32(isiU8);
+
+    const lokal = [];
+    tulisU32(lokal, 0x04034b50);
+    tulisU16(lokal, 20); tulisU16(lokal, 0); tulisU16(lokal, 0);
+    tulisU16(lokal, 0); tulisU16(lokal, 0);
+    tulisU32(lokal, crc);
+    tulisU32(lokal, isiU8.length);
+    tulisU32(lokal, isiU8.length);
+    tulisU16(lokal, namaU8.length);
+    tulisU16(lokal, 0);
+    const lokalHdr = new Uint8Array(lokal);
+    const potongLokal = new Uint8Array(lokalHdr.length + namaU8.length + isiU8.length);
+    potongLokal.set(lokalHdr, 0);
+    potongLokal.set(namaU8, lokalHdr.length);
+    potongLokal.set(isiU8, lokalHdr.length + namaU8.length);
+    bagianLokal.push(potongLokal);
+
+    const tengah = [];
+    tulisU32(tengah, 0x02014b50);
+    tulisU16(tengah, 20); tulisU16(tengah, 20); tulisU16(tengah, 0);
+    tulisU16(tengah, 0); tulisU16(tengah, 0); tulisU16(tengah, 0);
+    tulisU32(tengah, crc);
+    tulisU32(tengah, isiU8.length);
+    tulisU32(tengah, isiU8.length);
+    tulisU16(tengah, namaU8.length);
+    tulisU16(tengah, 0); tulisU16(tengah, 0); tulisU16(tengah, 0); tulisU16(tengah, 0);
+    tulisU32(tengah, 0);
+    tulisU32(tengah, offset);
+    const tengahHdr = new Uint8Array(tengah);
+    const potongTengah = new Uint8Array(tengahHdr.length + namaU8.length);
+    potongTengah.set(tengahHdr, 0);
+    potongTengah.set(namaU8, tengahHdr.length);
+    bagianTengah.push(potongTengah);
+
+    offset += potongLokal.length;
+  });
+
+  const ukuranTengah = bagianTengah.reduce((s, b) => s + b.length, 0);
+  const akhir = [];
+  tulisU32(akhir, 0x06054b50);
+  tulisU16(akhir, 0); tulisU16(akhir, 0);
+  tulisU16(akhir, daftarBerkas.length); tulisU16(akhir, daftarBerkas.length);
+  tulisU32(akhir, ukuranTengah);
+  tulisU32(akhir, offset);
+  tulisU16(akhir, 0);
+
+  const total = offset + ukuranTengah + akhir.length;
+  const hasil = new Uint8Array(total);
+  let p = 0;
+  bagianLokal.forEach((b) => { hasil.set(b, p); p += b.length; });
+  bagianTengah.forEach((b) => { hasil.set(b, p); p += b.length; });
+  hasil.set(new Uint8Array(akhir), p);
+  return hasil;
+}
+
+/* ================================================================
+   BAGIAN B. Penyusun berkas .docx minimal
+   ================================================================ */
+
+function lolosXml(s) {
+  return String(s)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+}
+
+const CONTENT_TYPES =
+`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+<Default Extension="xml" ContentType="application/xml"/>
+<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
+<Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>
+<Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>
+</Types>`;
+
+const ROOT_RELS =
+`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>
+<Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/>
+</Relationships>`;
+
+const DOC_RELS =
+`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+</Relationships>`;
+
+const STYLES_XML =
+`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+<w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="22"/></w:rPr></w:rPrDefault></w:docDefaults>
+<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style>
+</w:styles>`;
+
+const CORE_XML =
+`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:creator>Perkakas PDF</dc:creator><dc:title>Hasil konversi PDF ke Word</dc:title>
+</cp:coreProperties>`;
+
+const APP_XML =
+`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties">
+<Application>Perkakas PDF</Application>
+</Properties>`;
+
+/* halamanBaris: array per halaman, tiap halaman array baris, tiap baris array potongan {teks, tebal, miring} */
+function susunDocumentXml(halamanBaris) {
+  const bagian = [];
+  halamanBaris.forEach((baris, iHalaman) => {
+    if (iHalaman > 0) {
+      bagian.push('<w:p><w:r><w:br w:type="page"/></w:r></w:p>');
+    }
+    if (!baris.length) {
+      bagian.push('<w:p/>');
+      return;
+    }
+    baris.forEach((potongan) => {
+      const runs = potongan.map((p) => {
+        const rpr = (p.tebal || p.miring)
+          ? '<w:rPr>' + (p.tebal ? '<w:b/>' : '') + (p.miring ? '<w:i/>' : '') + '</w:rPr>'
+          : '';
+        return '<w:r>' + rpr + '<w:t xml:space="preserve">' + lolosXml(p.teks) + '</w:t></w:r>';
+      }).join('');
+      bagian.push('<w:p>' + runs + '</w:p>');
+    });
+  });
+
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+<w:body>${bagian.join('')}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1417" w:right="1417" w:bottom="1417" w:left="1417"/></w:sectPr></w:body>
+</w:document>`;
+}
+
+function buatDocxBytes(halamanBaris) {
+  const documentXml = susunDocumentXml(halamanBaris);
+  return susunZip([
+    { nama: "[Content_Types].xml", data: CONTENT_TYPES },
+    { nama: "_rels/.rels", data: ROOT_RELS },
+    { nama: "word/document.xml", data: documentXml },
+    { nama: "word/styles.xml", data: STYLES_XML },
+    { nama: "word/_rels/document.xml.rels", data: DOC_RELS },
+    { nama: "docProps/core.xml", data: CORE_XML },
+    { nama: "docProps/app.xml", data: APP_XML }
+  ]);
+}
+
+/* ================================================================
+   BAGIAN C. Ekstraksi teks per halaman, baris, dan gaya font
+   ================================================================ */
+
+function gayaFont(page, fontName) {
+  try {
+    const f = page.commonObjs.get(fontName);
+    const nama = (f && (f.name || (f.fontMatrix && f.loadedName))) || "";
+    const teksNama = String(nama);
+    return { tebal: /bold/i.test(teksNama), miring: /italic|oblique/i.test(teksNama) };
+  } catch (err) {
+    return { tebal: false, miring: false };
+  }
+}
+
+async function ambilBarisHalaman(dok, no) {
+  const page = await dok.getPage(no);
+  const isi = await page.getTextContent();
+  const items = isi.items.filter((it) => it.str !== "");
+
+  const baris = [];
+  items.forEach((it) => {
+    const x = it.transform[4], y = it.transform[5];
+    const gaya = gayaFont(page, it.fontName);
+    const cocok = baris.find((b) => Math.abs(b.y - y) < 2.5);
+    const potongan = { x, teks: it.str, tebal: gaya.tebal, miring: gaya.miring };
+    if (cocok) cocok.potongan.push(potongan);
+    else baris.push({ y, potongan: [potongan] });
+  });
+
+  baris.sort((a, b) => b.y - a.y);
+  return baris.map((b) => {
+    b.potongan.sort((p, q) => p.x - q.x);
+    const runs = [];
+    b.potongan.forEach((p) => {
+      const akhir = runs[runs.length - 1];
+      if (akhir && akhir.tebal === p.tebal && akhir.miring === p.miring) akhir.teks += p.teks;
+      else runs.push({ teks: p.teks, tebal: p.tebal, miring: p.miring });
+    });
+    return runs;
+  });
+}
+
+/* ================================================================
+   BAGIAN D. Proses konversi & pengunduhan
+   ================================================================ */
+
+el("konversi").addEventListener("click", async () => {
+  if (!antrean.length) return;
+  const tombol = el("konversi");
+  tombol.disabled = true;
+
+  for (let i = 0; i < antrean.length; i++) {
+    const b = antrean[i];
+    tombol.textContent = "Mengonversi " + (i + 1) + " dari " + antrean.length + " ...";
+    try {
+      const bytes = await b.file.arrayBuffer();
+      const dok = await pdfjsLib.getDocument({ data: bytes.slice(0) }).promise;
+      const halamanBaris = [];
+      for (let h = 1; h <= dok.numPages; h++) {
+        halamanBaris.push(await ambilBarisHalaman(dok, h));
+      }
+      const docxBytes = buatDocxBytes(halamanBaris);
+      const blob = new Blob([docxBytes], { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = Bersama.tanpaAkhiran(b.nama) + ".docx";
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+    } catch (err) {
+      Bersama.pesan("kabar", "Gagal mengonversi " + Bersama.lolos(b.nama) + ": " +
+        Bersama.lolos(String(err && err.message ? err.message : err).slice(0, 150)), "gagal");
+      console.error(err);
+    }
+    await jeda(300);
+  }
+
+  Bersama.pesan("kabar", antrean.length + " berkas .docx tersimpan di folder unduhan. Buka dengan Word untuk memeriksa hasilnya.", "beres");
+  tombol.disabled = false;
+  tombol.textContent = "Konversi semua ke Word";
+});
+</script>
+</body>
+</html>

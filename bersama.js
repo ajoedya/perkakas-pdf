@@ -13,7 +13,8 @@
     { berkas: "nomor.html",     nama: "Penomor Halaman" },
     { berkas: "tanda-air.html", nama: "Watermark" },
     { berkas: "gambar.html",    nama: "PDF dan Gambar" },
-    { berkas: "penanda.html",   nama: "Penanda TTE" }
+    { berkas: "penanda.html",   nama: "Penanda TTE" },
+    { berkas: "word.html",      nama: "PDF ke Word" }
   ];
 
   // Memasang favicon secara otomatis jika belum ada di tag <head>
@@ -39,7 +40,7 @@
     const merek = document.createElement("a");
     merek.className = "menu-nama";
     merek.href = "index.html";
-    merek.innerHTML = 'Perkakas PDF<span>.</span>';
+    merek.innerHTML = 'Pengolah Andal ini Ces<span>.</span>';
     isi.appendChild(merek);
 
     // Wrapper Dropdown
@@ -49,7 +50,7 @@
     const tombol = document.createElement("button");
     tombol.className = "menu-dropdown-btn";
     tombol.type = "button";
-    tombol.innerHTML = 'Pilih Alat Editmu! <span class="panah">&#9660;</span>';
+    tombol.innerHTML = 'Daftar Perkakas PDF';
 
     const menuKonten = document.createElement("div");
     menuKonten.className = "menu-dropdown-content";
