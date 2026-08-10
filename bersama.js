@@ -14,8 +14,8 @@
     { berkas: "tanda-air.html", nama: "Watermark" },
     { berkas: "gambar.html",    nama: "PDF dan Gambar" },
     { berkas: "penanda.html",   nama: "Penanda TTE" },
-    { berkas: "word.html",      nama: "PDF ke Word" },
-    { berkas: "kompres.html",   nama: "Kompresi PDF" }
+    { berkas: "word.html",      nama: "PDF ke Word (Uji Coba)" },
+    { berkas: "kompres.html",   nama: "Kompresi PDF (Uji Coba)" }
   ];
 
   // Memasang favicon secara otomatis jika belum ada di tag <head>
