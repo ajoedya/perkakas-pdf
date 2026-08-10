@@ -26,19 +26,17 @@
     padding: 7px 14px; border-radius: 999px; margin-bottom: 20px;
   }
   .strip-percaya {
-    display: grid; gap: 12px;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    max-width: 1160px; margin: -28px auto 0; padding: 0 24px;
+    display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
+    max-width: 1160px; margin: -20px auto 0; padding: 0 24px;
     position: relative; z-index: 2;
   }
-  .kartu-percaya {
+  .lencana-alat {
+    display: inline-flex; align-items: center; gap: 8px;
     background: var(--putih); border: 1px solid var(--garis);
-    border-radius: var(--radius-md); padding: 14px 16px;
-    box-shadow: var(--bayangan-lg); display: flex; gap: 12px; align-items: flex-start;
+    color: var(--biru-tua); font-size: 13px; font-weight: 600;
+    padding: 8px 16px; border-radius: 999px; box-shadow: var(--bayangan-sm);
   }
-  .kartu-percaya .ikon { font-size: 22px; line-height: 1; }
-  .kartu-percaya strong { display: block; font-size: 14px; color: var(--biru-tua); margin-bottom: 2px; }
-  .kartu-percaya span { font-size: 13px; color: var(--tinta-lembut); line-height: 1.5; }
+  .lencana-alat .ikon { font-size: 15px; line-height: 1; }
   section.alat-section { padding-top: 12px; }
   .bungkus.lebar { padding: 12px 24px 32px; }
   .pita-motif-kecil { width: 120px; height: 8px; margin: 0 0 14px; }
@@ -58,6 +56,13 @@
     transform: skewX(-20deg); transition: left 0.6s ease;
   }
   .kartu-alat:hover::before { left: 125%; }
+  .kartu-alat::after {
+    content: ""; position: absolute; bottom: -13px; right: -13px; width: 117px; height: 117px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 5 C68 5 82 18 82 35 C82 48 73 54 63 50 C56 47 55 39 61 36 C66 34 69 39 65 42' fill='none' stroke='%23002F5F' stroke-width='2.5'/%3E%3Cpath d='M50 5 C40 8 33 16 34 26 C35 34 42 37 47 33 C51 30 50 24 45 23' fill='none' stroke='%23F5B301' stroke-width='2.5'/%3E%3Cpath d='M10 55 C10 40 22 30 36 32 C46 33 48 43 40 46 C34 48 31 41 36 39' fill='none' stroke='%23F5B301' stroke-width='2.5'/%3E%3Cpath d='M10 55 C4 65 5 78 15 84 C23 89 32 84 30 76 C29 70 22 69 20 74' fill='none' stroke='%23002F5F' stroke-width='2.5'/%3E%3Cpath d='M82 35 C90 42 92 54 85 62 C79 69 68 67 68 59 C68 54 74 52 77 56' fill='none' stroke='%23002F5F' stroke-width='2'/%3E%3Cpath d='M36 32 C48 26 62 28 68 38' fill='none' stroke='%23F5B301' stroke-width='1.5' stroke-dasharray='2 3'/%3E%3Ccircle cx='50' cy='5' r='3.5' fill='%23002F5F'/%3E%3Ccircle cx='10' cy='55' r='3.5' fill='%23F5B301'/%3E%3Ccircle cx='82' cy='35' r='3' fill='%23002F5F'/%3E%3Ccircle cx='15' cy='84' r='3' fill='%23F5B301'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-size: contain;
+    opacity: 0.08; pointer-events: none;
+  }
+  .beruang-hias { display: none; }
   .kartu-alat-atas { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
   .kartu-alat .ikon-alat { margin-bottom: 0; }
   .kartu-alat:hover { transform: translateY(-4px); box-shadow: var(--bayangan-lg); border-color: var(--emas); }
@@ -92,17 +97,16 @@
 <header class="kop beranda">
   <div class="kop-isi beranda-isi">
     <div class="lencana-baris">
-      <span class="lencana-percaya">🔒 Keamanan Data Terjamin 🔒</span>
     </div>
     <h1>PDF Editor Bubuhan <em>Balikpapan</em>🏵️</h1>
     <p>Pengolah <i>file</i> <b>PDF</b> gratis, semua proses dijalankan secara lokal pada peramban dan <em>tidak terkirim ke server mana pun</em>.</p>
   </div>
-  <svg class="sudut-ukir" width="64" height="64" viewBox="0 0 64 64" aria-hidden="true">
+  <svg class="sudut-ukir" width="64" height="64" viewBox="0 0 64 64" aria-hidden="true" style="display:none;">
     <polygon points="32,4 44,16 32,28 20,16" fill="none" stroke="#F5B301" stroke-width="2"/>
     <polygon points="32,20 40,28 32,36 24,28" fill="none" stroke="#F5B301" stroke-width="2"/>
     <circle cx="32" cy="48" r="5" fill="none" stroke="#F5B301" stroke-width="2"/>
   </svg>
-  <div class="pita-motif" aria-hidden="true">
+  <div class="pita-motif" aria-hidden="true" style="display:none;">
     <svg viewBox="0 0 40 10" preserveAspectRatio="none">
       <pattern id="motifKaltim" width="20" height="10" patternUnits="userSpaceOnUse">
         <polygon points="10,0 20,5 10,10 0,5" fill="#F5B301"/>
@@ -113,19 +117,10 @@
   </div>
 </header>
 
-<div class="strip-percaya">
-  <div class="kartu-percaya">
-    <span class="ikon">🖥️</span>
-    <div><strong>Tidak Diunggah ke Server</strong><span>Berkas tetap di komputermu, tidak pernah dikirim keluar.</span></div>
-  </div>
-  <div class="kartu-percaya">
-    <span class="ikon">🆓</span>
-    <div><strong>Gratis & Tanpa akun</strong><span>Buka halamannya, langsung pakai, tidak perlu masuk.</span></div>
-  </div>
-  <div class="kartu-percaya">
-    <span class="ikon">⚡</span>
-    <div><strong>Sembilan Alat Siap Pakai</strong><span>Dari edit teks sampai penanda tanda tangan elektronik.</span></div>
-  </div>
+<div class="strip-percaya" style="margin-top: -20px;">
+  <span class="lencana-alat"><span class="ikon">🖥️</span>File Diproses Lokal</span>
+  <span class="lencana-alat"><span class="ikon">🆓</span>Gratis dan Tanpa Daftar</span>
+  <span class="lencana-alat"><span class="ikon">⚡</span>Sembilan Alat Siap Pakai</span>
 </div>
 
 <div class="bungkus lebar">
@@ -144,46 +139,55 @@
     </div>
     <div class="petak">
       <a class="kartu-alat" href="koreksi.html">
+        <span class="beruang-hias" aria-hidden="true">🐻</span>
         <strong>Edit Teks</strong>
         <span>Sunting teks yang ada pada naskah kamu, untuk koreksi, menambah, atau menghapus teks.</span>
         <span class="buka">Buka alat →</span>
       </a>
       <a class="kartu-alat" href="gabung.html">
+        <span class="beruang-hias" aria-hidden="true">🐻</span>
         <strong>Gabung PDF</strong>
         <span>Menyatukan beberapa PDF menjadi satu berkas, dengan urutan yang bisa kamu atur sendiri.</span>
         <span class="buka">Buka alat →</span>
       </a>
       <a class="kartu-alat" href="pecah.html">
+        <span class="beruang-hias" aria-hidden="true">🐻</span>
         <strong>Pecah PDF</strong>
         <span>Mengambil halaman tertentu menjadi berkas baru, atau memecah seluruh dokumen per halaman.</span>
         <span class="buka">Buka alat →</span>
       </a>
       <a class="kartu-alat" href="susun.html">
+        <span class="beruang-hias" aria-hidden="true">🐻</span>
         <strong>Susun Halaman</strong>
         <span>Menghapus halaman yang tidak perlu, memutar halaman yang miring, dan mengubah urutannya.</span>
         <span class="buka">Buka alat →</span>
       </a>
       <a class="kartu-alat" href="nomor.html">
+        <span class="beruang-hias" aria-hidden="true">🐻</span>
         <strong>Penomor Halaman</strong>
         <span>Membubuhkan nomor halaman pada posisi dan mulai dari nomor yang kamu tentukan.</span>
         <span class="buka">Buka alat →</span>
       </a>
       <a class="kartu-alat" href="tanda-air.html">
+        <span class="beruang-hias" aria-hidden="true">🐻</span>
         <strong>Watermark</strong>
         <span>Menuliskan kata seperti SALINAN atau KONSEP secara menyerong di tengah tiap halaman.</span>
         <span class="buka">Buka alat →</span>
       </a>
       <a class="kartu-alat" href="gambar.html">
+        <span class="beruang-hias" aria-hidden="true">🐻</span>
         <strong>PDF dan Gambar</strong>
         <span>Mengubah tiap halaman PDF menjadi gambar, atau menyusun beberapa gambar menjadi satu PDF.</span>
         <span class="buka">Buka alat →</span>
       </a>
       <a class="kartu-alat" href="penanda.html">
+        <span class="beruang-hias" aria-hidden="true">🐻</span>
         <strong>Penanda TTE</strong>
         <span>Membubuhkan tulisan Ditandatangani secara elektronik di atas nama penandatangan.</span>
         <span class="buka">Buka alat →</span>
       </a>
       <a class="kartu-alat" href="word.html">
+        <span class="beruang-hias" aria-hidden="true">🐻</span>
         <strong>PDF ke Word</strong>
         <span>Menyalin teks PDF menjadi berkas .docx yang bisa disunting. Tata letak dan tabel tidak dipertahankan.</span>
         <span class="buka">Buka alat →</span>
@@ -192,13 +196,6 @@
   </section>
 
   <div class="pita-motif" aria-hidden="true" style="margin-top: 20px;">
-    <svg viewBox="0 0 40 10" preserveAspectRatio="none">
-      <pattern id="motifKaltimBawah" width="20" height="10" patternUnits="userSpaceOnUse">
-        <polygon points="10,0 20,5 10,10 0,5" fill="var(--emas)"/>
-        <polygon points="10,2.5 15,5 10,7.5 5,5" fill="var(--biru-tua)"/>
-      </pattern>
-      <rect width="40" height="10" fill="url(#motifKaltimBawah)"/>
-    </svg>
   </div>
 
   <footer>
