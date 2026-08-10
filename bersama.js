@@ -44,7 +44,7 @@
     merek.href = "index.html";
     merek.style.color = "#002A55";
     merek.style.fontWeight = "700";
-    merek.innerHTML = 'Pengolah Andal ini Ces!';
+    merek.innerHTML = 'Sederhana tapi Boleh Dicoba.';
     isi.appendChild(merek);
 
     // Wrapper Dropdown
