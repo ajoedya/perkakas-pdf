@@ -8,13 +8,30 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600&family=Public+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="gaya.css">
+<style>
+/* Gaya tambahan khusus halaman ini, sengaja diberi awalan pw- agar tidak bentrok dengan gaya.css */
+.pw-opsi{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:6px 18px;margin:10px 0 4px}
+.pw-opsi label{display:flex;gap:8px;align-items:flex-start;font-size:14px;line-height:1.35;cursor:pointer}
+.pw-opsi input{margin-top:3px;flex:none}
+.pw-opsi small{display:block;opacity:.7;font-size:12px}
+.pw-hasil{list-style:none;padding:0;margin:12px 0 0}
+.pw-hasil li{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:9px 0;border-top:1px solid rgba(128,128,128,.28)}
+.pw-hasil .pw-nama{flex:1 1 220px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pw-hasil .pw-rinci{font-size:12px;opacity:.75}
+.pw-unduh{display:inline-block;padding:5px 12px;border-radius:6px;border:1px solid currentColor;text-decoration:none;font-size:13px;font-weight:600}
+.pw-gagal{font-size:13px;opacity:.9}
+.pw-catatan{font-size:12.5px;line-height:1.5;margin:6px 0 0;opacity:.85}
+.pw-catatan li{margin:2px 0}
+details.pw-lipat{margin:10px 0}
+details.pw-lipat summary{cursor:pointer;font-weight:600;font-size:14px}
+</style>
 </head>
 <body>
 
 <header class="kop">
   <div class="kop-isi">
     <h1>PDF ke Word</h1>
-    <p>Mengubah teks pada PDF menjadi berkas .docx yang bisa disunting di Word. Seluruh pengolahan berjalan di peramban, tidak ada berkas yang diunggah ke server mana pun.</p>
+    <p>Mengubah isi PDF menjadi berkas .docx yang bisa disunting di Word. Seluruh pengolahan berjalan di peramban, tidak ada berkas yang diunggah ke server mana pun.</p>
   </div>
 </header>
 
@@ -22,7 +39,7 @@
 
   <section>
     <div class="kabar" style="border-left-color: var(--bahaya); background: var(--bahaya-muda); color: var(--bahaya);">
-      <b>Hasilnya perkiraan, bukan tiruan persis.</b> Alat ini menyalin teks beserta perkiraan posisi, perataan, jarak antar baris, ukuran/gaya font, kolom berganda, tabel sederhana, dan gambar dari PDF. Tabel rumit bergaris ganda dan kop bertingkat kompleks <b>tidak dipertahankan</b>. Cocok untuk dokumen berbasis teks, tabel sederhana, dan gambar, bukan formulir rumit.
+      <b>Hasilnya perkiraan, bukan tiruan persis.</b> Alat ini membaca teks beserta posisi, perataan, jarak baris, ukuran, tebal, miring, garis bawah, warna, tautan, judul, daftar bernomor, tabel bergaris maupun tabel tanpa garis, kolom berganda, gambar, serta grafik vektor. Tata letak yang sangat rumit, formulir isian, dan PDF hasil pindaian tanpa lapisan teks tetap tidak dapat dipulihkan secara utuh.
     </div>
 
     <p class="nomor">Langkah 1</p>
@@ -37,13 +54,40 @@
 
   <section id="bagianDaftar" class="sembunyi">
     <p class="nomor">Langkah 2</p>
+    <h2>Atur pengenalan elemen</h2>
+    <details class="pw-lipat" id="lipatOpsi">
+      <summary>Pilihan pengenalan elemen, klik untuk membuka</summary>
+      <div class="pw-opsi">
+        <label><input type="checkbox" id="optParagraf" checked><span>Gabungkan baris menjadi paragraf<small>Tanpa ini tiap baris PDF menjadi satu paragraf terpisah dan sulit disunting</small></span></label>
+        <label><input type="checkbox" id="optJudul" checked><span>Kenali judul dan subjudul<small>Dipetakan ke gaya Heading 1 sampai 4 sehingga muncul di panel navigasi Word</small></span></label>
+        <label><input type="checkbox" id="optDaftar" checked><span>Kenali daftar bernomor dan berbutir<small>Penanda aslinya dipertahankan, indentasi dibuat menggantung</small></span></label>
+        <label><input type="checkbox" id="optTabelGaris" checked><span>Kenali tabel dari garis<small>Termasuk sel yang digabung mendatar maupun menurun</small></span></label>
+        <label><input type="checkbox" id="optTabelSpasi" checked><span>Kenali tabel tanpa garis<small>Berdasarkan kolom yang sejajar, dibuat tanpa garis tepi</small></span></label>
+        <label><input type="checkbox" id="optKolom" checked><span>Kenali kolom berganda<small>Agar urutan baca tidak melompat antarkolom</small></span></label>
+        <label><input type="checkbox" id="optGambar" checked><span>Sertakan gambar<small>Gambar diambil dari hasil render halaman sehingga JPEG, gambar bertopeng, dan gambar berputar ikut terbaca</small></span></label>
+        <label><input type="checkbox" id="optVektor" checked><span>Tangkap grafik vektor<small>Logo, bagan, dan diagram garis disimpan sebagai gambar</small></span></label>
+        <label><input type="checkbox" id="optKopKaki" checked><span>Pindahkan kop dan kaki halaman<small>Teks berulang di tepi atas dan bawah dijadikan header dan footer Word, nomor halaman menjadi ruas PAGE</small></span></label>
+        <label><input type="checkbox" id="optWarna" checked><span>Kenali warna, garis bawah, dan coretan<small>Warna teks diambil dengan mencuplik piksel hasil render</small></span></label>
+        <label><input type="checkbox" id="optTaut" checked><span>Kenali tautan<small>Anotasi tautan PDF beserta alamat surel dan URL yang tertulis di teks</small></span></label>
+        <label><input type="checkbox" id="optPemisah" checked><span>Pertahankan pemisah halaman<small>Setiap halaman PDF dimulai di halaman baru</small></span></label>
+        <label><input type="checkbox" id="optZip"><span>Bungkus semua hasil dalam satu ZIP<small>Berguna kalau peramban memblokir unduhan berkali-kali</small></span></label>
+      </div>
+    </details>
+
+    <p class="nomor">Langkah 3</p>
     <h2>Konversi menjadi .docx</h2>
     <ul class="daftar" id="daftar"></ul>
     <div class="baris-tombol">
       <button class="tombol" id="konversi">Konversi semua ke Word</button>
       <button class="tombol sekunder" id="kosongkan">Kosongkan daftar</button>
     </div>
-    <p class="petunjuk">Tiap PDF menghasilkan satu berkas .docx. Kalau muncul permintaan izin untuk beberapa unduhan sekaligus, pilih Izinkan.</p>
+    <p class="petunjuk">Hasil konversi selalu ditampilkan sebagai tautan unduhan di bawah, jadi kalau unduhan otomatis diblokir peramban, berkasnya masih bisa diambil dengan menekan tombol Unduh.</p>
+  </section>
+
+  <section id="bagianHasil" class="sembunyi">
+    <h2>Hasil</h2>
+    <ul class="pw-hasil" id="hasil"></ul>
+    <div id="kabarHasil" class="kabar"></div>
   </section>
 
   <footer>
@@ -54,19 +98,75 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="bersama.js"></script>
 <script>
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+"use strict";
+
+const PDFJS_BASE = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";
+pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_BASE + "pdf.worker.min.js";
 
 const el = (id) => document.getElementById(id);
 const jeda = (ms) => new Promise((r) => setTimeout(r, ms));
-let antrean = [];   // [{nama, file}]
+const jepit = (v, min, maks) => Math.min(maks, Math.max(min, v));
 
-Bersama.pasangJatuhan(el("jatuhan"), el("berkas"), (daftar) => {
-  const pdf = Bersama.pdfSaja(daftar);
+/* ================================================================
+   BAGIAN 0. Lapisan aman di atas bersama.js
+   Kalau salah satu fungsi bantu tidak tersedia, alat ini tetap jalan
+   dan tidak lagi gagal diam-diam seperti pada versi sebelumnya.
+   ================================================================ */
+const Bantu = {
+  ada(nama) { return (typeof Bersama !== "undefined") && typeof Bersama[nama] === "function"; },
+  pesan(id, teks, jenis) {
+    if (Bantu.ada("pesan")) { try { return Bersama.pesan(id, teks, jenis); } catch (e) { /* jatuh ke cadangan */ } }
+    const e2 = el(id);
+    if (!e2) return;
+    e2.textContent = teks || "";
+    e2.className = "kabar" + (jenis ? " " + jenis : "");
+    e2.style.display = teks ? "" : "none";
+  },
+  ukuran(n) {
+    if (Bantu.ada("ukuran")) { try { return Bersama.ukuran(n); } catch (e) {} }
+    if (!n && n !== 0) return "";
+    const satuan = ["B", "KB", "MB", "GB"];
+    let i = 0, v = n;
+    while (v >= 1024 && i < satuan.length - 1) { v /= 1024; i++; }
+    return (i === 0 ? v : v.toFixed(1)) + " " + satuan[i];
+  },
+  tanpaAkhiran(nama) {
+    if (Bantu.ada("tanpaAkhiran")) { try { return Bersama.tanpaAkhiran(nama); } catch (e) {} }
+    return String(nama || "berkas").replace(/\.[^.]+$/, "");
+  },
+  lolos(s) {
+    if (Bantu.ada("lolos")) { try { return Bersama.lolos(s); } catch (e) {} }
+    return String(s == null ? "" : s);
+  },
+  pdfSaja(daftar) {
+    if (Bantu.ada("pdfSaja")) { try { return Bersama.pdfSaja(daftar); } catch (e) {} }
+    return Array.from(daftar).filter((f) => /\.pdf$/i.test(f.name) || f.type === "application/pdf");
+  },
+  pasangJatuhan(kotak, input, saatPilih) {
+    if (Bantu.ada("pasangJatuhan")) { try { return Bersama.pasangJatuhan(kotak, input, saatPilih); } catch (e) {} }
+    const buka = () => input.click();
+    kotak.addEventListener("click", buka);
+    kotak.addEventListener("keydown", (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); buka(); } });
+    ["dragenter", "dragover"].forEach((n) => kotak.addEventListener(n, (ev) => { ev.preventDefault(); kotak.classList.add("aktif"); }));
+    ["dragleave", "drop"].forEach((n) => kotak.addEventListener(n, (ev) => { ev.preventDefault(); kotak.classList.remove("aktif"); }));
+    kotak.addEventListener("drop", (ev) => { if (ev.dataTransfer && ev.dataTransfer.files.length) saatPilih(ev.dataTransfer.files); });
+    input.addEventListener("change", () => { if (input.files.length) { saatPilih(input.files); input.value = ""; } });
+  }
+};
+
+/* ================================================================
+   BAGIAN 1. Antrean berkas
+   ================================================================ */
+let antrean = [];
+let urlHidup = [];
+
+Bantu.pasangJatuhan(el("jatuhan"), el("berkas"), (daftar) => {
+  const pdf = Bantu.pdfSaja(daftar);
   const ditolak = daftar.length - pdf.length;
   pdf.forEach((f) => antrean.push({ nama: f.name, file: f }));
-  if (ditolak) Bersama.pesan("kabar", ditolak + " berkas dilewati sebab bukan PDF.", "gagal");
-  else if (antrean.length) Bersama.pesan("kabar", antrean.length + " berkas siap dikonversi.", "");
+  if (ditolak) Bantu.pesan("kabar", ditolak + " berkas dilewati sebab bukan PDF.", "gagal");
+  else if (antrean.length) Bantu.pesan("kabar", antrean.length + " berkas siap dikonversi.", "");
+  el("optZip").checked = antrean.length > 1;
   gambarDaftar();
 });
 
@@ -80,7 +180,7 @@ function gambarDaftar() {
     const nama = document.createElement("span");
     nama.className = "nama"; nama.textContent = b.nama; nama.title = b.nama;
     const rinci = document.createElement("span");
-    rinci.className = "rinci"; rinci.textContent = Bersama.ukuran(b.file.size);
+    rinci.className = "rinci"; rinci.textContent = Bantu.ukuran(b.file.size);
     li.append(urut, nama, rinci);
     const buang = document.createElement("button");
     buang.className = "tombol sekunder kecil"; buang.textContent = "Buang";
@@ -93,12 +193,33 @@ function gambarDaftar() {
 
 el("kosongkan").addEventListener("click", () => {
   antrean = []; gambarDaftar();
-  Bersama.pesan("kabar", "", "");
+  bersihkanHasil();
+  Bantu.pesan("kabar", "", "");
 });
 
-/* ================================================================
-   BAGIAN A. Pembuat ZIP (tanpa mampatan) untuk membungkus .docx
-   ================================================================ */
+function bersihkanHasil() {
+  urlHidup.forEach((u) => { try { URL.revokeObjectURL(u); } catch (e) {} });
+  urlHidup = [];
+  el("hasil").innerHTML = "";
+  el("bagianHasil").classList.add("sembunyi");
+  Bantu.pesan("kabarHasil", "", "");
+}
+window.addEventListener("beforeunload", () => urlHidup.forEach((u) => { try { URL.revokeObjectURL(u); } catch (e) {} }));
+
+function bacaOpsi() {
+  const o = {};
+  ["optParagraf","optJudul","optDaftar","optTabelGaris","optTabelSpasi","optKolom",
+   "optGambar","optVektor","optKopKaki","optWarna","optTaut","optPemisah","optZip"]
+    .forEach((id) => { o[id.replace(/^opt/, "").toLowerCase()] = el(id).checked; });
+  o.render = o.gambar || o.vektor || o.warna;
+  return o;
+}
+
+/* [MULAI-BUILDER] --------------------------------------------------
+   BAGIAN 2. Pembuat ZIP dan penyusun berkas .docx.
+   Bagian ini sengaja tidak menyentuh DOM sama sekali supaya bisa diuji
+   terpisah di luar peramban.
+   ------------------------------------------------------------------ */
 
 const TABEL_CRC = (() => {
   const t = new Uint32Array(256);
@@ -117,42 +238,57 @@ function crc32(u8) {
 }
 
 function keUtf8(str) { return new TextEncoder().encode(str); }
-
 function tulisU32(arr, v) { arr.push(v & 0xFF, (v >>> 8) & 0xFF, (v >>> 16) & 0xFF, (v >>> 24) & 0xFF); }
 function tulisU16(arr, v) { arr.push(v & 0xFF, (v >>> 8) & 0xFF); }
 
-/* Menyusun berkas ZIP sederhana (metode simpan, tanpa mampatan). */
-function susunZip(daftarBerkas) {
+/* Memampatkan dengan deflate mentah kalau peramban mendukung, kalau tidak
+   berkas tetap disimpan apa adanya. Tanpa ini .docx yang memuat gambar
+   bisa membengkak sampai berkali lipat ukuran wajarnya. */
+async function mampatkan(u8) {
+  if (typeof CompressionStream === "undefined") return null;
+  try {
+    const aliran = new Blob([u8]).stream().pipeThrough(new CompressionStream("deflate-raw"));
+    const buf = await new Response(aliran).arrayBuffer();
+    const hasil = new Uint8Array(buf);
+    return hasil.length < u8.length ? hasil : null;
+  } catch (e) { return null; }
+}
+
+async function susunZip(daftarBerkas) {
   const bagianLokal = [], bagianTengah = [];
   let offset = 0;
 
-  daftarBerkas.forEach((b) => {
+  for (const b of daftarBerkas) {
     const namaU8 = keUtf8(b.nama);
     const isiU8 = b.data instanceof Uint8Array ? b.data : keUtf8(b.data);
     const crc = crc32(isiU8);
+    const padat = b.janganMampat ? null : await mampatkan(isiU8);
+    const metode = padat ? 8 : 0;
+    const muatan = padat || isiU8;
+    const bendera = 0x0800; /* nama berkas berpengkodean UTF-8 */
 
     const lokal = [];
     tulisU32(lokal, 0x04034b50);
-    tulisU16(lokal, 20); tulisU16(lokal, 0); tulisU16(lokal, 0);
+    tulisU16(lokal, 20); tulisU16(lokal, bendera); tulisU16(lokal, metode);
     tulisU16(lokal, 0); tulisU16(lokal, 0);
     tulisU32(lokal, crc);
-    tulisU32(lokal, isiU8.length);
+    tulisU32(lokal, muatan.length);
     tulisU32(lokal, isiU8.length);
     tulisU16(lokal, namaU8.length);
     tulisU16(lokal, 0);
     const lokalHdr = new Uint8Array(lokal);
-    const potongLokal = new Uint8Array(lokalHdr.length + namaU8.length + isiU8.length);
+    const potongLokal = new Uint8Array(lokalHdr.length + namaU8.length + muatan.length);
     potongLokal.set(lokalHdr, 0);
     potongLokal.set(namaU8, lokalHdr.length);
-    potongLokal.set(isiU8, lokalHdr.length + namaU8.length);
+    potongLokal.set(muatan, lokalHdr.length + namaU8.length);
     bagianLokal.push(potongLokal);
 
     const tengah = [];
     tulisU32(tengah, 0x02014b50);
-    tulisU16(tengah, 20); tulisU16(tengah, 20); tulisU16(tengah, 0);
-    tulisU16(tengah, 0); tulisU16(tengah, 0); tulisU16(tengah, 0);
+    tulisU16(tengah, 20); tulisU16(tengah, 20); tulisU16(tengah, bendera);
+    tulisU16(tengah, metode); tulisU16(tengah, 0); tulisU16(tengah, 0);
     tulisU32(tengah, crc);
-    tulisU32(tengah, isiU8.length);
+    tulisU32(tengah, muatan.length);
     tulisU32(tengah, isiU8.length);
     tulisU16(tengah, namaU8.length);
     tulisU16(tengah, 0); tulisU16(tengah, 0); tulisU16(tengah, 0); tulisU16(tengah, 0);
@@ -165,7 +301,7 @@ function susunZip(daftarBerkas) {
     bagianTengah.push(potongTengah);
 
     offset += potongLokal.length;
-  });
+  }
 
   const ukuranTengah = bagianTengah.reduce((s, b) => s + b.length, 0);
   const akhir = [];
@@ -185,26 +321,20 @@ function susunZip(daftarBerkas) {
   return hasil;
 }
 
-/* ================================================================
-   BAGIAN B. Penyusun berkas .docx minimal
-   ================================================================ */
+/* ---------------- bagian tetap berkas .docx ---------------- */
 
 function lolosXml(s) {
-  return String(s)
+  return String(s == null ? "" : s)
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "")
     .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;").replace(/'/g, "&apos;");
 }
 
-const CONTENT_TYPES =
-`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
-<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
-<Default Extension="xml" ContentType="application/xml"/>
-<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
-<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
-<Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>
-<Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>
-</Types>`;
+const NS_DOK = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" ' +
+  'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" ' +
+  'xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" ' +
+  'xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" ' +
+  'xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"';
 
 const ROOT_RELS =
 `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -214,25 +344,31 @@ const ROOT_RELS =
 <Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/>
 </Relationships>`;
 
-const DOC_RELS =
-`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
-</Relationships>`;
+function gayaJudul(id, nama, tingkat, ukuranHalf) {
+  return '<w:style w:type="paragraph" w:styleId="' + id + '"><w:name w:val="' + nama + '"/>' +
+    '<w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:uiPriority w:val="9"/><w:qFormat/>' +
+    '<w:pPr><w:keepNext/><w:keepLines/><w:spacing w:before="200" w:after="80"/><w:outlineLvl w:val="' + tingkat + '"/></w:pPr>' +
+    '<w:rPr><w:b/><w:sz w:val="' + ukuranHalf + '"/><w:szCs w:val="' + ukuranHalf + '"/></w:rPr></w:style>';
+}
 
 const STYLES_XML =
 `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-<w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="22"/></w:rPr></w:rPrDefault>
+<w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:lang w:val="id-ID"/></w:rPr></w:rPrDefault>
 <w:pPrDefault><w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults>
-<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style>
+<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/></w:style>
+<w:style w:type="character" w:default="1" w:styleId="DefaultParagraphFont"><w:name w:val="Default Paragraph Font"/><w:uiPriority w:val="1"/><w:semiHidden/><w:unhideWhenUsed/></w:style>
+<w:style w:type="table" w:default="1" w:styleId="TableNormal"><w:name w:val="Normal Table"/><w:uiPriority w:val="99"/><w:semiHidden/><w:unhideWhenUsed/><w:tblPr><w:tblInd w:w="0" w:type="dxa"/><w:tblCellMar><w:top w:w="0" w:type="dxa"/><w:left w:w="72" w:type="dxa"/><w:bottom w:w="0" w:type="dxa"/><w:right w:w="72" w:type="dxa"/></w:tblCellMar></w:tblPr></w:style>
+<w:style w:type="numbering" w:default="1" w:styleId="NoList"><w:name w:val="No List"/><w:uiPriority w:val="99"/><w:semiHidden/><w:unhideWhenUsed/></w:style>
+${gayaJudul("Heading1", "heading 1", 0, 32)}
+${gayaJudul("Heading2", "heading 2", 1, 28)}
+${gayaJudul("Heading3", "heading 3", 2, 26)}
+${gayaJudul("Heading4", "heading 4", 3, 24)}
+<w:style w:type="paragraph" w:styleId="ListParagraph"><w:name w:val="List Paragraph"/><w:basedOn w:val="Normal"/><w:uiPriority w:val="34"/><w:qFormat/><w:pPr><w:contextualSpacing/></w:pPr></w:style>
+<w:style w:type="paragraph" w:styleId="Header"><w:name w:val="header"/><w:basedOn w:val="Normal"/><w:uiPriority w:val="99"/><w:unhideWhenUsed/></w:style>
+<w:style w:type="paragraph" w:styleId="Footer"><w:name w:val="footer"/><w:basedOn w:val="Normal"/><w:uiPriority w:val="99"/><w:unhideWhenUsed/></w:style>
+<w:style w:type="character" w:styleId="Hyperlink"><w:name w:val="Hyperlink"/><w:basedOn w:val="DefaultParagraphFont"/><w:uiPriority w:val="99"/><w:unhideWhenUsed/><w:rPr><w:color w:val="0563C1"/><w:u w:val="single"/></w:rPr></w:style>
 </w:styles>`;
-
-const CORE_XML =
-`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/">
-<dc:creator>Perkakas PDF</dc:creator><dc:title>Hasil konversi PDF ke Word</dc:title>
-</cp:coreProperties>`;
 
 const APP_XML =
 `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -240,415 +376,1659 @@ const APP_XML =
 <Application>Perkakas PDF</Application>
 </Properties>`;
 
+function coreXml(judul) {
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:creator>Perkakas PDF</dc:creator><dc:title>${lolosXml(judul || "Hasil konversi PDF ke Word")}</dc:title>
+</cp:coreProperties>`;
+}
+
 const PT_KE_TWIP = 20;
+const PT_KE_EMU = 12700;
 
-function xmlParagraf(b) {
-  const runs = b.potongan.map((p) => {
-    const gaya = (p.tebal ? '<w:b/>' : '') + (p.miring ? '<w:i/>' : '') + '<w:sz w:val="' + p.szHalf + '"/>';
-    return '<w:r><w:rPr>' + gaya + '</w:rPr><w:t xml:space="preserve">' + lolosXml(p.teks) + '</w:t></w:r>';
-  }).join('');
-  const ppr = [];
-  if (b.align === 'center') ppr.push('<w:jc w:val="center"/>');
-  else if (b.align === 'right') ppr.push('<w:jc w:val="right"/>');
-  else if (b.indentTwip > 20) ppr.push('<w:ind w:left="' + Math.round(b.indentTwip) + '"/>');
-  if (b.spacingBefore > 0) ppr.push('<w:spacing w:before="' + Math.round(b.spacingBefore) + '"/>');
-  const pprXml = ppr.length ? '<w:pPr>' + ppr.join('') + '</w:pPr>' : '';
-  return '<w:p>' + pprXml + runs + '</w:p>';
+/* ---------------- penyusun isi document.xml ---------------- */
+
+function xmlRpr(r) {
+  const p = [];
+  if (r.taut) p.push('<w:rStyle w:val="Hyperlink"/>');
+  if (r.keluarga) {
+    const f = lolosXml(r.keluarga);
+    p.push('<w:rFonts w:ascii="' + f + '" w:hAnsi="' + f + '" w:cs="' + f + '"/>');
+  }
+  if (r.tebal) p.push('<w:b/><w:bCs/>');
+  if (r.miring) p.push('<w:i/><w:iCs/>');
+  if (r.coret) p.push('<w:strike/>');
+  if (r.warna && !r.taut) p.push('<w:color w:val="' + r.warna + '"/>');
+  const sz = jepit(Math.round(r.szHalf || 22), 8, 300);
+  p.push('<w:sz w:val="' + sz + '"/><w:szCs w:val="' + sz + '"/>');
+  if (r.garisBawah && !r.taut) p.push('<w:u w:val="single"/>');
+  if (r.vert) p.push('<w:vertAlign w:val="' + r.vert + '"/>');
+  return '<w:rPr>' + p.join('') + '</w:rPr>';
 }
 
-function xmlSelTabel(potongan, lebarTwip) {
-  const isi = potongan.length
-    ? potongan.map((p) => {
-        const gaya = (p.tebal ? '<w:b/>' : '') + (p.miring ? '<w:i/>' : '') + '<w:sz w:val="' + p.szHalf + '"/>';
-        return '<w:r><w:rPr>' + gaya + '</w:rPr><w:t xml:space="preserve">' + lolosXml(p.teks) + '</w:t></w:r>';
-      }).join('')
-    : '';
-  return '<w:tc><w:tcPr><w:tcW w:w="' + Math.round(lebarTwip) + '" w:type="dxa"/></w:tcPr><w:p>' + isi + '</w:p></w:tc>';
+function xmlSatuRun(r) {
+  const rpr = xmlRpr(r);
+  let dalam = "";
+  if (r.tab) dalam += '<w:tab/>';
+  if (r.jenisRuas === "mulai") dalam += '<w:fldChar w:fldCharType="begin"/>';
+  else if (r.jenisRuas === "instruksi") dalam += '<w:instrText xml:space="preserve"> PAGE </w:instrText>';
+  else if (r.jenisRuas === "pisah") dalam += '<w:fldChar w:fldCharType="separate"/>';
+  else if (r.jenisRuas === "tutup") dalam += '<w:fldChar w:fldCharType="end"/>';
+  if (r.teks) dalam += '<w:t xml:space="preserve">' + lolosXml(r.teks) + '</w:t>';
+  return '<w:r>' + rpr + dalam + '</w:r>';
 }
 
-function xmlTabel(blok) {
+/* Menyusun deretan run sekaligus membungkus run bertautan ke dalam w:hyperlink */
+function xmlDeretRun(runs, daftarkanTaut) {
+  const keping = [];
+  let i = 0;
+  while (i < runs.length) {
+    const taut = runs[i].taut;
+    if (!taut) { keping.push(xmlSatuRun(runs[i])); i++; continue; }
+    let j = i;
+    const kumpul = [];
+    while (j < runs.length && runs[j].taut === taut) { kumpul.push(xmlSatuRun(runs[j])); j++; }
+    const rid = daftarkanTaut ? daftarkanTaut(taut) : null;
+    if (rid) keping.push('<w:hyperlink r:id="' + rid + '">' + kumpul.join('') + '</w:hyperlink>');
+    else keping.push(kumpul.join(''));
+    i = j;
+  }
+  return keping.join('');
+}
+
+function xmlPpr(b) {
+  const p = [];
+  if (b.gaya) p.push('<w:pStyle w:val="' + b.gaya + '"/>');
+  if (b.gaya) p.push('<w:keepNext/>');
+  if (b.pisahHalaman) p.push('<w:pageBreakBefore/>');
+  if (b.tabStop) p.push('<w:tabs><w:tab w:val="left" w:pos="' + Math.round(b.tabStop) + '"/></w:tabs>');
+  const sp = [];
+  if (b.jarakSebelum > 0) sp.push('w:before="' + Math.round(b.jarakSebelum) + '"');
+  if (b.garisBaris) sp.push('w:line="' + Math.round(b.garisBaris) + '" w:lineRule="auto"');
+  if (sp.length) p.push('<w:spacing ' + sp.join(' ') + '/>');
+  const ind = [];
+  if (b.indKiri > 10) ind.push('w:left="' + Math.round(b.indKiri) + '"');
+  if (b.indKanan > 10) ind.push('w:right="' + Math.round(b.indKanan) + '"');
+  if (b.indGantung > 10) ind.push('w:hanging="' + Math.round(b.indGantung) + '"');
+  else if (b.indBaris1 > 10) ind.push('w:firstLine="' + Math.round(b.indBaris1) + '"');
+  if (ind.length) p.push('<w:ind ' + ind.join(' ') + '/>');
+  if (b.daftar) p.push('<w:contextualSpacing/>');
+  if (b.align === "center") p.push('<w:jc w:val="center"/>');
+  else if (b.align === "right") p.push('<w:jc w:val="right"/>');
+  else if (b.align === "both") p.push('<w:jc w:val="both"/>');
+  return p.length ? '<w:pPr>' + p.join('') + '</w:pPr>' : '';
+}
+
+function xmlParagraf(b, daftarkanTaut) {
+  return '<w:p>' + xmlPpr(b) + xmlDeretRun(b.runs || [], daftarkanTaut) + '</w:p>';
+}
+
+function sisiTepi(ada) {
+  return ada ? 'w:val="single" w:sz="6" w:color="808080"' : 'w:val="nil"';
+}
+
+function xmlSel(sel, lebarTwip, daftarkanTaut) {
+  const tp = [];
+  tp.push('<w:tcW w:w="' + Math.round(lebarTwip) + '" w:type="dxa"/>');
+  if (sel.span > 1) tp.push('<w:gridSpan w:val="' + sel.span + '"/>');
+  if (sel.vMerge === "restart") tp.push('<w:vMerge w:val="restart"/>');
+  else if (sel.vMerge === "continue") tp.push('<w:vMerge/>');
+  if (sel.tepi) {
+    tp.push('<w:tcBorders>' +
+      '<w:top ' + sisiTepi(sel.tepi.atas) + '/>' +
+      '<w:left ' + sisiTepi(sel.tepi.kiri) + '/>' +
+      '<w:bottom ' + sisiTepi(sel.tepi.bawah) + '/>' +
+      '<w:right ' + sisiTepi(sel.tepi.kanan) + '/>' +
+      '</w:tcBorders>');
+  }
+  if (sel.latar) tp.push('<w:shd w:val="clear" w:color="auto" w:fill="' + sel.latar + '"/>');
+  const isi = (sel.paragraf && sel.paragraf.length)
+    ? sel.paragraf.map((p) => xmlParagraf(p, daftarkanTaut)).join('')
+    : '<w:p/>';
+  return '<w:tc><w:tcPr>' + tp.join('') + '</w:tcPr>' + isi + '</w:tc>';
+}
+
+function xmlTabel(blok, daftarkanTaut) {
   const grid = blok.kolomTwip.map((w) => '<w:gridCol w:w="' + Math.round(w) + '"/>').join('');
+  const lebarTotal = blok.kolomTwip.reduce((s, w) => s + w, 0);
   const baris = blok.baris.map((row) => {
-    const sel = blok.kolomTwip.map((w, i) => xmlSelTabel(row[i] || [], w)).join('');
-    return '<w:tr>' + sel + '</w:tr>';
+    const sel = row.map((s) => {
+      let lebar = 0;
+      for (let k = 0; k < s.span; k++) lebar += blok.kolomTwip[s.kolom + k] || 0;
+      return xmlSel(s, lebar, daftarkanTaut);
+    }).join('');
+    return '<w:tr>' + (blok.tinggiBaris && blok.tinggiBaris[row.iBaris] ?
+      '<w:trPr><w:trHeight w:val="' + Math.round(blok.tinggiBaris[row.iBaris]) + '"/></w:trPr>' : '') +
+      sel + '</w:tr>';
   }).join('');
-  return '<w:tbl><w:tblPr><w:tblBorders>' +
-    '<w:top w:val="single" w:sz="4" w:color="999999"/><w:left w:val="single" w:sz="4" w:color="999999"/>' +
-    '<w:bottom w:val="single" w:sz="4" w:color="999999"/><w:right w:val="single" w:sz="4" w:color="999999"/>' +
-    '<w:insideH w:val="single" w:sz="4" w:color="999999"/><w:insideV w:val="single" w:sz="4" w:color="999999"/>' +
-    '</w:tblBorders></w:tblPr><w:tblGrid>' + grid + '</w:tblGrid>' + baris + '</w:tbl><w:p/>';
+  const tanpaGaris = blok.tanpaGaris;
+  const tepi = tanpaGaris
+    ? '<w:tblBorders><w:top w:val="nil"/><w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/><w:insideH w:val="nil"/><w:insideV w:val="nil"/></w:tblBorders>'
+    : '<w:tblBorders>' +
+      '<w:top w:val="single" w:sz="6" w:color="808080"/><w:left w:val="single" w:sz="6" w:color="808080"/>' +
+      '<w:bottom w:val="single" w:sz="6" w:color="808080"/><w:right w:val="single" w:sz="6" w:color="808080"/>' +
+      '<w:insideH w:val="single" w:sz="6" w:color="808080"/><w:insideV w:val="single" w:sz="6" w:color="808080"/>' +
+      '</w:tblBorders>';
+  return '<w:tbl><w:tblPr>' +
+    '<w:tblW w:w="' + Math.round(lebarTotal) + '" w:type="dxa"/>' +
+    (blok.indKiri > 10 ? '<w:tblInd w:w="' + Math.round(blok.indKiri) + '" w:type="dxa"/>' : '') +
+    tepi +
+    '<w:tblLayout w:type="fixed"/>' +
+    '<w:tblCellMar><w:top w:w="20" w:type="dxa"/><w:left w:w="72" w:type="dxa"/><w:bottom w:w="20" w:type="dxa"/><w:right w:w="72" w:type="dxa"/></w:tblCellMar>' +
+    '</w:tblPr><w:tblGrid>' + grid + '</w:tblGrid>' + baris + '</w:tbl>';
 }
 
-function xmlGambar(blok, gambarList, availWidthPt) {
+function xmlGambar(blok, media, lebarTersediaPt) {
   let wPt = blok.lebarPt, hPt = blok.tinggiPt;
-  if (wPt > availWidthPt) { const r = availWidthPt / wPt; wPt *= r; hPt *= r; }
-  const idx = gambarList.length + 1;
-  const rId = 'rImg' + idx;
-  gambarList.push({ rId, nama: 'image' + idx + '.png', data: blok.pngBytes });
-  const cx = Math.max(1, Math.round(wPt * 12700)), cy = Math.max(1, Math.round(hPt * 12700));
-  return '<w:p><w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0">' +
+  if (wPt > lebarTersediaPt) { const r = lebarTersediaPt / wPt; wPt *= r; hPt *= r; }
+  const idx = media.length + 1;
+  const rId = "rImg" + idx;
+  media.push({ rId: rId, nama: "image" + idx + "." + (blok.ext || "png"), data: blok.data, ext: blok.ext || "png" });
+  const cx = Math.max(1, Math.round(wPt * PT_KE_EMU));
+  const cy = Math.max(1, Math.round(hPt * PT_KE_EMU));
+  const jc = blok.align === "center" ? '<w:jc w:val="center"/>' : (blok.align === "right" ? '<w:jc w:val="right"/>' : '');
+  const ppr = (blok.pisahHalaman ? '<w:pageBreakBefore/>' : '') +
+    (blok.jarakSebelum > 0 ? '<w:spacing w:before="' + Math.round(blok.jarakSebelum) + '"/>' : '') + jc;
+  return '<w:p>' + (ppr ? '<w:pPr>' + ppr + '</w:pPr>' : '') +
+    '<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0">' +
     '<wp:extent cx="' + cx + '" cy="' + cy + '"/>' +
-    '<wp:docPr id="' + idx + '" name="Picture ' + idx + '"/>' +
+    '<wp:effectExtent l="0" t="0" r="0" b="0"/>' +
+    '<wp:docPr id="' + idx + '" name="Gambar ' + idx + '"/>' +
+    '<wp:cNvGraphicFramePr><a:graphicFrameLocks noChangeAspect="1"/></wp:cNvGraphicFramePr>' +
     '<a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">' +
-    '<pic:pic><pic:nvPicPr><pic:cNvPr id="' + idx + '" name="Picture ' + idx + '"/><pic:cNvPicPr/></pic:nvPicPr>' +
+    '<pic:pic><pic:nvPicPr><pic:cNvPr id="' + idx + '" name="Gambar ' + idx + '"/><pic:cNvPicPr/></pic:nvPicPr>' +
     '<pic:blipFill><a:blip r:embed="' + rId + '"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>' +
-    '<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="' + cx + '" cy="' + cy + '"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr>' +
+    '<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="' + cx + '" cy="' + cy + '"/></a:xfrm>' +
+    '<a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr>' +
     '</pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>';
 }
 
-/* halaman: array per halaman, tiap halaman {lebar, tinggi, blocks:[{type:'p'|'tabel'|'gambar',...}]} */
-function susunDocumentXml(halaman) {
-  const gambarList = [];
-  const bagian = [];
-  const dims = halaman.length ? halaman[0] : { lebar: 595, tinggi: 842 };
-  const pgW = Math.round(dims.lebar * PT_KE_TWIP);
-  const pgH = Math.round(dims.tinggi * PT_KE_TWIP);
-  const margin = 850;
-  const availWidthPt = (pgW - margin * 2) / PT_KE_TWIP;
-
-  halaman.forEach((hal, iHalaman) => {
-    if (iHalaman > 0) bagian.push('<w:p><w:r><w:br w:type="page"/></w:r></w:p>');
-    if (!hal.blocks.length) { bagian.push('<w:p/>'); return; }
-    hal.blocks.forEach((blok) => {
-      if (blok.type === 'tabel') bagian.push(xmlTabel(blok));
-      else if (blok.type === 'gambar') bagian.push(xmlGambar(blok, gambarList, availWidthPt));
-      else bagian.push(xmlParagraf(blok));
-    });
-  });
-
-  const xml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
-<w:body>${bagian.join('')}<w:sectPr><w:pgSz w:w="${pgW}" w:h="${pgH}"/><w:pgMar w:top="${margin}" w:right="${margin}" w:bottom="${margin}" w:left="${margin}"/></w:sectPr></w:body>
-</w:document>`;
-  return { xml, gambarList };
+function xmlSectPr(sk, refHeader, refFooter) {
+  return '<w:sectPr>' +
+    (refHeader ? '<w:headerReference w:type="default" r:id="' + refHeader + '"/>' : '') +
+    (refFooter ? '<w:footerReference w:type="default" r:id="' + refFooter + '"/>' : '') +
+    '<w:pgSz w:w="' + Math.round(sk.pgW) + '" w:h="' + Math.round(sk.pgH) + '"' +
+    (sk.pgW > sk.pgH ? ' w:orient="landscape"' : '') + '/>' +
+    '<w:pgMar w:top="' + Math.round(sk.marAtas) + '" w:right="' + Math.round(sk.marKanan) +
+    '" w:bottom="' + Math.round(sk.marBawah) + '" w:left="' + Math.round(sk.marKiri) +
+    '" w:header="' + Math.round(sk.jarakHeader || 425) + '" w:footer="' + Math.round(sk.jarakFooter || 425) + '" w:gutter="0"/>' +
+    '<w:cols w:space="425"/><w:docGrid w:linePitch="360"/></w:sectPr>';
 }
 
-function buatDocxBytes(halaman) {
-  const { xml: documentXml, gambarList } = susunDocumentXml(halaman);
-  const relsExtra = gambarList.map((g) =>
-    '<Relationship Id="' + g.rId + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/' + g.nama + '"/>'
-  ).join('');
-  const docRels = DOC_RELS.replace('</Relationships>', relsExtra + '</Relationships>');
-  const contentTypesExtra = gambarList.length ? '<Default Extension="png" ContentType="image/png"/>' : '';
-  const contentTypes = CONTENT_TYPES.replace('</Types>', contentTypesExtra + '</Types>');
+async function buatDocxBytes(dok) {
+  const media = [];
+  const taut = [];
+  const petaTaut = new Map();
+  let nomorRel = 100;
+  const daftarkanTaut = (url) => {
+    if (petaTaut.has(url)) return petaTaut.get(url);
+    const rid = "rTaut" + (++nomorRel);
+    petaTaut.set(url, rid);
+    taut.push({ rId: rid, url: url });
+    return rid;
+  };
 
-  const files = [
+  const adaHeader = dok.header && dok.header.length;
+  const adaFooter = dok.footer && dok.footer.length;
+  const refHeader = adaHeader ? "rHdr1" : null;
+  const refFooter = adaFooter ? "rFtr1" : null;
+
+  const potong = [];
+  dok.seksi.forEach((sk, iSeksi) => {
+    const lebarTersediaPt = (sk.pgW - sk.marKiri - sk.marKanan) / PT_KE_TWIP;
+    let ada = false;
+    sk.blok.forEach((b) => {
+      if (b.jenis === "tabel") { potong.push(xmlTabel(b, daftarkanTaut)); potong.push('<w:p/>'); ada = true; }
+      else if (b.jenis === "gambar") { potong.push(xmlGambar(b, media, lebarTersediaPt)); ada = true; }
+      else { potong.push(xmlParagraf(b, daftarkanTaut)); ada = true; }
+    });
+    if (!ada) potong.push('<w:p/>');
+    if (iSeksi < dok.seksi.length - 1) {
+      potong.push('<w:p><w:pPr>' + xmlSectPr(sk, refHeader, refFooter) + '</w:pPr></w:p>');
+    }
+  });
+  const seksiAkhir = dok.seksi[dok.seksi.length - 1];
+
+  const documentXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' +
+    '<w:document ' + NS_DOK + '><w:body>' + potong.join('') +
+    xmlSectPr(seksiAkhir, refHeader, refFooter) + '</w:body></w:document>';
+
+  const bungkusTepi = (tag, blok) =>
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<w:' + tag + ' ' + NS_DOK + '>' +
+    blok.map((p) => xmlParagraf(p, null)).join('') + '</w:' + tag + '>';
+
+  const relTambahan = [];
+  media.forEach((m) => relTambahan.push('<Relationship Id="' + m.rId +
+    '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/' + m.nama + '"/>'));
+  taut.forEach((t) => relTambahan.push('<Relationship Id="' + t.rId +
+    '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="' +
+    lolosXml(t.url) + '" TargetMode="External"/>'));
+  if (adaHeader) relTambahan.push('<Relationship Id="rHdr1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header1.xml"/>');
+  if (adaFooter) relTambahan.push('<Relationship Id="rFtr1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/>');
+
+  const docRels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' +
+    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+    '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>' +
+    relTambahan.join('') + '</Relationships>';
+
+  const adaPng = media.some((m) => m.ext === "png");
+  const adaJpg = media.some((m) => m.ext === "jpeg");
+  const contentTypes = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' +
+    '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+    '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
+    '<Default Extension="xml" ContentType="application/xml"/>' +
+    (adaPng ? '<Default Extension="png" ContentType="image/png"/>' : '') +
+    (adaJpg ? '<Default Extension="jpeg" ContentType="image/jpeg"/>' : '') +
+    '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>' +
+    '<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>' +
+    (adaHeader ? '<Override PartName="/word/header1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/>' : '') +
+    (adaFooter ? '<Override PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/>' : '') +
+    '<Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>' +
+    '<Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>' +
+    '</Types>';
+
+  const berkas = [
     { nama: "[Content_Types].xml", data: contentTypes },
     { nama: "_rels/.rels", data: ROOT_RELS },
     { nama: "word/document.xml", data: documentXml },
     { nama: "word/styles.xml", data: STYLES_XML },
     { nama: "word/_rels/document.xml.rels", data: docRels },
-    { nama: "docProps/core.xml", data: CORE_XML },
+    { nama: "docProps/core.xml", data: coreXml(dok.judul) },
     { nama: "docProps/app.xml", data: APP_XML }
   ];
-  gambarList.forEach((g) => files.push({ nama: 'word/media/' + g.nama, data: g.data }));
-  return susunZip(files);
+  if (adaHeader) berkas.push({ nama: "word/header1.xml", data: bungkusTepi("hdr", dok.header) });
+  if (adaFooter) berkas.push({ nama: "word/footer1.xml", data: bungkusTepi("ftr", dok.footer) });
+  media.forEach((m) => berkas.push({ nama: "word/media/" + m.nama, data: m.data, janganMampat: m.ext === "jpeg" }));
+
+  return { bytes: await susunZip(berkas), jumlahGambar: media.length, jumlahTaut: taut.length };
 }
+/* [SELESAI-BUILDER] */
 
 /* ================================================================
-   BAGIAN C. Ekstraksi teks per halaman, baris, dan gaya font
+   BAGIAN 3. Pembacaan isi PDF: teks, garis, kotak, gambar, tautan
    ================================================================ */
 
-function klaster(nilai, ambangGap) {
-  if (!nilai.length) return [];
-  const urut = [...nilai].sort((a, b) => a - b);
-  const grup = [[urut[0]]];
-  for (let i = 1; i < urut.length; i++) {
-    if (urut[i] - urut[i - 1] > ambangGap) grup.push([]);
-    grup[grup.length - 1].push(urut[i]);
-  }
-  return grup.map((g) => ({ min: Math.min(...g), max: Math.max(...g) }));
+function gabungM(m1, m2) {
+  return [
+    m1[0] * m2[0] + m1[2] * m2[1], m1[1] * m2[0] + m1[3] * m2[1],
+    m1[0] * m2[2] + m1[2] * m2[3], m1[1] * m2[2] + m1[3] * m2[3],
+    m1[0] * m2[4] + m1[2] * m2[5] + m1[4], m1[1] * m2[4] + m1[3] * m2[5] + m1[5]
+  ];
+}
+function terapkanM(x, y, m) { return [m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5]]; }
+function skalaM(m) { return Math.sqrt(Math.abs(m[0] * m[3] - m[1] * m[2])) || 1; }
+function keHex(r, g, b) {
+  const h = (v) => jepit(Math.round(v), 0, 255).toString(16).toUpperCase().padStart(2, "0");
+  return h(r) + h(g) + h(b);
 }
 
-function bungkusBaris(items, lebarHalaman) {
-  const baris = [];
-  items.forEach((it) => {
-    const x = it.transform[4], y = it.transform[5];
-    const tinggiFont = Math.hypot(it.transform[2], it.transform[3]) || Math.hypot(it.transform[0], it.transform[1]) || 10;
-    const cocok = baris.find((b) => Math.abs(b.y - y) < 2.5);
-    const potongan = { x, lebar: it.width || (it.str.length * tinggiFont * 0.5), teks: it.str, tebal: it.tebal, miring: it.miring, fontPt: tinggiFont };
-    if (cocok) cocok.potongan.push(potongan);
-    else baris.push({ y, potongan: [potongan] });
-  });
-  baris.sort((a, b) => b.y - a.y);
-  baris.forEach((b) => {
-    b.potongan.sort((p, q) => p.x - q.x);
-    const fontRata = b.potongan.reduce((s, p) => s + p.fontPt, 0) / b.potongan.length;
-    const segmen = [];
-    b.potongan.forEach((p) => {
-      const terakhir = segmen[segmen.length - 1];
-      if (terakhir && (p.x - terakhir.xAkhir) < Math.max(6, fontRata * 1.1)) {
-        terakhir.potongan.push(p);
-        terakhir.xAkhir = p.x + p.lebar;
-      } else {
-        segmen.push({ xMulai: p.x, xAkhir: p.x + p.lebar, potongan: [p] });
-      }
-    });
-    b.segmen = segmen;
-    b.xMulai = b.potongan[0].x;
-    b.xAkhir = Math.max(...b.potongan.map((p) => p.x + p.lebar));
-    b.fontRata = fontRata;
-  });
-  return baris;
+function rapikanNamaFont(nama) {
+  let n = String(nama || "").replace(/^[A-Z]{6}\+/, "").replace(/[+].*$/, "");
+  n = n.replace(/[-,_ ]?(BoldItalic|BoldOblique|ItalicBold|SemiBold|DemiBold|Bold|Italic|Oblique|Regular|Roman|Medium|Light|Book|Black|Heavy|Condensed|MT|PS|Std|Pro)+$/gi, "");
+  n = n.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim();
+  if (/^times/i.test(n)) return "Times New Roman";
+  if (/^(arial|helvetica|liberation sans|nimbus sans|freesans)/i.test(n)) return "Arial";
+  if (/^(courier|mono)/i.test(n)) return "Courier New";
+  if (/^cambria/i.test(n)) return "Cambria";
+  if (/^calibri|^carlito/i.test(n)) return "Calibri";
+  if (/^(bookman)/i.test(n)) return "Bookman Old Style";
+  if (/^(garamond)/i.test(n)) return "Garamond";
+  if (/^(georgia)/i.test(n)) return "Georgia";
+  if (/^(verdana)/i.test(n)) return "Verdana";
+  if (/^(tahoma)/i.test(n)) return "Tahoma";
+  return (n.length >= 2 && n.length <= 40 && !/^[a-z]\d/i.test(n)) ? n : "";
 }
 
-function gabungRuns(potongan) {
-  const runs = [];
-  potongan.forEach((p) => {
-    const akhir = runs[runs.length - 1];
-    if (akhir && akhir.tebal === p.tebal && akhir.miring === p.miring && Math.abs(akhir.fontPt - p.fontPt) < 0.5) {
-      akhir.teks += p.teks;
-    } else {
-      runs.push({ teks: p.teks, tebal: p.tebal, miring: p.miring, fontPt: p.fontPt, szHalf: Math.max(12, Math.round(p.fontPt * 2)) });
+function infoFont(page, namaObjek, singgahan) {
+  if (singgahan.has(namaObjek)) return singgahan.get(namaObjek);
+  let hasil = { tebal: false, miring: false, keluarga: "" };
+  try {
+    const f = page.commonObjs.has(namaObjek) ? page.commonObjs.get(namaObjek) : null;
+    if (f) {
+      const nama = String(f.name || f.fallbackName || f.loadedName || "");
+      hasil.tebal = !!f.bold || /bold|black|heavy|semibold|demibold/i.test(nama);
+      hasil.miring = !!f.italic || /italic|oblique/i.test(nama);
+      hasil.keluarga = rapikanNamaFont(nama);
     }
-  });
-  return runs;
-}
-
-function jadikanBlokParagraf(barisSatuKolom, lebarKolom) {
-  const hasil = [];
-  let ySebelumnya = null;
-  barisSatuKolom.forEach((b) => {
-    let spacingBefore = 0;
-    if (ySebelumnya !== null) {
-      const jarak = ySebelumnya - b.y;
-      spacingBefore = Math.max(0, jarak - b.fontRata * 1.25) * PT_KE_TWIP_LOKAL;
-    }
-    ySebelumnya = b.y;
-    const sisaKiri = b.xMulai;
-    const sisaKanan = lebarKolom - b.xAkhir;
-    let align = 'left';
-    if (Math.abs(sisaKiri - sisaKanan) < lebarKolom * 0.06 && sisaKiri > lebarKolom * 0.12) align = 'center';
-    else if (sisaKanan < lebarKolom * 0.08 && sisaKiri > lebarKolom * 0.2) align = 'right';
-    hasil.push({
-      type: 'p', y: b.y,
-      indentTwip: align === 'left' ? b.xMulai * PT_KE_TWIP_LOKAL : 0,
-      align, spacingBefore,
-      potongan: gabungRuns(b.potongan)
-    });
-  });
+  } catch (e) { /* font belum termuat, gaya diabaikan */ }
+  singgahan.set(namaObjek, hasil);
   return hasil;
 }
 
-const PT_KE_TWIP_LOKAL = 20;
-
-/* Mendeteksi blok tabel: baris berurutan dengan >=2 segmen yang posisinya konsisten */
-function pisahBlokTabelDanParagraf(barisSatuKolom, lebarKolom) {
-  const blok = [];
-  let i = 0;
-  while (i < barisSatuKolom.length) {
-    let j = i;
-    while (j < barisSatuKolom.length && barisSatuKolom[j].segmen.length >= 2) j++;
-    const jumlahBarisTabel = j - i;
-    if (jumlahBarisTabel >= 2) {
-      const grupBaris = barisSatuKolom.slice(i, j);
-      const semuaXMulai = [];
-      grupBaris.forEach((b) => b.segmen.forEach((s) => semuaXMulai.push(s.xMulai)));
-      const klasterKolom = klaster(semuaXMulai, lebarKolom * 0.035).sort((a, b) => a.min - b.min);
-      const batasKolom = klasterKolom.map((k) => k.min);
-      batasKolom.push(lebarKolom);
-
-      const barisTabel = grupBaris.map((b) => {
-        const row = new Array(klasterKolom.length).fill(null);
-        b.segmen.forEach((s) => {
-          let idx = 0;
-          for (let k = 0; k < klasterKolom.length; k++) { if (s.xMulai >= klasterKolom[k].min - 1) idx = k; }
-          row[idx] = gabungRuns(s.potongan);
-        });
-        return row;
-      });
-      const kolomTwip = [];
-      for (let k = 0; k < klasterKolom.length; k++) {
-        const lebar = (batasKolom[k + 1] - batasKolom[k]) * PT_KE_TWIP_LOKAL;
-        kolomTwip.push(Math.max(400, lebar));
-      }
-      blok.push({ type: 'tabel', y: grupBaris[0].y, kolomTwip, baris: barisTabel });
-      i = j;
-    } else {
-      blok.push(...jadikanBlokParagraf([barisSatuKolom[i]], lebarKolom));
-      i++;
-    }
-  }
-  return blok;
-}
-
-/* Mendeteksi tata letak berkolom (koran): membagi baris ke kolom kiri/kanan agar urutan baca benar */
-function pisahKolomHalaman(baris, lebarHalaman) {
-  const tengah = lebarHalaman / 2;
-  const kiri = baris.filter((b) => b.xAkhir <= tengah * 1.08);
-  const kanan = baris.filter((b) => b.xMulai >= tengah * 0.92);
-  const dipakai = new Set([...kiri, ...kanan]);
-  const cukupBesar = kiri.length >= 4 && kanan.length >= 4 && (kiri.length + kanan.length) >= baris.length * 0.6;
-  if (!cukupBesar) return [{ baris, lebar: lebarHalaman }];
-  const sisanya = baris.filter((b) => !dipakai.has(b));
-  return [
-    { baris: kiri, lebar: tengah },
-    { baris: kanan, lebar: tengah },
-    { baris: sisanya, lebar: lebarHalaman }
-  ].filter((k) => k.baris.length);
-}
-
-function gayaFont(page, fontName) {
-  try {
-    const f = page.commonObjs.get(fontName);
-    const nama = (f && (f.name || (f.fontMatrix && f.loadedName))) || "";
-    const teksNama = String(nama);
-    return { tebal: /bold/i.test(teksNama), miring: /italic|oblique/i.test(teksNama) };
-  } catch (err) {
-    return { tebal: false, miring: false };
-  }
-}
-
-async function ekstrakGambarHalaman(page) {
-  const ops = await page.getOperatorList();
+/* Menelusuri daftar operator halaman untuk memungut garis, kotak berwarna,
+   jejak grafik vektor, dan kotak batas setiap gambar. */
+async function bacaOperator(page, vpTransform, tinggiHal) {
   const OPS = pdfjsLib.OPS;
-  let ctm = [1, 0, 0, 1, 0, 0];
-  const stack = [];
-  const hasil = [];
+  const ops = await page.getOperatorList();
+  let ctm = vpTransform.slice();
+  const tumpukan = [];
+  let lebarGaris = 1;
+  const tumpukanLebar = [];
+  let isian = [0, 0, 0];
+  const tumpukanIsian = [];
+  let jalur = [];
 
-  function kali(m1, m2) {
-    return [
-      m1[0] * m2[0] + m1[1] * m2[2], m1[0] * m2[1] + m1[1] * m2[3],
-      m1[2] * m2[0] + m1[3] * m2[2], m1[2] * m2[1] + m1[3] * m2[3],
-      m1[4] * m2[0] + m1[5] * m2[2] + m2[4], m1[4] * m2[1] + m1[5] * m2[3] + m2[5]
-    ];
+  const garisH = [], garisV = [], kotak = [], jejak = [], gambar = [];
+
+  const keBaca = (x, y) => { const p = terapkanM(x, y, ctm); return [p[0], tinggiHal - p[1]]; };
+
+  function catatSegmen(x0, y0, x1, y1, tebal) {
+    const dx = Math.abs(x1 - x0), dy = Math.abs(y1 - y0);
+    const t = Math.max(0.4, tebal);
+    if (dy <= Math.max(1.1, t) && dx >= 6) garisH.push({ y: (y0 + y1) / 2, x0: Math.min(x0, x1), x1: Math.max(x0, x1), tebal: t });
+    else if (dx <= Math.max(1.1, t) && dy >= 6) garisV.push({ x: (x0 + x1) / 2, y0: Math.min(y0, y1), y1: Math.max(y0, y1), tebal: t });
+  }
+
+  function selesaikanJalur(digores, diisi) {
+    if (!jalur.length) { jalur = []; return; }
+    const tebal = lebarGaris * skalaM(ctm);
+    let minX = Infinity, minY = Infinity, maksX = -Infinity, maksY = -Infinity;
+    jalur.forEach((s) => {
+      if (digores) catatSegmen(s[0], s[1], s[2], s[3], tebal);
+      minX = Math.min(minX, s[0], s[2]); maksX = Math.max(maksX, s[0], s[2]);
+      minY = Math.min(minY, s[1], s[3]); maksY = Math.max(maksY, s[1], s[3]);
+    });
+    const lebar = maksX - minX, tinggi = maksY - minY;
+    if (diisi) {
+      if (tinggi <= 3.2 && lebar >= 6) garisH.push({ y: (minY + maksY) / 2, x0: minX, x1: maksX, tebal: Math.max(0.6, tinggi) });
+      else if (lebar <= 3.2 && tinggi >= 6) garisV.push({ x: (minX + maksX) / 2, y0: minY, y1: maksY, tebal: Math.max(0.6, lebar) });
+      else if (lebar > 3 && tinggi > 3) kotak.push({ x0: minX, y0: minY, x1: maksX, y1: maksY, warna: keHex(isian[0], isian[1], isian[2]) });
+    }
+    if (lebar > 2 && tinggi > 2 && !(tinggi <= 3.2 || lebar <= 3.2)) {
+      jejak.push({ x0: minX, y0: minY, x1: maksX, y1: maksY });
+    }
+    jalur = [];
   }
 
   for (let i = 0; i < ops.fnArray.length; i++) {
-    const fn = ops.fnArray[i], args = ops.argsArray[i];
-    if (fn === OPS.save) stack.push(ctm.slice());
-    else if (fn === OPS.restore) ctm = stack.pop() || ctm;
-    else if (fn === OPS.transform) ctm = kali(args, ctm);
-    else if (fn === OPS.paintImageXObject || fn === OPS.paintJpegXObject || fn === OPS.paintImageMaskXObject) {
-      const nama = args[0];
-      try {
-        const img = await new Promise((resolve) => {
-          try { page.objs.get(nama, resolve); } catch (e) { resolve(null); }
-        });
-        if (img && img.width > 4 && img.height > 4) {
-          const sudut = [[0, 0], [1, 0], [0, 1], [1, 1]].map(([x, y]) => [
-            ctm[0] * x + ctm[2] * y + ctm[4],
-            ctm[1] * x + ctm[3] * y + ctm[5]
-          ]);
-          const xs = sudut.map((c) => c[0]), ys = sudut.map((c) => c[1]);
-          const x0 = Math.min(...xs), x1 = Math.max(...xs);
-          const y0 = Math.min(...ys), y1 = Math.max(...ys);
-          if ((x1 - x0) > 3 && (y1 - y0) > 3) {
-            hasil.push({ y: y1, xMulai: x0, lebarPt: x1 - x0, tinggiPt: y1 - y0, img });
+    const fn = ops.fnArray[i], arg = ops.argsArray[i];
+    switch (fn) {
+      case OPS.save: tumpukan.push(ctm.slice()); tumpukanLebar.push(lebarGaris); tumpukanIsian.push(isian.slice()); break;
+      case OPS.restore:
+        ctm = tumpukan.pop() || ctm; lebarGaris = tumpukanLebar.pop(); if (lebarGaris === undefined) lebarGaris = 1;
+        isian = tumpukanIsian.pop() || isian; break;
+      case OPS.transform: ctm = gabungM(ctm, arg); break;
+      case OPS.setLineWidth: lebarGaris = arg[0]; break;
+      case OPS.setFillRGBColor: isian = [arg[0], arg[1], arg[2]]; break;
+      case OPS.setFillGray: isian = [arg[0] * 255, arg[0] * 255, arg[0] * 255]; break;
+      case OPS.setFillCMYKColor: {
+        const [c, m, y2, k] = arg;
+        isian = [255 * (1 - Math.min(1, c + k)), 255 * (1 - Math.min(1, m + k)), 255 * (1 - Math.min(1, y2 + k))];
+        break;
+      }
+      case OPS.constructPath: {
+        const daftarOp = arg[0] || [], angka = arg[1] || [];
+        let p = 0, cx = 0, cy = 0, ax = 0, ay = 0;
+        for (const o of daftarOp) {
+          if (o === OPS.moveTo) { const t = keBaca(angka[p], angka[p + 1]); cx = ax = t[0]; cy = ay = t[1]; p += 2; }
+          else if (o === OPS.lineTo) { const t = keBaca(angka[p], angka[p + 1]); jalur.push([cx, cy, t[0], t[1]]); cx = t[0]; cy = t[1]; p += 2; }
+          else if (o === OPS.curveTo) { const t = keBaca(angka[p + 4], angka[p + 5]); jalur.push([cx, cy, t[0], t[1]]); cx = t[0]; cy = t[1]; p += 6; }
+          else if (o === OPS.curveTo2 || o === OPS.curveTo3) { const t = keBaca(angka[p + 2], angka[p + 3]); jalur.push([cx, cy, t[0], t[1]]); cx = t[0]; cy = t[1]; p += 4; }
+          else if (o === OPS.closePath) { jalur.push([cx, cy, ax, ay]); cx = ax; cy = ay; }
+          else if (o === OPS.rectangle) {
+            const x = angka[p], y = angka[p + 1], w = angka[p + 2], h = angka[p + 3]; p += 4;
+            const a = keBaca(x, y), b2 = keBaca(x + w, y), c2 = keBaca(x + w, y + h), d2 = keBaca(x, y + h);
+            jalur.push([a[0], a[1], b2[0], b2[1]], [b2[0], b2[1], c2[0], c2[1]], [c2[0], c2[1], d2[0], d2[1]], [d2[0], d2[1], a[0], a[1]]);
+            cx = ax = a[0]; cy = ay = a[1];
           }
         }
-      } catch (e) { /* lewati gambar yang gagal dibaca */ }
+        break;
+      }
+      case OPS.stroke: case OPS.closeStroke: selesaikanJalur(true, false); break;
+      case OPS.fill: case OPS.eoFill: selesaikanJalur(false, true); break;
+      case OPS.fillStroke: case OPS.eoFillStroke: case OPS.closeFillStroke: case OPS.closeEOFillStroke: selesaikanJalur(true, true); break;
+      case OPS.endPath: jalur = []; break;
+      case OPS.paintImageXObject: case OPS.paintJpegXObject:
+      case OPS.paintImageMaskXObject: case OPS.paintInlineImageXObject: {
+        const sudut = [[0, 0], [1, 0], [1, 1], [0, 1]].map(([x, y]) => keBaca(x, y));
+        const xs = sudut.map((s) => s[0]), ys = sudut.map((s) => s[1]);
+        const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+        if (x1 - x0 > 4 && y1 - y0 > 4) gambar.push({ x0, y0, x1, y1 });
+        break;
+      }
+      default: break;
     }
   }
-  return hasil;
+  return { garisH, garisV, kotak, jejak, gambar };
 }
 
-function gambarKePng(img) {
-  return new Promise((resolve) => {
-    const canvas = document.createElement("canvas");
-    canvas.width = img.width; canvas.height = img.height;
-    const ctx = canvas.getContext("2d");
-    const imageData = ctx.createImageData(img.width, img.height);
-    const src = img.data, dst = imageData.data;
-    const total = img.width * img.height;
-    const bpp = src.length / total;
-    if (bpp >= 4) {
-      dst.set(src.subarray ? src.subarray(0, total * 4) : src.slice(0, total * 4));
-    } else if (bpp >= 3) {
-      for (let p = 0, d = 0; d < dst.length; p += 3, d += 4) {
-        dst[d] = src[p]; dst[d + 1] = src[p + 1]; dst[d + 2] = src[p + 2]; dst[d + 3] = 255;
-      }
-    } else {
-      for (let p = 0, d = 0; d < dst.length; p += 1, d += 4) {
-        dst[d] = src[p]; dst[d + 1] = src[p]; dst[d + 2] = src[p]; dst[d + 3] = 255;
-      }
-    }
-    ctx.putImageData(imageData, 0, 0);
-    canvas.toBlob((blob) => {
-      if (!blob) return resolve(null);
+/* ---------------- render halaman, pemotongan gambar, cuplikan warna ---------------- */
+
+async function renderHalaman(page, skala, putaran) {
+  const vp = page.getViewport({ scale: skala, rotation: putaran });
+  const kanvas = document.createElement("canvas");
+  kanvas.width = Math.max(1, Math.ceil(vp.width));
+  kanvas.height = Math.max(1, Math.ceil(vp.height));
+  const ctx = kanvas.getContext("2d", { willReadFrequently: true });
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, kanvas.width, kanvas.height);
+  await page.render({ canvasContext: ctx, viewport: vp }).promise;
+  let piksel = null;
+  try { piksel = ctx.getImageData(0, 0, kanvas.width, kanvas.height); } catch (e) { piksel = null; }
+  return { kanvas, ctx, skala, piksel };
+}
+
+function kanvasKeBytes(kanvas) {
+  return new Promise((selesai) => {
+    const ambil = (blob, ext) => {
+      if (!blob) return selesai(null);
       const r = new FileReader();
-      r.onload = () => resolve(new Uint8Array(r.result));
+      r.onload = () => selesai({ data: new Uint8Array(r.result), ext: ext });
+      r.onerror = () => selesai(null);
       r.readAsArrayBuffer(blob);
+    };
+    kanvas.toBlob((blob) => {
+      if (blob && blob.size > 400 * 1024) {
+        kanvas.toBlob((jpg) => ambil(jpg || blob, jpg ? "jpeg" : "png"), "image/jpeg", 0.85);
+      } else ambil(blob, "png");
     }, "image/png");
   });
 }
 
-async function ambilBlokHalaman(dok, no) {
+async function potongGambar(render, tinggiHal, x0, y0, x1, y1) {
+  if (!render) return null;
+  const s = render.skala;
+  const px = jepit(Math.floor(x0 * s), 0, render.kanvas.width - 1);
+  const py = jepit(Math.floor((tinggiHal - y1) * s), 0, render.kanvas.height - 1);
+  const pw = jepit(Math.ceil((x1 - x0) * s), 1, render.kanvas.width - px);
+  const ph = jepit(Math.ceil((y1 - y0) * s), 1, render.kanvas.height - py);
+  if (pw < 4 || ph < 4) return null;
+  const k = document.createElement("canvas");
+  k.width = pw; k.height = ph;
+  const c = k.getContext("2d");
+  c.fillStyle = "#ffffff"; c.fillRect(0, 0, pw, ph);
+  c.drawImage(render.kanvas, px, py, pw, ph, 0, 0, pw, ph);
+  const hasil = await kanvasKeBytes(k);
+  k.width = 0; k.height = 0;
+  return hasil;
+}
+
+/* Mengambil warna teks dengan mencuplik piksel: warna latar diambil dari warna
+   yang paling sering muncul, warna huruf diambil dari piksel yang paling jauh
+   dari latar itu. Cara ini tahan terhadap teks terang di atas kotak gelap. */
+function cuplikWarna(render, tinggiHal, x0, y0, x1, y1) {
+  if (!render || !render.piksel) return null;
+  const s = render.skala, im = render.piksel, W = im.width, H = im.height;
+  const px0 = jepit(Math.floor(x0 * s), 0, W - 1), px1 = jepit(Math.ceil(x1 * s), 0, W);
+  const py0 = jepit(Math.floor((tinggiHal - y1) * s), 0, H - 1), py1 = jepit(Math.ceil((tinggiHal - y0) * s), 0, H);
+  if (px1 - px0 < 2 || py1 - py0 < 2) return null;
+  const langkahX = Math.max(1, Math.floor((px1 - px0) / 60));
+  const langkahY = Math.max(1, Math.floor((py1 - py0) / 20));
+  const hitung = new Map();
+  const contoh = [];
+  for (let y = py0; y < py1; y += langkahY) {
+    for (let x = px0; x < px1; x += langkahX) {
+      const i = (y * W + x) * 4;
+      const r = im.data[i], g = im.data[i + 1], b = im.data[i + 2];
+      const kunci = ((r >> 4) << 8) | ((g >> 4) << 4) | (b >> 4);
+      hitung.set(kunci, (hitung.get(kunci) || 0) + 1);
+      contoh.push([r, g, b]);
+    }
+  }
+  if (contoh.length < 6) return null;
+  let kunciTerbanyak = -1, terbanyak = -1;
+  hitung.forEach((v, k) => { if (v > terbanyak) { terbanyak = v; kunciTerbanyak = k; } });
+  const latar = [((kunciTerbanyak >> 8) & 15) * 17, ((kunciTerbanyak >> 4) & 15) * 17, (kunciTerbanyak & 15) * 17];
+  let terjauh = null, jarakTerjauh = -1;
+  contoh.forEach((c) => {
+    const d = Math.abs(c[0] - latar[0]) + Math.abs(c[1] - latar[1]) + Math.abs(c[2] - latar[2]);
+    if (d > jarakTerjauh) { jarakTerjauh = d; terjauh = c; }
+  });
+  if (!terjauh || jarakTerjauh < 60) return null;
+  if (terjauh[0] < 55 && terjauh[1] < 55 && terjauh[2] < 55) return null; /* hitam biasa, tidak perlu ditulis */
+  return keHex(terjauh[0], terjauh[1], terjauh[2]);
+}
+
+/* ---------------- pembacaan satu halaman ---------------- */
+
+/* Menentukan berapa derajat halaman perlu diputar agar arah baca teksnya
+   mendatar. Tanpa ini halaman dengan penanda /Rotate akan terbaca terbalik. */
+function putaranBaca(page, isiTeks) {
+  const vpUji = page.getViewport({ scale: 1 });
+  const hitung = new Map();
+  isiTeks.items.forEach((it) => {
+    if (!it.str || !it.str.trim()) return;
+    const t = it.transform, m = vpUji.transform;
+    const ax = m[0] * t[0] + m[2] * t[1], ay = m[1] * t[0] + m[3] * t[1];
+    let sudut = Math.atan2(-ay, ax) * 180 / Math.PI;
+    const bulat = Math.round(sudut / 90) * 90;
+    if (Math.abs(sudut - bulat) > 6) return;
+    const kunci = ((bulat % 360) + 360) % 360;
+    hitung.set(kunci, (hitung.get(kunci) || 0) + it.str.trim().length);
+  });
+  let terbanyak = 0, bobot = 0;
+  hitung.forEach((v, k) => { if (v > bobot) { bobot = v; terbanyak = k; } });
+  return (((page.rotate || 0) + terbanyak) % 360 + 360) % 360;
+}
+
+async function ekstrakHalaman(dok, no, opsi) {
   const page = await dok.getPage(no);
-  const isi = await page.getTextContent();
-  const lebarHalaman = page.view[2] - page.view[0];
-  const tinggiHalaman = page.view[3] - page.view[1];
+  const isiTeksAwal = await page.getTextContent({ disableCombineTextItems: false });
+  const putaran = putaranBaca(page, isiTeksAwal);
+  const vp1 = page.getViewport({ scale: 1, rotation: putaran });
+  const lebarHal = vp1.width, tinggiHal = vp1.height;
 
-  const items = isi.items
-    .filter((it) => it.str.trim() !== "")
-    .map((it) => {
-      const gaya = gayaFont(page, it.fontName);
-      return Object.assign({}, it, { tebal: gaya.tebal, miring: gaya.miring });
-    });
+  /* daftar operator dibaca lebih dulu supaya keterangan font sudah tersedia */
+  const vek = await bacaOperator(page, vp1.transform, tinggiHal);
+  const isiTeks = isiTeksAwal;
 
-  const baris = bungkusBaris(items, lebarHalaman);
-  const kelompokKolom = pisahKolomHalaman(baris, lebarHalaman);
-
-  const mentahGambar = await ekstrakGambarHalaman(page);
-  const blokGambar = [];
-  for (const g of mentahGambar) {
-    const pngBytes = await gambarKePng(g.img);
-    if (pngBytes) blokGambar.push({ type: 'gambar', y: g.y, xMulai: g.xMulai, lebarPt: g.lebarPt, tinggiPt: g.tinggiPt, pngBytes });
+  let render = null;
+  if (opsi.render) {
+    const skala = Math.min(2, Math.max(1.25, 1400 / Math.max(lebarHal, tinggiHal)));
+    try { render = await renderHalaman(page, skala, putaran); } catch (e) { render = null; }
   }
 
-  const blocks = [];
-  if (kelompokKolom.length === 1) {
-    const teks = pisahBlokTabelDanParagraf(kelompokKolom[0].baris, kelompokKolom[0].lebar);
-    const gabungan = teks.concat(blokGambar).sort((a, b) => b.y - a.y);
-    blocks.push(...gabungan);
-  } else {
-    kelompokKolom.forEach((kel) => {
-      if (!kel.baris.length) return;
-      blocks.push(...pisahBlokTabelDanParagraf(kel.baris, kel.lebar));
+  const singgahan = new Map();
+  const item = [];
+  const miringan = [];
+  isiTeks.items.forEach((it) => {
+    if (!it.str || !it.str.trim()) return;
+    const t = it.transform;
+    const p = terapkanM(t[4], t[5], vp1.transform);
+    const x = p[0], y = tinggiHal - p[1];
+    const arah = [vp1.transform[0] * t[0] + vp1.transform[2] * t[1], vp1.transform[1] * t[0] + vp1.transform[3] * t[1]];
+    const sudut = Math.atan2(-arah[1], arah[0]) * 180 / Math.PI;
+    const fontPt = Math.hypot(t[2], t[3]) || Math.hypot(t[0], t[1]) || 10;
+    const g = infoFont(page, it.fontName, singgahan);
+    const rec = {
+      teks: it.str, x: x, y: y,
+      lebar: Math.abs(it.width) || it.str.length * fontPt * 0.5,
+      fontPt: fontPt, tebal: g.tebal, miring: g.miring, keluarga: g.keluarga, sudut: sudut
+    };
+    if (Math.abs(sudut) > 6) miringan.push(rec); else item.push(rec);
+  });
+
+  if (opsi.warna && render) {
+    item.forEach((it) => {
+      it.warna = cuplikWarna(render, tinggiHal, it.x, it.y - it.fontPt * 0.16, it.x + it.lebar, it.y + it.fontPt * 0.72);
     });
-    blocks.push(...blokGambar);
   }
 
-  return { lebar: lebarHalaman, tinggi: tinggiHalaman, blocks };
+  /* tautan dari anotasi PDF */
+  const taut = [];
+  if (opsi.taut) {
+    try {
+      const anot = await page.getAnnotations({ intent: "display" });
+      anot.forEach((a) => {
+        const url = a.url || (a.unsafeUrl) || "";
+        if (a.subtype !== "Link" || !url) return;
+        const r = a.rect;
+        const p1 = terapkanM(r[0], r[1], vp1.transform), p2 = terapkanM(r[2], r[3], vp1.transform);
+        taut.push({
+          x0: Math.min(p1[0], p2[0]), x1: Math.max(p1[0], p2[0]),
+          y0: tinggiHal - Math.max(p1[1], p2[1]), y1: tinggiHal - Math.min(p1[1], p2[1]),
+          url: url
+        });
+      });
+    } catch (e) { /* anotasi tidak terbaca, dilewati */ }
+  }
+
+  return { page, no, lebar: lebarHal, tinggi: tinggiHal, item, miringan, taut, vek, render };
 }
 
 /* ================================================================
-   BAGIAN D. Proses konversi & pengunduhan
+   BAGIAN 4. Penafsiran tata letak
    ================================================================ */
+
+function persentil(arr, p) {
+  if (!arr.length) return 0;
+  const u = arr.slice().sort((a, b) => a - b);
+  return u[jepit(Math.floor(u.length * p), 0, u.length - 1)];
+}
+function median(arr) { return persentil(arr, 0.5); }
+
+function gabungRentang(daftar, toleransi) {
+  const u = daftar.slice().sort((a, b) => a[0] - b[0]);
+  const hasil = [];
+  u.forEach((r) => {
+    const t = hasil[hasil.length - 1];
+    if (t && r[0] <= t[1] + toleransi) t[1] = Math.max(t[1], r[1]);
+    else hasil.push([r[0], r[1]]);
+  });
+  return hasil;
+}
+function rasioTertutup(span, a, b) {
+  if (b <= a) return 1;
+  let tutup = 0;
+  span.forEach((r) => { tutup += Math.max(0, Math.min(b, r[1]) - Math.max(a, r[0])); });
+  return tutup / (b - a);
+}
+function memuat(span, nilai, tol) {
+  return span.some((r) => nilai >= r[0] - tol && nilai <= r[1] + tol);
+}
+
+function rapikanGaris(garis, kunci, sumbuA, sumbuB) {
+  const grup = [];
+  garis.forEach((g) => {
+    const t = grup.find((k) => Math.abs(k[kunci] - g[kunci]) <= 2.0);
+    if (t) { t.rentang.push([g[sumbuA], g[sumbuB]]); t.n++; }
+    else { const o = { n: 1, rentang: [[g[sumbuA], g[sumbuB]]] }; o[kunci] = g[kunci]; grup.push(o); }
+  });
+  return grup.map((k) => ({ [kunci]: k[kunci], span: gabungRentang(k.rentang, 3) }))
+    .filter((k) => k.span.some((r) => r[1] - r[0] >= 10));
+}
+
+/* ---------------- tabel yang bergaris ---------------- */
+
+function deteksiTabelGaris(mentah, opsi, konteks) {
+  const kosong = { tabel: [], sisa: mentah.item };
+  if (!opsi.tabelgaris) return kosong;
+  const H = rapikanGaris(mentah.vek.garisH, "y", "x0", "x1");
+  const V = rapikanGaris(mentah.vek.garisV, "x", "y0", "y1");
+  if (H.length < 2 || V.length < 2) return kosong;
+
+  const n = H.length + V.length;
+  const induk = new Array(n).fill(0).map((_, i) => i);
+  const cari = (i) => { while (induk[i] !== i) { induk[i] = induk[induk[i]]; i = induk[i]; } return i; };
+  const satukan = (a, b) => { const ra = cari(a), rb = cari(b); if (ra !== rb) induk[ra] = rb; };
+
+  H.forEach((h, i) => V.forEach((v, j) => {
+    if (memuat(h.span, v.x, 2.5) && memuat(v.span, h.y, 2.5)) satukan(i, H.length + j);
+  }));
+
+  const komponen = new Map();
+  for (let i = 0; i < n; i++) {
+    const r = cari(i);
+    if (!komponen.has(r)) komponen.set(r, { h: [], v: [] });
+    if (i < H.length) komponen.get(r).h.push(H[i]); else komponen.get(r).v.push(V[i - H.length]);
+  }
+
+  const tabel = [];
+  const dipakai = new Set();
+
+  komponen.forEach((k) => {
+    const rapatY = [], rapatX = [];
+    k.h.map((h) => h.y).sort((a, b) => b - a).forEach((y) => { if (!rapatY.length || Math.abs(rapatY[rapatY.length - 1] - y) > 2.5) rapatY.push(y); });
+    k.v.map((v) => v.x).sort((a, b) => a - b).forEach((x) => { if (!rapatX.length || Math.abs(rapatX[rapatX.length - 1] - x) > 2.5) rapatX.push(x); });
+    const cukup = (rapatY.length >= 3 && rapatX.length >= 2) || (rapatY.length >= 2 && rapatX.length >= 3);
+    if (!cukup) return;
+    const nKol = rapatX.length - 1, nBar = rapatY.length - 1;
+    if (nKol < 1 || nBar < 1 || nKol > 30 || nBar > 400) return;
+    const x0 = rapatX[0], x1 = rapatX[nKol], yAtas = rapatY[0], yBawah = rapatY[nBar];
+    if (x1 - x0 < 40 || yAtas - yBawah < 14) return;
+
+    const adaV = (c, yb, ya) => k.v.some((v) => Math.abs(v.x - rapatX[c]) <= 2.5 && rasioTertutup(v.span, yb, ya) >= 0.6);
+    const adaH = (r, xa, xb) => k.h.some((h) => Math.abs(h.y - rapatY[r]) <= 2.5 && rasioTertutup(h.span, xa, xb) >= 0.6);
+
+    const pemilik = Array.from({ length: nBar }, () => new Array(nKol).fill(null));
+    const semuaSel = [];
+    for (let r = 0; r < nBar; r++) {
+      for (let c = 0; c < nKol; c++) {
+        if (pemilik[r][c]) continue;
+        let span = 1;
+        while (c + span < nKol && !adaV(c + span, rapatY[r + 1], rapatY[r])) span++;
+        let tinggi = 1;
+        while (r + tinggi < nBar) {
+          let boleh = true;
+          for (let q = 0; q < span; q++) if (adaH(r + tinggi, rapatX[c + q], rapatX[c + q + 1])) { boleh = false; break; }
+          if (!boleh) break;
+          tinggi++;
+        }
+        const s = { r: r, c: c, span: span, tinggi: tinggi, item: [] };
+        for (let rr = r; rr < r + tinggi; rr++) for (let cc = c; cc < c + span; cc++) pemilik[rr][cc] = s;
+        semuaSel.push(s);
+      }
+    }
+
+    mentah.item.forEach((it) => {
+      if (dipakai.has(it)) return;
+      const cx = it.x + it.lebar / 2, cy = it.y + it.fontPt * 0.25;
+      if (cx < x0 - 1 || cx > x1 + 1 || cy < yBawah - 1 || cy > yAtas + 1) return;
+      let c = -1, r = -1;
+      for (let q = 0; q < nKol; q++) if (cx >= rapatX[q] - 1 && cx <= rapatX[q + 1] + 1) { c = q; break; }
+      for (let q = 0; q < nBar; q++) if (cy <= rapatY[q] + 1 && cy >= rapatY[q + 1] - 1) { r = q; break; }
+      if (c < 0 || r < 0 || !pemilik[r][c]) return;
+      pemilik[r][c].item.push(it);
+      dipakai.add(it);
+    });
+
+    semuaSel.forEach((s) => {
+      s.tepi = {
+        atas: adaH(s.r, rapatX[s.c], rapatX[s.c + s.span]),
+        bawah: adaH(s.r + s.tinggi, rapatX[s.c], rapatX[s.c + s.span]),
+        kiri: adaV(s.c, rapatY[s.r + s.tinggi], rapatY[s.r]),
+        kanan: adaV(s.c + s.span, rapatY[s.r + s.tinggi], rapatY[s.r])
+      };
+      if (opsi.warna) {
+        const cx = (rapatX[s.c] + rapatX[s.c + s.span]) / 2, cy = (rapatY[s.r] + rapatY[s.r + s.tinggi]) / 2;
+        const kotak = mentah.vek.kotak.filter((b) => cx >= b.x0 && cx <= b.x1 && cy >= b.y0 && cy <= b.y1)
+          .sort((a, b) => ((a.x1 - a.x0) * (a.y1 - a.y0)) - ((b.x1 - b.x0) * (b.y1 - b.y0)))[0];
+        if (kotak && kotak.warna && kotak.warna !== "FFFFFF" && (kotak.x1 - kotak.x0) < (x1 - x0) * 1.05) s.latar = kotak.warna;
+      }
+    });
+
+    tabel.push({
+      yAtas: yAtas, x0: x0, x1: x1, nKol: nKol, nBar: nBar,
+      batasX: rapatX, pemilik: pemilik, sel: semuaSel
+    });
+  });
+
+  return { tabel: tabel, sisa: mentah.item.filter((it) => !dipakai.has(it)) };
+}
+
+/* ---------------- pembentukan baris teks ---------------- */
+
+function bentukBaris(item) {
+  const urut = item.slice().sort((a, b) => (b.y - a.y) || (a.x - b.x));
+  const baris = [];
+  urut.forEach((it) => {
+    const atas = it.y + it.fontPt * 0.74, bawah = it.y - it.fontPt * 0.22;
+    let pilih = null, skor = 0.45;
+    for (const b of baris) {
+      const tumpang = Math.min(atas, b.atas) - Math.max(bawah, b.bawah);
+      const s = tumpang / Math.max(1e-6, Math.min(atas - bawah, b.atas - b.bawah));
+      if (s > skor) { skor = s; pilih = b; }
+    }
+    if (pilih) {
+      pilih.item.push(it);
+      if (it.teks.trim().length > pilih.panjangUtama) {
+        pilih.panjangUtama = it.teks.trim().length;
+        pilih.y = it.y; pilih.fontPt = it.fontPt; pilih.atas = atas; pilih.bawah = bawah;
+      }
+    } else {
+      baris.push({ y: it.y, fontPt: it.fontPt, atas: atas, bawah: bawah, panjangUtama: it.teks.trim().length, item: [it] });
+    }
+  });
+  baris.forEach((b) => {
+    b.item.sort((p, q) => p.x - q.x);
+    b.xMulai = Math.min(...b.item.map((p) => p.x));
+    b.xAkhir = Math.max(...b.item.map((p) => p.x + p.lebar));
+    b.teks = b.item.map((p, i) => {
+      if (i === 0) return p.teks;
+      const sb = b.item[i - 1];
+      const celah = p.x - (sb.x + sb.lebar);
+      const perlu = celah > p.fontPt * 0.16 && !/\s$/.test(sb.teks) && !/^\s/.test(p.teks);
+      return (perlu ? " " : "") + p.teks;
+    }).join("");
+    const celah = Math.max(4, b.fontPt * 0.9);
+    const segmen = [];
+    b.item.forEach((p) => {
+      const t = segmen[segmen.length - 1];
+      if (t && (p.x - t.xAkhir) < celah) { t.item.push(p); t.xAkhir = Math.max(t.xAkhir, p.x + p.lebar); }
+      else segmen.push({ xMulai: p.x, xAkhir: p.x + p.lebar, item: [p] });
+    });
+    b.segmen = segmen;
+    b.celahLebar = segmen.length > 1 ? Math.max(...segmen.slice(1).map((s, i) => s.xMulai - segmen[i].xAkhir)) : 0;
+    b.tebalDominan = b.item.filter((p) => p.tebal).reduce((s, p) => s + p.teks.length, 0) > b.teks.length * 0.6;
+  });
+  return baris.sort((a, b) => b.y - a.y);
+}
+
+/* Mengubah item satu baris menjadi deretan run beserta garis bawah, coretan,
+   pangkat, warna, dan tautan. */
+function runBaris(b, konteks) {
+  const opsi = konteks.opsi;
+  const hasil = [];
+  b.item.forEach((p) => {
+    const x1 = p.x + p.lebar;
+    let vert = null;
+    if (p.fontPt < b.fontPt * 0.86) {
+      if (p.y - b.y > b.fontPt * 0.14) vert = "superscript";
+      else if (b.y - p.y > b.fontPt * 0.10) vert = "subscript";
+    }
+    let garisBawah = false, coret = false;
+    if (opsi.warna) {
+      konteks.garisTipis.forEach((g) => {
+        const tumpang = Math.min(x1, g.x1) - Math.max(p.x, g.x0);
+        if (tumpang < p.lebar * 0.55) return;
+        if (g.x1 - g.x0 > p.lebar * 2.6) return;
+        if (g.y < p.y - p.fontPt * 0.02 && g.y > p.y - p.fontPt * 0.34) garisBawah = true;
+        else if (g.y > p.y + p.fontPt * 0.16 && g.y < p.y + p.fontPt * 0.46) coret = true;
+      });
+    }
+    let taut = null;
+    if (opsi.taut) {
+      const cx = p.x + p.lebar / 2, cy = p.y + p.fontPt * 0.3;
+      const a = konteks.taut.find((t) => cx >= t.x0 - 1 && cx <= t.x1 + 1 && cy >= t.y0 - 1 && cy <= t.y1 + 1);
+      if (a) taut = a.url;
+    }
+    hasil.push({
+      teks: p.teks, x: p.x, lebar: p.lebar, fontPt: p.fontPt,
+      tebal: p.tebal, miring: p.miring, keluarga: p.keluarga, warna: p.warna || null,
+      garisBawah: garisBawah, coret: coret, vert: vert, taut: taut,
+      szHalf: jepit(Math.round(p.fontPt * 2), 8, 300)
+    });
+  });
+
+  /* menyisipkan spasi yang hilang lalu menyatukan run bergaya sama */
+  const gabung = [];
+  hasil.forEach((r, i) => {
+    const t = gabung[gabung.length - 1];
+    if (i > 0) {
+      const sebelum = hasil[i - 1];
+      const celah = r.x - (sebelum.x + sebelum.lebar);
+      if (celah > r.fontPt * 0.16 && !/\s$/.test(sebelum.teks) && !/^\s/.test(r.teks)) {
+        if (t) t.teks += " ";
+      }
+    }
+    const samaGaya = t && t.tebal === r.tebal && t.miring === r.miring && t.keluarga === r.keluarga &&
+      t.warna === r.warna && t.garisBawah === r.garisBawah && t.coret === r.coret &&
+      t.vert === r.vert && t.taut === r.taut && Math.abs(t.szHalf - r.szHalf) <= 1;
+    if (samaGaya) t.teks += r.teks;
+    else gabung.push(Object.assign({}, r));
+  });
+
+  /* alamat surel dan URL yang tertulis apa adanya ikut dijadikan tautan,
+     termasuk yang menyatu di tengah kalimat */
+  return konteks.opsi.taut ? pecahTaut(gabung) : gabung;
+}
+
+const RE_TAUT = /(https?:\/\/[^\s<>"']+|www\.[A-Za-z0-9-]+\.[^\s<>"']+|[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+)/g;
+
+function alamatTaut(potongan) {
+  const bersih = potongan.replace(/[.,;:)\]]+$/, "");
+  if (/^https?:\/\//i.test(bersih)) return { url: bersih, teks: bersih };
+  if (/^www\./i.test(bersih)) return { url: "https://" + bersih, teks: bersih };
+  if (bersih.indexOf("@") > 0) return { url: "mailto:" + bersih, teks: bersih };
+  return null;
+}
+
+function pecahTaut(runs) {
+  const hasil = [];
+  runs.forEach((r) => {
+    if (r.taut || !r.teks || !RE_TAUT.test(r.teks)) { RE_TAUT.lastIndex = 0; hasil.push(r); return; }
+    RE_TAUT.lastIndex = 0;
+    let posisi = 0, m;
+    while ((m = RE_TAUT.exec(r.teks)) !== null) {
+      const info = alamatTaut(m[0]);
+      if (!info) continue;
+      if (m.index > posisi) hasil.push(Object.assign({}, r, { teks: r.teks.slice(posisi, m.index) }));
+      hasil.push(Object.assign({}, r, { teks: info.teks, taut: info.url }));
+      posisi = m.index + info.teks.length;
+    }
+    if (posisi < r.teks.length) hasil.push(Object.assign({}, r, { teks: r.teks.slice(posisi) }));
+  });
+  return hasil.filter((r) => r.teks !== "" || r.tab || r.jenisRuas);
+}
+
+/* ---------------- kolom berganda ---------------- */
+
+function pisahKolom(baris, lebarHal, opsi) {
+  if (!opsi.kolom || baris.length < 12) return [{ baris: baris, kiri: null, kanan: null }];
+  const kiriIsi = Math.min(...baris.map((b) => b.xMulai));
+  const kananIsi = Math.max(...baris.map((b) => b.xAkhir));
+  const lebarIsi = kananIsi - kiriIsi;
+  if (lebarIsi < lebarHal * 0.4) return [{ baris: baris }];
+  const langkah = 2;
+  const jumlahBin = Math.ceil(lebarIsi / langkah) + 1;
+  const isi = new Uint8Array(jumlahBin);
+  baris.forEach((b) => {
+    const a = Math.floor((b.xMulai - kiriIsi) / langkah), z = Math.ceil((b.xAkhir - kiriIsi) / langkah);
+    for (let i = Math.max(0, a); i <= Math.min(jumlahBin - 1, z); i++) isi[i] = 1;
+  });
+  const minCelah = Math.max(16, lebarHal * 0.042) / langkah;
+  const batas = [];
+  let i = 1;
+  while (i < jumlahBin - 1) {
+    if (isi[i]) { i++; continue; }
+    let j = i;
+    while (j < jumlahBin - 1 && !isi[j]) j++;
+    if (j - i >= minCelah) batas.push(kiriIsi + ((i + j) / 2) * langkah);
+    i = j + 1;
+  }
+  if (!batas.length || batas.length > 3) return [{ baris: baris }];
+
+  const melintang = baris.filter((b) => batas.some((x) => b.xMulai < x - 1 && b.xAkhir > x + 1));
+  if (melintang.length > baris.length * 0.3) return [{ baris: baris }];
+
+  const tepi = [kiriIsi - 1].concat(batas, [kananIsi + 1]);
+  const jumlahKolom = tepi.length - 1;
+  const hitung = new Array(jumlahKolom).fill(0);
+  baris.forEach((b) => {
+    if (melintang.includes(b)) return;
+    for (let k = 0; k < jumlahKolom; k++) if (b.xMulai >= tepi[k] && b.xAkhir <= tepi[k + 1]) { hitung[k]++; break; }
+  });
+  if (hitung.some((h) => h < 6)) return [{ baris: baris }];
+
+  const grup = [];
+  let ember = Array.from({ length: jumlahKolom }, () => []);
+  const buang = () => {
+    if (ember.some((e) => e.length)) {
+      grup.push({ berkolom: true, kolom: ember.filter((e) => e.length).map((e, idx) => ({ baris: e })), tepi: tepi });
+    }
+    ember = Array.from({ length: jumlahKolom }, () => []);
+  };
+  baris.forEach((b) => {
+    if (melintang.includes(b)) { buang(); grup.push({ berkolom: false, baris: [b] }); return; }
+    for (let k = 0; k < jumlahKolom; k++) if (b.xMulai >= tepi[k] && b.xAkhir <= tepi[k + 1]) { ember[k].push(b); return; }
+    buang(); grup.push({ berkolom: false, baris: [b] });
+  });
+  buang();
+  return grup;
+}
+
+/* ---------------- tabel tanpa garis ---------------- */
+
+function pisahTabelSpasi(baris, lebarBlok, konteks) {
+  if (!konteks.opsi.tabelspasi) return [{ jenisPotong: "teks", baris: baris }];
+  const hasil = [];
+  let i = 0;
+  const layak = (b) => b.segmen.length >= 2 && b.celahLebar >= b.fontPt * 1.8;
+  while (i < baris.length) {
+    if (!layak(baris[i])) {
+      let j = i; while (j < baris.length && !layak(baris[j])) j++;
+      hasil.push({ jenisPotong: "teks", baris: baris.slice(i, j) });
+      i = j; continue;
+    }
+    let j = i; while (j < baris.length && layak(baris[j])) j++;
+    if (j - i < 3) { hasil.push({ jenisPotong: "teks", baris: baris.slice(i, j) }); i = j; continue; }
+    const grup = baris.slice(i, j);
+    const semuaX = [];
+    grup.forEach((b) => b.segmen.forEach((s) => semuaX.push(s.xMulai)));
+    const klaster = [];
+    semuaX.sort((a, b) => a - b).forEach((x) => {
+      const t = klaster[klaster.length - 1];
+      if (t && x - t.maks <= lebarBlok * 0.035) { t.maks = x; t.n++; }
+      else klaster.push({ min: x, maks: x, n: 1 });
+    });
+    if (klaster.length < 2 || klaster.length > 12) { hasil.push({ jenisPotong: "teks", baris: grup }); i = j; continue; }
+    hasil.push({ jenisPotong: "tabelSpasi", baris: grup, klaster: klaster });
+    i = j;
+  }
+  return hasil;
+}
+
+/* ---------------- penyusunan paragraf ---------------- */
+
+const RE_BUTIR = /^([\u2022\u25AA\u25E6\u2023\u00B7\u2219\u25CF\u25CB\u25A0\u25A1\u2043]|[-\u2013\u2014*o])\s+/;
+const RE_NOMOR = /^(\(?\d{1,2}[.)]|\(?[a-zA-Z][.)]|\(?[ivxIVX]{1,5}[.)])\s+/;
+const RE_BERTINGKAT = /^\d{1,2}(\.\d{1,3}){1,3}\.?\s+/;
+
+function mungkinJudul(teks, fontPt, tebal, barisKe, badan) {
+  if (!teks || barisKe > 2 || teks.length > 140) return false;
+  if (/^(BAB|BAGIAN|PASAL|LAMPIRAN|DAFTAR ISI|KATA PENGANTAR|ABSTRAK)\b/i.test(teks)) return true;
+  const besar = fontPt >= badan * 1.12;
+  const tebalPendek = tebal && fontPt >= badan * 0.97 && teks.length <= 90;
+  if (!besar && !tebalPendek) return false;
+  if (/[.,;]$/.test(teks) && !besar) return false;
+  return true;
+}
+
+function penandaDaftar(teks) {
+  const t = teks.replace(/^\s+/, "");
+  let m = t.match(RE_BERTINGKAT) || t.match(RE_BUTIR) || t.match(RE_NOMOR);
+  if (!m) return null;
+  const penanda = m[0].replace(/\s+$/, "");
+  if (!t.slice(m[0].length).trim()) return null;
+  return penanda;
+}
+
+function rakitParagraf(baris, geo, konteks) {
+  const opsi = konteks.opsi;
+  const hasil = [];
+  if (!baris.length) return hasil;
+  const kiriBlok = persentil(baris.map((b) => b.xMulai), 0.05);
+  const kananBlok = persentil(baris.map((b) => b.xAkhir), 0.95);
+  const lebarBlok = Math.max(40, kananBlok - kiriBlok);
+  const jarak = [];
+  for (let i = 1; i < baris.length; i++) jarak.push(baris[i - 1].y - baris[i].y);
+  const jarakBiasa = jarak.length ? median(jarak) : baris[0].fontPt * 1.2;
+
+  const kelompok = [];
+  baris.forEach((b, i) => {
+    let baru = i === 0;
+    if (!baru) {
+      const sb = baris[i - 1];
+      const selisih = sb.y - b.y;
+      if (selisih > jarakBiasa * 1.38 + 0.6) baru = true;
+      else if (opsi.daftar && penandaDaftar(b.teks)) baru = true;
+      else if (Math.abs(b.fontPt - sb.fontPt) > 1.4) baru = true;
+      else if (b.tebalDominan !== sb.tebalDominan) baru = true;
+      else if (sb.xAkhir < kananBlok - Math.max(lebarBlok * 0.12, sb.fontPt * 3) &&
+               !/^[a-z(\u201c"']/.test(b.teks.replace(/^\s+/, ""))) baru = true;
+      else if (!opsi.paragraf) baru = true;
+    }
+    if (baru) kelompok.push([b]); else kelompok[kelompok.length - 1].push(b);
+  });
+
+  kelompok.forEach((kel) => {
+    const runs = [];
+    kel.forEach((b, idx) => {
+      const r = runBaris(b, konteks);
+      if (idx > 0 && runs.length) {
+        const akhir = runs[runs.length - 1];
+        if (/[-\u2010]$/.test(akhir.teks)) { /* kata terpenggal, disambung tanpa spasi */ }
+        else if (!/\s$/.test(akhir.teks)) akhir.teks += " ";
+      }
+      r.forEach((x) => {
+        const t = runs[runs.length - 1];
+        const sama = t && t.tebal === x.tebal && t.miring === x.miring && t.keluarga === x.keluarga &&
+          t.warna === x.warna && t.garisBawah === x.garisBawah && t.coret === x.coret &&
+          t.vert === x.vert && t.taut === x.taut && Math.abs(t.szHalf - x.szHalf) <= 1;
+        if (sama) t.teks += x.teks; else runs.push(x);
+      });
+    });
+    if (!runs.length) return;
+
+    const pertama = kel[0];
+    const sisaKiri = Math.min(...kel.map((b) => b.xMulai)) - kiriBlok;
+    const sisaKanan = kananBlok - Math.max(...kel.map((b) => b.xAkhir));
+    let align = "left";
+    const kiriP = pertama.xMulai - kiriBlok, kananP = kananBlok - pertama.xAkhir;
+    if (kel.length === 1) {
+      if (Math.abs(kiriP - kananP) < lebarBlok * 0.06 && kiriP > lebarBlok * 0.1) align = "center";
+      else if (kananP < lebarBlok * 0.035 && kiriP > lebarBlok * 0.2) align = "right";
+    } else {
+      const penuh = kel.slice(0, -1).every((b) => b.xAkhir >= kananBlok - Math.max(3, lebarBlok * 0.022));
+      const rataKiri = kel.slice(1).every((b) => Math.abs(b.xMulai - kiriBlok - sisaKiri) < 4);
+      if (penuh && rataKiri) align = "both";
+      else {
+        const semuaTengah = kel.every((b) => Math.abs((b.xMulai - kiriBlok) - (kananBlok - b.xAkhir)) < lebarBlok * 0.07);
+        if (semuaTengah && sisaKiri > lebarBlok * 0.08) align = "center";
+      }
+    }
+
+    const blok = {
+      jenis: "p", y: pertama.y, runs: runs,
+      align: align, indKiri: 0, indKanan: 0, indGantung: 0, indBaris1: 0,
+      jarakSebelum: 0, garisBaris: 0, fontPt: pertama.fontPt, tebal: pertama.tebalDominan,
+      teksPolos: kel.map((b) => b.teks).join(" ").replace(/\s+/g, " ").trim(),
+      barisKe: kel.length
+    };
+
+    if (align === "left" || align === "both") {
+      blok.indKiri = Math.max(0, (Math.min(...kel.map((b) => b.xMulai)) - konteks.marginKiriPt) * PT_KE_TWIP);
+      if (kel.length > 1) {
+        const geser = (pertama.xMulai - Math.min(...kel.slice(1).map((b) => b.xMulai))) * PT_KE_TWIP;
+        if (geser > 40) { blok.indBaris1 = geser; blok.indKiri = Math.max(0, blok.indKiri - geser); }
+      }
+      if (sisaKanan > lebarBlok * 0.1 && align === "both") blok.align = "left";
+    }
+
+    blok.calonJudul = mungkinJudul(blok.teksPolos, blok.fontPt, blok.tebal, blok.barisKe, konteks.ukuranBadan || 11);
+    if (opsi.daftar && !blok.calonJudul) {
+      const penanda = penandaDaftar(blok.teksPolos);
+      if (penanda) {
+        let gantung = 0;
+        if (pertama.segmen.length > 1) gantung = (pertama.segmen[1].xMulai - pertama.xMulai) * PT_KE_TWIP;
+        if (gantung < 120 || gantung > 1600) gantung = Math.max(200, penanda.length * 120 + 120);
+        blok.daftar = true;
+        blok.indKiri = blok.indKiri + blok.indBaris1 + gantung;
+        blok.indBaris1 = 0;
+        blok.indGantung = gantung;
+        blok.tabStop = blok.indKiri;
+        /* penanda dipisah menjadi run tersendiri lalu disusul tabulasi */
+        const sisa = blok.teksPolos.slice(penanda.length).replace(/^\s+/, "");
+        if (runs.length && runs[0].teks.replace(/^\s+/, "").indexOf(penanda) === 0) {
+          const gaya = runs[0];
+          runs[0] = Object.assign({}, gaya, { teks: gaya.teks.replace(/^\s*/, "").slice(penanda.length).replace(/^\s+/, "") });
+          runs.unshift(Object.assign({}, gaya, { teks: "", tab: true }));
+          runs.unshift(Object.assign({}, gaya, { teks: penanda }));
+          if (!runs[2].teks) runs.splice(2, 1);
+        }
+        blok.penanda = penanda;
+        blok.sisaTeks = sisa;
+      }
+    }
+
+    hasil.push(blok);
+  });
+
+  /* jarak antarparagraf dan spasi baris */
+  for (let i = 0; i < hasil.length; i++) {
+    if (i > 0) {
+      const selisih = hasil[i - 1].y - hasil[i].y;
+      const tinggiBaris = Math.max(hasil[i].fontPt, hasil[i - 1].fontPt) * 1.18;
+      hasil[i].jarakSebelum = jepit(Math.round((selisih - tinggiBaris - (hasil[i - 1].barisKe - 1) * jarakBiasa) * PT_KE_TWIP), 0, 1400);
+    }
+    const b = hasil[i];
+    if (b.barisKe > 1) {
+      const rasio = jarakBiasa / (b.fontPt * 1.18);
+      if (rasio > 1.08 || rasio < 0.92) b.garisBaris = jepit(Math.round(240 * rasio), 180, 600);
+    }
+  }
+  return hasil;
+}
+
+function paragrafSel(item, konteks) {
+  if (!item.length) return [];
+  const baris = bentukBaris(item);
+  const kiri = Math.min(...baris.map((b) => b.xMulai));
+  const p = rakitParagraf(baris, {}, Object.assign({}, konteks, { marginKiriPt: kiri }));
+  p.forEach((x) => { x.indKiri = 0; x.indBaris1 = 0; if (!x.daftar) x.indGantung = 0; x.jarakSebelum = Math.min(x.jarakSebelum, 60); x.garisBaris = 0; });
+  return p;
+}
+
+/* ---------------- gambar dan grafik vektor ---------------- */
+
+function gabungKotak(daftar, jarak) {
+  const sisa = daftar.slice();
+  let berubah = true;
+  while (berubah) {
+    berubah = false;
+    for (let i = 0; i < sisa.length && !berubah; i++) {
+      for (let j = i + 1; j < sisa.length; j++) {
+        const a = sisa[i], b = sisa[j];
+        if (a.x0 - jarak <= b.x1 && b.x0 - jarak <= a.x1 && a.y0 - jarak <= b.y1 && b.y0 - jarak <= a.y1) {
+          sisa[i] = { x0: Math.min(a.x0, b.x0), y0: Math.min(a.y0, b.y0), x1: Math.max(a.x1, b.x1), y1: Math.max(a.y1, b.y1), n: (a.n || 1) + (b.n || 1) };
+          sisa.splice(j, 1); berubah = true; break;
+        }
+      }
+    }
+  }
+  return sisa;
+}
+
+async function ambilGambarHalaman(mentah, opsi) {
+  const hasil = { blok: [], buang: new Set(), perluOcr: false };
+  const luasHal = mentah.lebar * mentah.tinggi;
+  const kotakGambar = gabungKotak(mentah.vek.gambar.map((g) => Object.assign({ n: 1 }, g)), 3);
+  const luasGambar = kotakGambar.reduce((s, g) => s + (g.x1 - g.x0) * (g.y1 - g.y0), 0);
+  const teksSedikit = mentah.item.length < 8;
+
+  if (luasGambar > luasHal * 0.7 && teksSedikit) {
+    hasil.perluOcr = mentah.item.length < 3;
+    if (opsi.gambar && mentah.render) {
+      const g = await potongGambar(mentah.render, mentah.tinggi, 0, 0, mentah.lebar, mentah.tinggi);
+      if (g) hasil.blok.push({ yAtas: mentah.tinggi, blok: { jenis: "gambar", lebarPt: mentah.lebar, tinggiPt: mentah.tinggi, data: g.data, ext: g.ext, align: "center" } });
+    }
+    return hasil;
+  }
+
+  if (opsi.gambar && mentah.render) {
+    for (const g of kotakGambar) {
+      const w = g.x1 - g.x0, h = g.y1 - g.y0;
+      if (w < 8 || h < 8) continue;
+      if (w > mentah.lebar * 0.985 && h > mentah.tinggi * 0.985) continue; /* latar halaman, dilewati */
+      const png = await potongGambar(mentah.render, mentah.tinggi, g.x0, g.y0, g.x1, g.y1);
+      if (png) hasil.blok.push({ yAtas: g.y1, blok: { jenis: "gambar", lebarPt: w, tinggiPt: h, data: png.data, ext: png.ext, align: "left" } });
+    }
+  }
+
+  if (opsi.vektor && mentah.render) {
+    const jejak = mentah.vek.jejak.filter((j) => {
+      const w = j.x1 - j.x0, h = j.y1 - j.y0;
+      return w > 5 && h > 5 && w * h < luasHal * 0.85;
+    });
+    const gugus = gabungKotak(jejak.map((j) => Object.assign({ n: 1 }, j)), 8);
+    for (const g of gugus) {
+      const w = g.x1 - g.x0, h = g.y1 - g.y0;
+      if ((g.n || 1) < 3 || w * h < 900 || w < 20 || h < 20) continue;
+      if (kotakGambar.some((k) => k.x0 <= g.x0 + 2 && k.x1 >= g.x1 - 2 && k.y0 <= g.y0 + 2 && k.y1 >= g.y1 - 2)) continue;
+      const dalam = mentah.item.filter((it) => it.x + it.lebar / 2 >= g.x0 && it.x + it.lebar / 2 <= g.x1 && it.y >= g.y0 && it.y <= g.y1);
+      if (dalam.length > 14) continue; /* kemungkinan besar tabel atau kotak berisi teks, bukan bagan */
+      const png = await potongGambar(mentah.render, mentah.tinggi, g.x0 - 2, g.y0 - 2, g.x1 + 2, g.y1 + 2);
+      if (!png) continue;
+      dalam.forEach((it) => hasil.buang.add(it));
+      hasil.blok.push({ yAtas: g.y1, blok: { jenis: "gambar", lebarPt: w + 4, tinggiPt: h + 4, data: png.data, ext: png.ext, align: "left" } });
+    }
+  }
+  return hasil;
+}
+
+/* ---------------- penyusun blok halaman ---------------- */
+
+function bangunBlokTabelGaris(t, konteks) {
+  const kolomTwip = [];
+  for (let c = 0; c < t.nKol; c++) kolomTwip.push(Math.max(200, Math.round((t.batasX[c + 1] - t.batasX[c]) * PT_KE_TWIP)));
+  const baris = [];
+  for (let r = 0; r < t.nBar; r++) {
+    const row = [];
+    let c = 0;
+    while (c < t.nKol) {
+      const s = t.pemilik[r][c];
+      if (!s) { c++; continue; }
+      if (s.r === r) {
+        row.push({
+          kolom: c, span: s.span, vMerge: s.tinggi > 1 ? "restart" : null,
+          tepi: s.tepi, latar: s.latar || null, paragraf: paragrafSel(s.item, konteks)
+        });
+      } else {
+        row.push({ kolom: c, span: s.span, vMerge: "continue", tepi: s.tepi, latar: s.latar || null, paragraf: [] });
+      }
+      c += s.span;
+    }
+    if (row.length) baris.push(row);
+  }
+  return {
+    jenis: "tabel", y: t.yAtas, kolomTwip: kolomTwip, baris: baris, tanpaGaris: false,
+    indKiri: Math.max(0, Math.round((t.x0 - konteks.marginKiriPt) * PT_KE_TWIP))
+  };
+}
+
+function bangunBlokTabelSpasi(potong, kananBlok, konteks) {
+  const batas = potong.klaster.map((k) => k.min);
+  batas.push(kananBlok + 2);
+  const nKol = batas.length - 1;
+  const kolomTwip = [];
+  for (let c = 0; c < nKol; c++) kolomTwip.push(Math.max(200, Math.round((batas[c + 1] - batas[c]) * PT_KE_TWIP)));
+  const baris = potong.baris.map((b) => {
+    const isi = new Array(nKol).fill(null);
+    b.segmen.forEach((s) => {
+      let idx = 0;
+      for (let c = 0; c < nKol; c++) if (s.xMulai >= batas[c] - 1.5) idx = c;
+      const semu = { y: b.y, fontPt: b.fontPt, item: s.item, atas: b.atas, bawah: b.bawah };
+      const runs = runBaris(semu, konteks);
+      if (isi[idx]) isi[idx] = isi[idx].concat(runs); else isi[idx] = runs;
+    });
+    const row = [];
+    for (let c = 0; c < nKol; c++) {
+      row.push({
+        kolom: c, span: 1, vMerge: null, tepi: null, latar: null,
+        paragraf: [{ jenis: "p", runs: isi[c] || [], align: "left", indKiri: 0, indKanan: 0, indGantung: 0, indBaris1: 0, jarakSebelum: 0 }]
+      });
+    }
+    return row;
+  });
+  return {
+    jenis: "tabel", y: potong.baris[0].y, kolomTwip: kolomTwip, baris: baris, tanpaGaris: true,
+    indKiri: Math.max(0, Math.round((batas[0] - konteks.marginKiriPt) * PT_KE_TWIP))
+  };
+}
+
+function olahBaris(baris, konteks) {
+  if (!baris.length) return [];
+  const kananBlok = persentil(baris.map((b) => b.xAkhir), 0.95);
+  const kiriBlok = persentil(baris.map((b) => b.xMulai), 0.05);
+  const potongan = pisahTabelSpasi(baris, Math.max(40, kananBlok - kiriBlok), konteks);
+  const grup = [];
+  potongan.forEach((p) => {
+    if (!p.baris.length) return;
+    if (p.jenisPotong === "tabelSpasi") grup.push({ y: p.baris[0].y, blok: [bangunBlokTabelSpasi(p, kananBlok, konteks)] });
+    else grup.push({ y: p.baris[0].y, blok: rakitParagraf(p.baris, {}, konteks) });
+  });
+  return grup;
+}
+
+function bangunHalaman(mentah, konteks) {
+  const grup = [];
+  mentah.tabelGaris.forEach((t) => grup.push({ y: t.yAtas, blok: [bangunBlokTabelGaris(t, konteks)] }));
+  mentah.gambarBlok.forEach((g) => grup.push({ y: g.yAtas, blok: [g.blok] }));
+
+  const kelompokKolom = pisahKolom(mentah.baris, mentah.lebar, konteks.opsi);
+  kelompokKolom.forEach((k) => {
+    if (k.berkolom) {
+      const isi = [];
+      let yAtas = -Infinity;
+      k.kolom.forEach((kol) => {
+        if (!kol.baris.length) return;
+        yAtas = Math.max(yAtas, kol.baris[0].y);
+        olahBaris(kol.baris, konteks).forEach((g) => isi.push(...g.blok));
+      });
+      if (isi.length) grup.push({ y: yAtas, blok: isi });
+    } else {
+      olahBaris(k.baris, konteks).forEach((g) => grup.push(g));
+    }
+  });
+
+  if (mentah.miringan.length) {
+    const b = bentukBaris(mentah.miringan);
+    olahBaris(b, konteks).forEach((g) => grup.push({ y: -1, blok: g.blok }));
+  }
+
+  grup.sort((a, b) => b.y - a.y);
+  const blok = [];
+  grup.forEach((g) => blok.push(...g.blok));
+  return blok;
+}
+
+/* ---------------- judul, kop, dan kaki ---------------- */
+
+function terapkanJudul(semuaBlok, konteks) {
+  if (!konteks.opsi.judul) return;
+  const badan = konteks.ukuranBadan;
+  const kandidat = semuaBlok.filter((b) =>
+    b.jenis === "p" && !b.daftar && b.teksPolos &&
+    mungkinJudul(b.teksPolos, b.fontPt, b.tebal, b.barisKe, badan));
+  if (!kandidat.length) return;
+  const ukuran = [];
+  kandidat.forEach((b) => { const u = Math.round(b.fontPt * 2) / 2; if (!ukuran.includes(u)) ukuran.push(u); });
+  ukuran.sort((a, b) => b - a);
+  kandidat.forEach((b) => {
+    const u = Math.round(b.fontPt * 2) / 2;
+    const tingkat = jepit(ukuran.indexOf(u) + 1, 1, 4);
+    b.gaya = "Heading" + tingkat;
+  });
+}
+
+function normalkanKop(teks) {
+  return teks.replace(/\s+/g, " ").replace(/\d+/g, "#").trim();
+}
+
+function analisisKopKaki(daftarHal, konteks) {
+  const hasil = { kop: null, kaki: null, buang: new Map(), jarakKop: 425, jarakKaki: 425 };
+  if (!konteks.opsi.kopkaki || daftarHal.length < 2) return hasil;
+
+  const kumpul = (ambil) => {
+    const peta = new Map();
+    daftarHal.forEach((h, iHal) => {
+      h.baris.forEach((b) => {
+        if (!ambil(b, h)) return;
+        const kunci = normalkanKop(b.teks);
+        if (!kunci || kunci.length > 120) return;
+        if (!peta.has(kunci)) peta.set(kunci, []);
+        peta.get(kunci).push({ iHal: iHal, baris: b, hal: h });
+      });
+    });
+    const ambang = Math.max(2, Math.ceil(daftarHal.length * 0.6));
+    let terpilih = null;
+    peta.forEach((v, k) => {
+      const halUnik = new Set(v.map((x) => x.iHal));
+      if (halUnik.size >= ambang && (!terpilih || halUnik.size > terpilih.jumlah)) {
+        terpilih = { kunci: k, isi: v, jumlah: halUnik.size };
+      }
+    });
+    return terpilih;
+  };
+
+  const zonaAtas = (b, h) => b.y > h.tinggi * 0.91;
+  const zonaBawah = (b, h) => b.y < h.tinggi * 0.09;
+
+  const bikin = (terpilih) => {
+    if (!terpilih) return null;
+    const contoh = terpilih.isi[0].baris;
+    const semuaTeks = terpilih.isi.map((x) => x.baris.teks.replace(/\s+/g, " ").trim());
+    const runs = runBaris(contoh, konteks);
+    const gayaUtama = runs.slice().sort((a, b) => b.teks.length - a.teks.length)[0] || { szHalf: 18 };
+    const dasar = { szHalf: gayaUtama.szHalf, keluarga: gayaUtama.keluarga, tebal: gayaUtama.tebal, miring: gayaUtama.miring };
+
+    const belah = semuaTeks[0].split(/(\d+)/);
+    let adaRuas = false;
+    const susun = [];
+    let indeksAngka = 0;
+    belah.forEach((bagian) => {
+      if (/^\d+$/.test(bagian)) {
+        const idx = indeksAngka++;
+        const beda = semuaTeks.some((t) => {
+          const b2 = t.split(/(\d+)/).filter((x) => /^\d+$/.test(x));
+          return b2[idx] !== undefined && b2[idx] !== bagian;
+        });
+        if (beda) {
+          adaRuas = true;
+          susun.push(Object.assign({ teks: "", jenisRuas: "mulai" }, dasar));
+          susun.push(Object.assign({ teks: "", jenisRuas: "instruksi" }, dasar));
+          susun.push(Object.assign({ teks: "", jenisRuas: "pisah" }, dasar));
+          susun.push(Object.assign({ teks: bagian }, dasar));
+          susun.push(Object.assign({ teks: "", jenisRuas: "tutup" }, dasar));
+          return;
+        }
+      }
+      if (bagian) susun.push(Object.assign({ teks: bagian }, dasar));
+    });
+
+    const hal = terpilih.isi[0].hal;
+    const kiri = contoh.xMulai, kanan = hal.lebar - contoh.xAkhir;
+    let align = "left";
+    if (Math.abs(kiri - kanan) < hal.lebar * 0.08 && kiri > hal.lebar * 0.15) align = "center";
+    else if (kanan < hal.lebar * 0.06 && kiri > hal.lebar * 0.3) align = "right";
+
+    return {
+      paragraf: [{ jenis: "p", runs: adaRuas ? susun : runs, align: align, indKiri: 0, indKanan: 0, indGantung: 0, indBaris1: 0, jarakSebelum: 0 }],
+      isi: terpilih.isi, y: contoh.y
+    };
+  };
+
+  const kop = bikin(kumpul(zonaAtas));
+  const kaki = bikin(kumpul(zonaBawah));
+  if (kop) {
+    hasil.kop = kop.paragraf;
+    hasil.jarakKop = jepit(Math.round((daftarHal[0].tinggi - kop.y - daftarHal[0].tinggi * 0.012) * PT_KE_TWIP), 200, 1400);
+    kop.isi.forEach((x) => { if (!hasil.buang.has(x.iHal)) hasil.buang.set(x.iHal, new Set()); hasil.buang.get(x.iHal).add(x.baris); });
+  }
+  if (kaki) {
+    hasil.kaki = kaki.paragraf;
+    hasil.jarakKaki = jepit(Math.round((kaki.y - daftarHal[0].tinggi * 0.012) * PT_KE_TWIP), 200, 1400);
+    kaki.isi.forEach((x) => { if (!hasil.buang.has(x.iHal)) hasil.buang.set(x.iHal, new Set()); hasil.buang.get(x.iHal).add(x.baris); });
+  }
+  return hasil;
+}
+
+/* ================================================================
+   BAGIAN 5. Proses konversi satu berkas PDF
+   ================================================================ */
+
+function hitungMargin(daftarHal) {
+  const xM = [], xA = [], yAtas = [], yBawah = [];
+  daftarHal.forEach((h) => {
+    h.baris.forEach((b) => { xM.push(b.xMulai); xA.push(b.xAkhir); yAtas.push(b.y + b.fontPt * 0.8); yBawah.push(b.y); });
+    h.tabelGaris.forEach((t) => { xM.push(t.x0); xA.push(t.x1); });
+  });
+  const H = daftarHal[0], W = H.lebar, T = H.tinggi;
+  if (!xM.length) return { kiri: 56, kanan: 56, atas: 56, bawah: 56, kiriPt: 56 };
+  const kiri = jepit(persentil(xM, 0.03) - 2, 14, W * 0.25);
+  const kanan = jepit(W - persentil(xA, 0.97) - 2, 14, W * 0.25);
+  const atas = jepit(T - Math.max(...yAtas) - 2, 14, T * 0.2);
+  const bawah = jepit(Math.min(...yBawah) - 4, 14, T * 0.2);
+  return { kiri, kanan, atas, bawah, kiriPt: kiri };
+}
+
+async function konversiBerkas(entri, opsi, lapor) {
+  const bytes = await entri.file.arrayBuffer();
+  const dok = await pdfjsLib.getDocument({
+    data: bytes.slice(0),
+    cMapUrl: PDFJS_BASE + "cmaps/", cMapPacked: true,
+    standardFontDataUrl: PDFJS_BASE + "standard_fonts/",
+    isEvalSupported: false
+  }).promise;
+
+  const peringatan = [];
+  const halaman = [];
+  try {
+    for (let h = 1; h <= dok.numPages; h++) {
+      lapor(h, dok.numPages);
+      const mentah = await ekstrakHalaman(dok, h, opsi);
+      const gb = await ambilGambarHalaman(mentah, opsi);
+      mentah.gambarBlok = gb.blok;
+      if (gb.perluOcr) peringatan.push("Halaman " + h + " tampaknya hasil pindaian tanpa lapisan teks, isinya hanya dapat disalin sebagai gambar sehingga masih perlu OCR agar bisa disunting.");
+      if (gb.buang.size) mentah.item = mentah.item.filter((it) => !gb.buang.has(it));
+      const t = deteksiTabelGaris(mentah, opsi, null);
+      mentah.tabelGaris = t.tabel;
+      mentah.baris = bentukBaris(t.sisa);
+      if (mentah.render) { mentah.render.kanvas.width = 0; mentah.render.kanvas.height = 0; mentah.render = null; }
+      try { mentah.page.cleanup(); } catch (e) {}
+      mentah.page = null;
+      halaman.push(mentah);
+      if (h % 5 === 0) await jeda(0);
+    }
+  } finally {
+    try { await dok.destroy(); } catch (e) {}
+  }
+
+  if (!halaman.length) throw new Error("PDF tidak memuat halaman yang dapat dibaca.");
+
+  /* ukuran huruf badan naskah, dipakai sebagai acuan pengenalan judul */
+  const hist = new Map();
+  halaman.forEach((h) => h.item.forEach((it) => {
+    const k = Math.round(it.fontPt * 2) / 2;
+    hist.set(k, (hist.get(k) || 0) + it.teks.trim().length);
+  }));
+  let total = 0; hist.forEach((v) => { total += v; });
+  let ukuranBadan = 11, jalan = 0;
+  Array.from(hist.keys()).sort((a, b) => a - b).some((k) => { jalan += hist.get(k); if (jalan >= total / 2) { ukuranBadan = k; return true; } return false; });
+
+  /* kelompok ukuran halaman, tiap kelompok punya margin sendiri */
+  const kunciUkuran = (h) => Math.round(h.lebar) + "x" + Math.round(h.tinggi);
+  const kelompok = new Map();
+  halaman.forEach((h) => {
+    const k = kunciUkuran(h);
+    if (!kelompok.has(k)) kelompok.set(k, []);
+    kelompok.get(k).push(h);
+  });
+  const marginPer = new Map();
+  kelompok.forEach((v, k) => marginPer.set(k, hitungMargin(v)));
+
+  const konteksDasar = { opsi: opsi, ukuranBadan: ukuranBadan };
+  halaman.forEach((h) => {
+    const m = marginPer.get(kunciUkuran(h));
+    h.margin = m;
+    h.kon = Object.assign({}, konteksDasar, { marginKiriPt: m.kiri, garisTipis: h.vek.garisH, taut: h.taut });
+  });
+
+  const kopKaki = analisisKopKaki(halaman, Object.assign({}, konteksDasar, { marginKiriPt: 0, garisTipis: [], taut: [] }));
+  halaman.forEach((h, i) => {
+    const buang = kopKaki.buang.get(i);
+    if (buang) h.baris = h.baris.filter((b) => !buang.has(b));
+  });
+
+  const semuaBlok = [];
+  halaman.forEach((h) => { h.blok = bangunHalaman(h, h.kon); semuaBlok.push(...h.blok); });
+  terapkanJudul(semuaBlok, konteksDasar);
+
+  const seksi = [];
+  let kunciTerakhir = null;
+  halaman.forEach((h, i) => {
+    const k = kunciUkuran(h);
+    const m = h.margin;
+    if (k !== kunciTerakhir) {
+      seksi.push({
+        pgW: Math.round(h.lebar * PT_KE_TWIP), pgH: Math.round(h.tinggi * PT_KE_TWIP),
+        marAtas: Math.round(m.atas * PT_KE_TWIP), marBawah: Math.round(m.bawah * PT_KE_TWIP),
+        marKiri: Math.round(m.kiri * PT_KE_TWIP), marKanan: Math.round(m.kanan * PT_KE_TWIP),
+        jarakHeader: kopKaki.jarakKop, jarakFooter: kopKaki.jarakKaki,
+        blok: []
+      });
+      kunciTerakhir = k;
+    } else if (i > 0 && opsi.pemisah && h.blok.length) {
+      const pertama = h.blok[0];
+      if (pertama.jenis === "p" || pertama.jenis === "gambar") pertama.pisahHalaman = true;
+      else h.blok.unshift({ jenis: "p", runs: [], align: "left", indKiri: 0, indKanan: 0, indGantung: 0, indBaris1: 0, jarakSebelum: 0, pisahHalaman: true });
+    }
+    seksi[seksi.length - 1].blok.push(...h.blok);
+  });
+
+  const statistik = {
+    halaman: halaman.length,
+    paragraf: semuaBlok.filter((b) => b.jenis === "p").length,
+    judul: semuaBlok.filter((b) => b.gaya).length,
+    tabel: semuaBlok.filter((b) => b.jenis === "tabel").length,
+    gambar: semuaBlok.filter((b) => b.jenis === "gambar").length,
+    kop: !!kopKaki.kop, kaki: !!kopKaki.kaki
+  };
+  if (!statistik.paragraf && !statistik.tabel && !statistik.gambar) {
+    peringatan.push("Tidak ada teks maupun gambar yang bisa diambil dari PDF ini. Kemungkinan berkasnya terkunci atau seluruhnya berupa hasil pindaian.");
+  }
+
+  const jadi = await buatDocxBytes({
+    judul: Bantu.tanpaAkhiran(entri.nama),
+    seksi: seksi, header: kopKaki.kop, footer: kopKaki.kaki
+  });
+  statistik.taut = jadi.jumlahTaut;
+  if (!jadi.bytes || jadi.bytes.length < 400) throw new Error("Berkas .docx gagal dibentuk.");
+  return { bytes: jadi.bytes, statistik: statistik, peringatan: peringatan };
+}
+
+/* ================================================================
+   BAGIAN 6. Menjalankan konversi dan menyerahkan hasilnya
+   ================================================================ */
+
+function tawarkanUnduhan(namaBerkas, blob, otomatis) {
+  const url = URL.createObjectURL(blob);
+  urlHidup.push(url);
+  if (otomatis) {
+    try {
+      const a = document.createElement("a");
+      a.href = url; a.download = namaBerkas; a.rel = "noopener";
+      document.body.appendChild(a); a.click(); a.remove();
+    } catch (e) { /* diblokir peramban, tautan manual di bawah tetap tersedia */ }
+  }
+  return url;
+}
+
+function barisHasil(nama, url, ukuran, catatan, gagal) {
+  const li = document.createElement("li");
+  const n = document.createElement("span");
+  n.className = "pw-nama"; n.textContent = nama; n.title = nama;
+  li.appendChild(n);
+  if (gagal) {
+    const g = document.createElement("span");
+    g.className = "pw-gagal"; g.textContent = "Gagal: " + gagal;
+    li.appendChild(g);
+  } else {
+    const r = document.createElement("span");
+    r.className = "pw-rinci"; r.textContent = ukuran;
+    li.appendChild(r);
+    const a = document.createElement("a");
+    a.className = "pw-unduh"; a.href = url; a.download = nama; a.textContent = "Unduh";
+    li.appendChild(a);
+  }
+  if (catatan && catatan.length) {
+    const ul = document.createElement("ul");
+    ul.className = "pw-catatan";
+    ul.style.flexBasis = "100%";
+    catatan.forEach((c) => { const x = document.createElement("li"); x.textContent = c; ul.appendChild(x); });
+    li.appendChild(ul);
+  }
+  el("hasil").appendChild(li);
+  el("bagianHasil").classList.remove("sembunyi");
+}
 
 el("konversi").addEventListener("click", async () => {
   if (!antrean.length) return;
   const tombol = el("konversi");
+  const opsi = bacaOpsi();
   tombol.disabled = true;
+  bersihkanHasil();
+  Bantu.pesan("kabar", "", "");
+
+  const berhasil = [];
+  let gagal = 0;
 
   for (let i = 0; i < antrean.length; i++) {
     const b = antrean[i];
-    tombol.textContent = "Mengonversi " + (i + 1) + " dari " + antrean.length + " ...";
+    const lapor = (h, n) => {
+      tombol.textContent = "Berkas " + (i + 1) + " dari " + antrean.length + ", halaman " + h + " dari " + n + " ...";
+    };
+    tombol.textContent = "Membuka berkas " + (i + 1) + " dari " + antrean.length + " ...";
+    await jeda(10);
     try {
-      const bytes = await b.file.arrayBuffer();
-      const dok = await pdfjsLib.getDocument({ data: bytes.slice(0) }).promise;
-      const halaman = [];
-      for (let h = 1; h <= dok.numPages; h++) {
-        halaman.push(await ambilBlokHalaman(dok, h));
-      }
-      const docxBytes = buatDocxBytes(halaman);
-      const blob = new Blob([docxBytes], { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url; a.download = Bersama.tanpaAkhiran(b.nama) + ".docx";
-      document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 10000);
+      const hasil = await konversiBerkas(b, opsi, lapor);
+      const nama = Bantu.tanpaAkhiran(b.nama) + ".docx";
+      const blob = new Blob([hasil.bytes], { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
+      const s = hasil.statistik;
+      const catatan = [
+        s.halaman + " halaman, " + s.paragraf + " paragraf, " + s.judul + " judul, " +
+        s.tabel + " tabel, " + s.gambar + " gambar, " + s.taut + " tautan" +
+        (s.kop ? ", kop halaman dipindahkan ke header" : "") + (s.kaki ? ", kaki halaman dipindahkan ke footer" : "") + "."
+      ].concat(hasil.peringatan);
+      berhasil.push({ nama: nama, blob: blob, catatan: catatan });
     } catch (err) {
-      Bersama.pesan("kabar", "Gagal mengonversi " + Bersama.lolos(b.nama) + ": " +
-        Bersama.lolos(String(err && err.message ? err.message : err).slice(0, 150)), "gagal");
+      gagal++;
       console.error(err);
+      const pesan = String(err && err.message ? err.message : err).slice(0, 180);
+      barisHasil(b.nama, null, null, null, pesan);
     }
-    await jeda(300);
+    await jeda(80);
   }
 
-  Bersama.pesan("kabar", antrean.length + " berkas .docx tersimpan di folder unduhan. Buka dengan Word untuk memeriksa hasilnya.", "beres");
+  if (opsi.zip && berhasil.length > 1) {
+    try {
+      const isiZip = [];
+      for (const h of berhasil) isiZip.push({ nama: h.nama, data: new Uint8Array(await h.blob.arrayBuffer()), janganMampat: true });
+      const zipBytes = await susunZip(isiZip);
+      const zipBlob = new Blob([zipBytes], { type: "application/zip" });
+      const nama = "hasil-konversi-word.zip";
+      const url = tawarkanUnduhan(nama, zipBlob, true);
+      barisHasil(nama, url, Bantu.ukuran(zipBlob.size), [berhasil.length + " berkas .docx di dalamnya."], null);
+      berhasil.forEach((h) => {
+        const u = tawarkanUnduhan(h.nama, h.blob, false);
+        barisHasil(h.nama, u, Bantu.ukuran(h.blob.size), h.catatan, null);
+      });
+    } catch (e) {
+      berhasil.forEach((h, idx) => {
+        const u = tawarkanUnduhan(h.nama, h.blob, idx === 0);
+        barisHasil(h.nama, u, Bantu.ukuran(h.blob.size), h.catatan, null);
+      });
+    }
+  } else {
+    for (let idx = 0; idx < berhasil.length; idx++) {
+      const h = berhasil[idx];
+      const u = tawarkanUnduhan(h.nama, h.blob, true);
+      barisHasil(h.nama, u, Bantu.ukuran(h.blob.size), h.catatan, null);
+      await jeda(350);
+    }
+  }
+
   tombol.disabled = false;
   tombol.textContent = "Konversi semua ke Word";
+
+  if (!berhasil.length) {
+    Bantu.pesan("kabarHasil", "Tidak ada berkas yang berhasil dikonversi. Rincian kegagalannya tertulis di daftar hasil.", "gagal");
+  } else if (gagal) {
+    Bantu.pesan("kabarHasil", berhasil.length + " berkas berhasil dibentuk dan " + gagal +
+      " gagal. Kalau unduhan otomatis tidak muncul, tekan tombol Unduh pada daftar di atas.", "");
+  } else {
+    Bantu.pesan("kabarHasil", berhasil.length + " berkas .docx sudah dibentuk. Unduhan otomatis biasanya langsung berjalan, kalau tidak muncul di folder unduhan silakan tekan tombol Unduh pada daftar di atas.", "beres");
+  }
 });
 </script>
 </body>
