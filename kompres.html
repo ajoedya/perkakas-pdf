@@ -1,472 +1,585 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kompres PDF — Perkakas PDF</title>
-  <link rel="stylesheet" href="gaya.css" />
+
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      margin: 0;
+      background: #f7f7f7;
+      color: #1d1d1d;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 24px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.08);
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    .dropzone {
+      border: 2px dashed #999;
+      border-radius: 12px;
+      padding: 28px;
+      text-align: center;
+      cursor: pointer;
+      background: #fafafa;
+      transition: all .15s ease;
+    }
+
+    .dropzone:hover,
+    .dropzone:focus,
+    .dropzone.aktif {
+      border-color: #002A55;
+      background: #f2f7ff;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    select,
+    button {
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #bbb;
+      font-size: 15px;
+    }
+
+    button {
+      cursor: pointer;
+      background: #002A55;
+      color: #fff;
+      border: 1px solid #002A55;
+    }
+
+    button:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
+    button.secondary {
+      background: #fff;
+      color: #002A55;
+    }
+
+    .baris-tombol {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 14px 0;
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    .kabar {
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 12px 0;
+      min-height: 20px;
+    }
+
+    .kabar.sukses {
+      background: #e7f7e7;
+      color: #146414;
+      border: 1px solid #bfe6bf;
+    }
+
+    .kabar.error {
+      background: #fdecec;
+      color: #9f1d1d;
+      border: 1px solid #f3bcbc;
+    }
+
+    .kartu-hasil {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 12px;
+      margin: 10px 0;
+      background: #fff;
+    }
+
+    .kartu-hasil button {
+      margin-top: 8px;
+    }
+
+    small {
+      color: #555;
+    }
+  </style>
+
+  <!-- Library PDF.js dan pdf-lib -->
+  <script src="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+  <script src="https://unpkg.com/@pdf-lib/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+
+  <!-- Script bersama milikmu -->
+  <script src="bersama.js"></script>
 </head>
 <body>
+  <main>
+    <h1>Kompres PDF</h1>
+    <p>
+      Mengurangi ukuran berkas PDF agar lebih ringan untuk dibagikan atau diunggah.
+      Seluruh pengolahan berjalan di peramban, tidak ada berkas yang diunggah ke server mana pun.
+    </p>
 
-  <header class="kop">
-    <div class="kop-isi">
-      <h1>Kompres PDF</h1>
-      <p>
-        Mengurangi ukuran berkas PDF agar lebih ringan untuk dibagikan atau diunggah.
-        <em>Seluruh pengolahan berjalan di peramban</em>, tidak ada berkas yang diunggah ke server mana pun.
-      </p>
-    </div>
-  </header>
+    <p>
+      <small>
+        Hasil terbaik bisa didapatkan jika file PDF tidak terlalu banyak gambar.
+        Apabila file PDF yang dikompresi mengandung banyak gambar/foto, hasil bisa saja tidak lebih kecil
+        jika DPI atau kualitas gambar terlalu tinggi.
+      </small>
+    </p>
 
-  <main class="bungkus">
-     <div class="kabar" style="border-left-color: var(--bahaya); background: var(--bahaya-muda); color: var(--bahaya);">
-      <b>Hasil terbaik bisa didapatkan jika file PDF tidak terlalu banyak gambar.</b> Apabila file PDF yang dikompresi terdapat banyak ornamen atau gambar, besar kemungkinan file hasil kompresi malah jauh lebih besar. (<b>Fitur ini masih dalam pengembangan</b>).
-    </div>
     <section>
-      <p class="nomor">Langkah 1</p>
-      <h2>Pilih berkas</h2>
-
-      <div
-        id="areaJatuh"
-        class="jatuhan"
-        tabindex="0"
-        role="button"
-        aria-label="Pilih atau jatuhkan berkas PDF"
-      >
-        <strong>Seret satu atau beberapa berkas PDF ke sini</strong>
-        <span>atau klik untuk memilih, bisa dipilih berkali-kali</span>
+      <h2>Langkah 1</h2>
+      <div id="areaJatuh" class="dropzone" tabindex="0">
+        <strong>Pilih berkas</strong><br>
+        Seret satu atau beberapa berkas PDF ke sini<br>
+        atau klik untuk memilih, bisa dipilih berkali-kali
+        <input type="file" id="inputBerkas" accept="application/pdf" multiple hidden>
       </div>
 
-      <input
-        id="berkasPdf"
-        class="sembunyi"
-        type="file"
-        accept=".pdf,application/pdf"
-        multiple
-      />
-
-      <ul id="daftarBerkas" class="daftar"></ul>
+      <ul id="daftarBerkas"></ul>
     </section>
 
     <section>
-      <p class="nomor">Langkah 2</p>
-      <h2>Kompres menjadi PDF</h2>
+      <h2>Langkah 2</h2>
 
-      <div aria-live="polite">
-        <div id="kabarStatus" class="kabar"></div>
-      </div>
+      <label>
+        DPI hasil
+        <select id="dpi">
+          <option value="96">96 DPI — paling kecil</option>
+          <option value="120">120 DPI — kecil</option>
+          <option value="150" selected>150 DPI — seimbang</option>
+          <option value="200">200 DPI — lebih tajam</option>
+          <option value="300">300 DPI — tajam, file besar</option>
+        </select>
+      </label>
 
-      <div class="isian-baris">
-        <div class="isian">
-          <label for="dpi">DPI hasil</label>
-          <select id="dpi">
-            <option value="96">96 DPI — paling kecil</option>
-            <option value="120">120 DPI — kecil</option>
-            <option value="150" selected>150 DPI — seimbang</option>
-            <option value="200">200 DPI — lebih tajam</option>
-            <option value="300">300 DPI — tajam, file besar</option>
-          </select>
-        </div>
-
-        <div class="isian">
-          <label for="kualitas">Kualitas gambar</label>
-          <select id="kualitas">
-            <option value="0.45">Rendah</option>
-            <option value="0.60" selected>Sedang</option>
-            <option value="0.75">Tinggi</option>
-            <option value="0.90">Sangat tinggi</option>
-          </select>
-        </div>
-      </div>
+      <label>
+        Kualitas gambar
+        <select id="kualitas">
+          <option value="rendah">Rendah</option>
+          <option value="sedang" selected>Sedang</option>
+          <option value="tinggi">Tinggi</option>
+          <option value="sangat tinggi">Sangat tinggi</option>
+        </select>
+      </label>
 
       <div class="baris-tombol">
-        <button id="tombolKompres" class="tombol" type="button" disabled>
-          Kompres semua PDF
-        </button>
-        <button id="tombolKosongkan" class="tombol sekunder" type="button" disabled>
-          Kosongkan daftar
-        </button>
+        <button type="button" id="btnKompres">Kompres semua PDF</button>
+        <button type="button" id="btnBersihkan" class="secondary">Kosongkan daftar</button>
       </div>
 
-      <p class="petunjuk">
-        Tiap PDF menghasilkan satu berkas PDF terkompresi.
-        Hasil akan muncul di daftar bawah, lalu gunakan tombol <strong>Unduh</strong>
-        agar unduhan tidak diblokir oleh peramban.
+      <div id="kabar" class="kabar"></div>
+      <div id="hasil"></div>
+
+      <p>
+        <small>
+          Tiap PDF menghasilkan satu berkas PDF terkompresi.
+          Hasil akan muncul di daftar bawah, lalu gunakan tombol <strong>Unduh</strong>
+          agar unduhan tidak diblokir oleh peramban.
+        </small>
       </p>
-
-      <ul id="daftarHasil" class="daftar"></ul>
     </section>
-
-    <footer>
-      Seluruh pengolahan berjalan di peramban. Tidak ada berkas yang diunggah ke server mana pun.
-    </footer>
-
   </main>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <script>
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-  </script>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="bersama.js"></script>
 
   <script>
     (function () {
       "use strict";
 
-      const JsPdfClass = window.jspdf ? window.jspdf.jsPDF : null;
-
-      const areaJatuh = document.getElementById("areaJatuh");
-      const berkasPdf = document.getElementById("berkasPdf");
-      const daftarBerkasEl = document.getElementById("daftarBerkas");
-      const daftarHasilEl = document.getElementById("daftarHasil");
-      const tombolKompres = document.getElementById("tombolKompres");
-      const tombolKosongkan = document.getElementById("tombolKosongkan");
-      const dpiEl = document.getElementById("dpi");
-      const kualitasEl = document.getElementById("kualitas");
-
-      let daftarBerkas = [];
-      let sedangProses = false;
-
-      function tambahBerkas(berkas) {
-        if (sedangProses) return;
-
-        const pdf = Bersama.pdfSaja(berkas);
-
-        if (!pdf.length) {
-          Bersama.pesan(
-            "kabarStatus",
-            "Berkas yang dipilih bukan PDF. Silakan pilih berkas berekstensi .pdf.",
-            "gagal"
-          );
-          return;
-        }
-
-        let jumlahTambah = 0;
-
-        pdf.forEach((file) => {
-          const sudahAda = daftarBerkas.some(
-            (item) =>
-              item.name === file.name &&
-              item.size === file.size &&
-              item.lastModified === file.lastModified
-          );
-
-          if (!sudahAda) {
-            daftarBerkas.push(file);
-            jumlahTambah++;
+      function mulai() {
+        if (!window.pdfjsLib || !window.PDFLib) {
+          const kabar = document.getElementById("kabar");
+          if (kabar) {
+            kabar.textContent = "Library PDF.js atau pdf-lib belum dimuat.";
+            kabar.className = "kabar error";
           }
-        });
+          return;
+        }
 
-        if (!jumlahTambah) {
-          Bersama.pesan(
-            "kabarStatus",
-            "Semua berkas tersebut sudah ada di daftar.",
-            "gagal"
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+          "https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
+
+        const area = document.getElementById("areaJatuh");
+        const input = document.getElementById("inputBerkas");
+        const daftarBerkasEl = document.getElementById("daftarBerkas");
+        const hasilEl = document.getElementById("hasil");
+        const dpiSelect = document.getElementById("dpi");
+        const kualitasSelect = document.getElementById("kualitas");
+        const btnKompres = document.getElementById("btnKompres");
+        const btnBersihkan = document.getElementById("btnBersihkan");
+
+        if (
+          !area ||
+          !input ||
+          !daftarBerkasEl ||
+          !hasilEl ||
+          !dpiSelect ||
+          !kualitasSelect ||
+          !btnKompres ||
+          !btnBersihkan
+        ) {
+          console.error(
+            "Elemen kompres.html tidak lengkap. Pastikan ada ID: areaJatuh, inputBerkas, daftarBerkas, hasil, dpi, kualitas, btnKompres, btnBersihkan."
           );
           return;
         }
 
-        gambarDaftarBerkas();
-        Bersama.pesan(
-          "kabarStatus",
-          `${daftarBerkas.length} berkas dipilih.`,
-          "beres"
-        );
-      }
+        let daftarBerkas = [];
+        let objectUrls = [];
 
-      function gambarDaftarBerkas() {
-        daftarBerkasEl.innerHTML = "";
+        const KUALITAS = {
+          "rendah": 0.42,
+          "sedang": 0.60,
+          "tinggi": 0.75,
+          "sangat tinggi": 0.86,
+          "sangat-tinggi": 0.86
+        };
 
-        daftarBerkas.forEach((file, index) => {
-          const li = document.createElement("li");
+        const MAX_LONG_EDGE = {
+          96: 1500,
+          120: 1800,
+          150: 2200,
+          200: 2600,
+          300: 3200
+        };
 
-          const urut = document.createElement("span");
-          urut.className = "urut";
-          urut.textContent = index + 1;
-
-          const nama = document.createElement("span");
-          nama.className = "nama";
-          nama.textContent = file.name;
-
-          const rinci = document.createElement("span");
-          rinci.className = "rinci";
-          rinci.textContent = Bersama.ukuran(file.size);
-
-          const hapus = document.createElement("button");
-          hapus.type = "button";
-          hapus.className = "tombol kecil sekunder";
-          hapus.textContent = "Hapus";
-
-          hapus.addEventListener("click", () => {
-            daftarBerkas.splice(index, 1);
-            gambarDaftarBerkas();
-
-            if (!daftarBerkas.length) {
-              Bersama.pesan(
-                "kabarStatus",
-                "Daftar berkas dikosongkan.",
-                "beres"
-              );
-            } else {
-              Bersama.pesan(
-                "kabarStatus",
-                `${daftarBerkas.length} berkas dipilih.`,
-                "beres"
-              );
-            }
+        if (window.Bersama) {
+          Bersama.pasangJatuhan(area, input, tambahBerkas);
+        } else {
+          area.addEventListener("click", () => input.click());
+          input.addEventListener("change", () => {
+            tambahBerkas(Array.from(input.files || []));
+            input.value = "";
           });
-
-          li.appendChild(urut);
-          li.appendChild(nama);
-          li.appendChild(rinci);
-          li.appendChild(hapus);
-
-          daftarBerkasEl.appendChild(li);
-        });
-
-        tombolKompres.disabled = sedangProses || daftarBerkas.length === 0;
-        tombolKosongkan.disabled = sedangProses || daftarBerkas.length === 0;
-      }
-
-      function teksPerubahanUkuran(fileAsli, blobHasil) {
-        if (!fileAsli.size) {
-          return "ukuran awal tidak diketahui";
         }
 
-        const persen = Math.round((1 - blobHasil.size / fileAsli.size) * 100);
+        function tambahBerkas(files) {
+          const pdf = window.Bersama
+            ? Bersama.pdfSaja(files)
+            : files.filter(
+                (f) => f.type === "application/pdf" || /\.pdf$/i.test(f.name)
+              );
 
-        if (persen > 0) {
-          return `lebih kecil ${persen}%`;
-        }
-
-        return `lebih besar ${Math.abs(persen)}%`;
-      }
-
-      function tambahBarisHasil(file, blob, namaBaru) {
-        const li = document.createElement("li");
-
-        const urut = document.createElement("span");
-        urut.className = "urut";
-        urut.textContent = "✓";
-
-        const nama = document.createElement("span");
-        nama.className = "nama";
-        nama.textContent = namaBaru;
-
-        const rinci = document.createElement("span");
-        rinci.className = "rinci";
-        rinci.textContent =
-          `${Bersama.ukuran(file.size)} → ${Bersama.ukuran(blob.size)} ` +
-          `(${teksPerubahanUkuran(file, blob)})`;
-
-        const unduh = document.createElement("button");
-        unduh.type = "button";
-        unduh.className = "tombol kecil";
-        unduh.textContent = "Unduh";
-
-        unduh.addEventListener("click", async () => {
-          try {
-            const buffer = await blob.arrayBuffer();
-            Bersama.unduh(new Uint8Array(buffer), namaBaru);
-          } catch (error) {
-            console.error(error);
-            Bersama.pesan(
-              "kabarStatus",
-              `Gagal menyiapkan unduhan untuk ${Bersama.lolos(namaBaru)}.`,
-              "gagal"
-            );
+          if (!pdf.length) {
+            pesan("Tidak ada berkas PDF valid yang ditambahkan.", "error");
+            return;
           }
-        });
 
-        li.appendChild(urut);
-        li.appendChild(nama);
-        li.appendChild(rinci);
-        li.appendChild(unduh);
+          daftarBerkas = daftarBerkas.concat(pdf);
+          renderDaftar();
+          pesan(
+            `${pdf.length} berkas ditambahkan. Total: ${daftarBerkas.length} berkas.`,
+            "sukses"
+          );
+        }
 
-        daftarHasilEl.appendChild(li);
-      }
+        function renderDaftar() {
+          daftarBerkasEl.innerHTML = "";
 
-      async function kompresSatuBerkas(file, onProgress) {
-        const { dok } = await Bersama.bacaPdf(file);
+          if (!daftarBerkas.length) {
+            const li = document.createElement("li");
+            li.textContent = "Belum ada berkas PDF.";
+            daftarBerkasEl.appendChild(li);
+            return;
+          }
 
-        const dpi = Number(dpiEl.value) || 150;
-        const kualitas = Number(kualitasEl.value) || 0.6;
+          daftarBerkas.forEach((file, index) => {
+            const li = document.createElement("li");
 
-        let jsDoc = null;
+            const nama = document.createElement("span");
+            nama.textContent = `${index + 1}. ${file.name} — ${ukuran(file.size)}`;
 
-        try {
-          for (let nomorHalaman = 1; nomorHalaman <= dok.numPages; nomorHalaman++) {
-            const halaman = await dok.getPage(nomorHalaman);
+            const hapus = document.createElement("button");
+            hapus.type = "button";
+            hapus.textContent = "Hapus";
+            hapus.style.marginLeft = "8px";
 
-            const vpAsli = halaman.getViewport({ scale: 1 });
-            const vpRender = halaman.getViewport({ scale: dpi / 72 });
+            hapus.addEventListener("click", () => {
+              daftarBerkas.splice(index, 1);
+              renderDaftar();
+            });
 
-            const kanvas = document.createElement("canvas");
-            const ctx = kanvas.getContext("2d", { alpha: false });
+            li.appendChild(nama);
+            li.appendChild(hapus);
+            daftarBerkasEl.appendChild(li);
+          });
+        }
 
-            kanvas.width = Math.floor(vpRender.width);
-            kanvas.height = Math.floor(vpRender.height);
+        function pesan(teks, jenis) {
+          if (window.Bersama && Bersama.pesan) {
+            Bersama.pesan("kabar", teks, jenis);
+          } else {
+            const kabar = document.getElementById("kabar");
+            if (kabar) {
+              kabar.textContent = teks;
+              kabar.className = "kabar" + (jenis ? " " + jenis : "");
+            }
+          }
+        }
 
+        function ukuran(bytes) {
+          if (window.Bersama && Bersama.ukuran) {
+            return Bersama.ukuran(bytes);
+          }
+
+          if (bytes < 1024) return bytes + " B";
+          if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
+          return (bytes / 1048576).toFixed(1) + " MB";
+        }
+
+        function tanpaAkhiran(nama) {
+          if (window.Bersama && Bersama.tanpaAkhiran) {
+            return Bersama.tanpaAkhiran(nama);
+          }
+          return nama.replace(/\.pdf$/i, "");
+        }
+
+        function getDpi() {
+          const dpi = parseInt(dpiSelect.value, 10);
+          return [96, 120, 150, 200, 300].includes(dpi) ? dpi : 150;
+        }
+
+        function getKualitas() {
+          const nilai = kualitasSelect.value;
+          return KUALITAS[nilai] != null ? KUALITAS[nilai] : 0.60;
+        }
+
+        function canvasToJpegBlob(canvas, quality) {
+          return new Promise((resolve, reject) => {
+            canvas.toBlob(
+              (blob) => {
+                if (blob) {
+                  resolve(blob);
+                } else {
+                  reject(new Error("Canvas gagal dikonversi ke JPEG."));
+                }
+              },
+              "image/jpeg",
+              quality
+            );
+          });
+        }
+
+        async function kompresSatu(file, dpi, quality, statusEl) {
+          const inputBytes = await file.arrayBuffer();
+
+          const srcDoc = await pdfjsLib.getDocument({
+            data: inputBytes,
+            cMapUrl: "https://unpkg.com/pdfjs-dist@3.11.174/cmaps/",
+            cMapPacked: true,
+            standardFontDataUrl:
+              "https://unpkg.com/pdfjs-dist@3.11.174/standard_fonts/"
+          }).promise;
+
+          /*
+            PENTING:
+            Buat PDF baru dengan PDFDocument.create().
+
+            Jangan memakai:
+            const outDoc = await PDFLib.PDFDocument.load(inputBytes);
+
+            Karena jika PDF asli diload lalu ditumpuk gambar hasil render,
+            file hasil bisa berisi konten lama + gambar baru,
+            sehingga ukuran malah lebih besar.
+          */
+          const outDoc = await PDFLib.PDFDocument.create();
+          outDoc.setProducer("Kompres PDF");
+          outDoc.setCreator("Kompres PDF");
+
+          const maxLongEdge = MAX_LONG_EDGE[dpi] || 2200;
+
+          for (let p = 1; p <= srcDoc.numPages; p++) {
+            if (statusEl) {
+              statusEl.textContent = `Memproses ${file.name}: halaman ${p}/${srcDoc.numPages}...`;
+            }
+
+            const page = await srcDoc.getPage(p);
+
+            // Ukuran halaman asli dalam point.
+            const baseViewport = page.getViewport({ scale: 1 });
+
+            // PDF.js memakai 72 DPI pada scale 1.
+            let scale = dpi / 72;
+
+            // Batasi dimensi piksel agar tidak terlalu besar.
+            const longestAtTarget =
+              Math.max(baseViewport.width, baseViewport.height) * scale;
+
+            if (longestAtTarget > maxLongEdge) {
+              scale *= maxLongEdge / longestAtTarget;
+            }
+
+            // Batas aman tambahan agar tidak upscale berlebihan.
+            scale = Math.min(scale, 3.5);
+
+            const viewport = page.getViewport({ scale });
+
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d", { alpha: false });
+
+            canvas.width = Math.max(1, Math.floor(viewport.width));
+            canvas.height = Math.max(1, Math.floor(viewport.height));
+
+            // Latar putih supaya JPEG tidak transparan.
             ctx.fillStyle = "#ffffff";
-            ctx.fillRect(0, 0, kanvas.width, kanvas.height);
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            await halaman.render({
+            await page.render({
               canvasContext: ctx,
-              viewport: vpRender
+              viewport
             }).promise;
 
-            const gambar = kanvas.toDataURL("image/jpeg", kualitas);
+            // Gunakan JPEG, jangan PNG.
+            const jpegBlob = await canvasToJpegBlob(canvas, quality);
+            const jpegBytes = await jpegBlob.arrayBuffer();
 
-            const lebar = vpAsli.width;
-            const tinggi = vpAsli.height;
+            const jpegImage = await outDoc.embedJpg(jpegBytes);
 
-            const orientasi = lebar > tinggi ? "l" : "p";
-            const format = lebar > tinggi ? [tinggi, lebar] : [lebar, tinggi];
+            const outPage = outDoc.addPage([
+              baseViewport.width,
+              baseViewport.height
+            ]);
 
-            if (!jsDoc) {
-              jsDoc = new JsPdfClass({
-                orientation: orientasi,
-                unit: "pt",
-                format: format,
-                compress: true
-              });
-            } else {
-              jsDoc.addPage(format, orientasi);
+            outPage.drawImage(jpegImage, {
+              x: 0,
+              y: 0,
+              width: baseViewport.width,
+              height: baseViewport.height
+            });
+
+            // Bersihkan canvas untuk mengurangi pemakaian memori.
+            canvas.width = 0;
+            canvas.height = 0;
+
+            try {
+              page.cleanup();
+            } catch (e) {
+              // abaikan
             }
-
-            jsDoc.addImage(
-              gambar,
-              "JPEG",
-              0,
-              0,
-              lebar,
-              tinggi,
-              undefined,
-              "FAST"
-            );
-
-            if (typeof onProgress === "function") {
-              onProgress(nomorHalaman, dok.numPages);
-            }
-
-            kanvas.width = 0;
-            kanvas.height = 0;
           }
 
-          if (!jsDoc) {
-            throw new Error("PDF tidak memiliki halaman.");
-          }
+          await srcDoc.destroy();
 
-          return jsDoc.output("blob");
-        } finally {
-          if (dok && typeof dok.destroy === "function") {
-            await dok.destroy();
-          }
+          return outDoc.save({
+            useObjectStreams: true
+          });
         }
+
+        btnKompres.addEventListener("click", async () => {
+          if (!daftarBerkas.length) {
+            pesan("Belum ada berkas PDF untuk dikompres.", "error");
+            return;
+          }
+
+          hasilEl.innerHTML = "";
+
+          objectUrls.forEach((u) => URL.revokeObjectURL(u));
+          objectUrls = [];
+
+          const dpi = getDpi();
+          const quality = getKualitas();
+
+          btnKompres.disabled = true;
+          btnKompres.textContent = "Sedang memproses...";
+
+          for (const file of daftarBerkas) {
+            const card = document.createElement("div");
+            card.className = "kartu-hasil";
+
+            const status = document.createElement("div");
+            status.textContent = `Memproses ${file.name}...`;
+
+            card.appendChild(status);
+            hasilEl.appendChild(card);
+
+            try {
+              const bytes = await kompresSatu(file, dpi, quality, status);
+
+              const blob = new Blob([bytes], { type: "application/pdf" });
+              const url = URL.createObjectURL(blob);
+              objectUrls.push(url);
+
+              const info = document.createElement("div");
+              info.textContent =
+                `${file.name}: ${ukuran(file.size)} → ${ukuran(blob.size)}`;
+
+              if (blob.size >= file.size) {
+                info.textContent +=
+                  " — hasil tidak lebih kecil, coba DPI lebih rendah atau kualitas Sedang/Rendah";
+              }
+
+              const btnUnduh = document.createElement("button");
+              btnUnduh.type = "button";
+              btnUnduh.textContent = "Unduh";
+
+              btnUnduh.addEventListener("click", () => {
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = tanpaAkhiran(file.name) + "-kompres.pdf";
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+              });
+
+              status.textContent = `Selesai: ${file.name}`;
+              card.appendChild(info);
+              card.appendChild(btnUnduh);
+            } catch (err) {
+              let pesanErr = err?.message || String(err);
+
+              if (err?.name === "PasswordException") {
+                pesanErr =
+                  "PDF terkunci/password. Buka dulu passwordnya sebelum dikompres.";
+              }
+
+              status.textContent = `Gagal memproses ${file.name}: ${pesanErr}`;
+            }
+          }
+
+          btnKompres.disabled = false;
+          btnKompres.textContent = "Kompres semua PDF";
+          pesan("Proses selesai. Periksa daftar hasil di bawah.", "sukses");
+        });
+
+        btnBersihkan.addEventListener("click", () => {
+          daftarBerkas = [];
+          input.value = "";
+          hasilEl.innerHTML = "";
+
+          objectUrls.forEach((u) => URL.revokeObjectURL(u));
+          objectUrls = [];
+
+          renderDaftar();
+          pesan("Daftar dikosongkan.", "sukses");
+        });
+
+        renderDaftar();
       }
 
-      tombolKompres.addEventListener("click", async () => {
-        if (!daftarBerkas.length || sedangProses) return;
-
-        if (typeof pdfjsLib === "undefined") {
-          Bersama.pesan(
-            "kabarStatus",
-            "Pustaka pdf.js belum termuat. Periksa koneksi internet.",
-            "gagal"
-          );
-          return;
-        }
-
-        if (!JsPdfClass) {
-          Bersama.pesan(
-            "kabarStatus",
-            "Pustaka jsPDF belum termuat. Periksa koneksi internet.",
-            "gagal"
-          );
-          return;
-        }
-
-        sedangProses = true;
-        tombolKompres.disabled = true;
-        tombolKosongkan.disabled = true;
-        daftarHasilEl.innerHTML = "";
-
-        const totalBerkas = daftarBerkas.length;
-        const kegagalan = [];
-
-        Bersama.pesan(
-          "kabarStatus",
-          "Memulai proses kompresi PDF..."
-        );
-
-        for (let i = 0; i < totalBerkas; i++) {
-          const file = daftarBerkas[i];
-
-          try {
-            const blob = await kompresSatuBerkas(file, (nomorHalaman, totalHalaman) => {
-              Bersama.pesan(
-                "kabarStatus",
-                `Mengompres ${Bersama.lolos(file.name)} ` +
-                `(${i + 1}/${totalBerkas}), halaman ${nomorHalaman}/${totalHalaman}...`
-              );
-            });
-
-            const namaBaru = Bersama.tanpaAkhiran(file.name) + "-kompres.pdf";
-
-            tambahBarisHasil(file, blob, namaBaru);
-          } catch (error) {
-            console.error(error);
-
-            kegagalan.push({
-              file: file.name,
-              pesan: error.message || String(error)
-            });
-          }
-        }
-
-        sedangProses = false;
-        gambarDaftarBerkas();
-
-        if (kegagalan.length) {
-          const daftarGagal = kegagalan
-            .map((item) => {
-              return `<li>${Bersama.lolos(item.file)}: ${Bersama.lolos(item.pesan)}</li>`;
-            })
-            .join("");
-
-          Bersama.pesan(
-            "kabarStatus",
-            `Proses selesai, tetapi ada ${kegagalan.length} berkas yang gagal.<ul>${daftarGagal}</ul>`,
-            "gagal"
-          );
-        } else {
-          Bersama.pesan(
-            "kabarStatus",
-            "Semua proses selesai. Klik tombol Unduh pada hasil yang tersedia.",
-            "beres"
-          );
-        }
-      });
-
-      tombolKosongkan.addEventListener("click", () => {
-        if (sedangProses) return;
-
-        daftarBerkas = [];
-        daftarHasilEl.innerHTML = "";
-
-        gambarDaftarBerkas();
-
-        Bersama.pesan(
-          "kabarStatus",
-          "Daftar berkas dan hasil dikosongkan.",
-          "beres"
-        );
-      });
-
-      Bersama.pasangJatuhan(areaJatuh, berkasPdf, tambahBerkas);
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", mulai);
+      } else {
+        mulai();
+      }
     })();
   </script>
 </body>
