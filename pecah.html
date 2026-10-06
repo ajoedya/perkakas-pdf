@@ -8,6 +8,27 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600&family=Public+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="gaya.css">
+<style>
+  /* Pratinjau halaman memakai .rak, .ubin, .ubin-nomor, dan .ubin.terpilih
+     yang sudah ada di gaya.css. Aturan di bawah hanya tambahan supaya ubinnya
+     berupa tombol yang bisa diklik dan punya tanda centang. */
+  .pilih-hlm { display: block; width: 100%; font: inherit; color: inherit; cursor: pointer;
+    -webkit-tap-highlight-color: transparent; }
+  .pilih-hlm:hover { border-color: var(--garis-fokus); box-shadow: var(--bayangan-sm); }
+  .pilih-hlm.terpilih:hover { border-color: var(--emas); box-shadow: 0 0 0 2px var(--emas); }
+  .pilih-hlm:focus-visible { outline: 3px solid var(--emas); outline-offset: 2px; }
+  .pilih-bingkai { height: 172px; display: flex; align-items: center; justify-content: center; }
+  .pilih-bingkai canvas { flex: none; background: var(--putih); }
+  .pilih-bingkai .tunggu { font-size: 12px; color: var(--tinta-lembut); }
+  .pilih-centang {
+    position: absolute; top: 6px; right: 6px; width: 24px; height: 24px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700;
+    line-height: 1; color: transparent; background: var(--putih); border: 2px solid var(--garis-fokus);
+  }
+  .pilih-hlm.terpilih .pilih-centang { color: var(--putih); background: var(--biru-tua); border-color: var(--biru-tua); }
+  .alat-pilih { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+  #ringkasPilih { font-size: 15px; font-weight: 600; color: var(--biru-tua); margin: 16px 0 0; }
+</style>
 </head>
 <body>
 
@@ -46,8 +67,18 @@
     <div class="isian" id="isianRentang">
       <label for="rentang">Halaman yang diambil</label>
       <input type="text" id="rentang" placeholder="Contoh: 1-3, 5, 8-10">
-      <p class="petunjuk">Tulis nomornya dipisah koma. Tanda hubung berarti rentang, jadi 1-3 berarti halaman satu sampai tiga.</p>
+      <p class="petunjuk">Tulis nomornya dipisah koma, atau pilih langsung dari gambar halaman di bawah. Tanda hubung berarti rentang, jadi 1-3 berarti halaman satu sampai tiga.</p>
     </div>
+
+    <label id="labelPratinjau">Pratinjau halaman</label>
+    <div class="alat-pilih">
+      <button type="button" class="tombol sekunder kecil" id="pilihSemua">Pilih semua</button>
+      <button type="button" class="tombol sekunder kecil" id="balikPilihan">Balik pilihan</button>
+      <button type="button" class="tombol sekunder kecil" id="kosongkanPilihan">Kosongkan pilihan</button>
+    </div>
+    <p id="ringkasPilih" aria-live="polite"></p>
+    <div class="rak" id="rak" role="group" aria-labelledby="labelPratinjau"></div>
+    <p class="petunjuk">Klik gambar halaman untuk memilihnya, lalu klik sekali lagi untuk membatalkan. Tahan Shift sambil mengeklik untuk memilih atau membatalkan serentang halaman sekaligus.</p>
 
     <div class="baris-tombol">
       <button class="tombol" id="proses">Pecah lalu simpan</button>
@@ -70,6 +101,15 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 const el = (id) => document.getElementById(id);
 let bytes = null, jumlah = 0, namaAsli = "dokumen.pdf";
 
+const LEBAR_UBIN = 126;            // lebar terbesar gambar halaman, dalam piksel
+const TINGGI_UBIN = 164;           // tinggi terbesar gambar halaman, dalam piksel
+const SERENTAK = 2;                // banyaknya halaman yang digambar bersamaan
+
+let dokJs = null;                  // dokumen pdf.js, hanya untuk menggambar pratinjau
+let muatan = 0;                    // bertambah tiap berkas baru, supaya gambar berkas lama diabaikan
+let terpilih = new Set();          // nomor halaman yang dipilih, dihitung dari satu
+let terakhirDiklik = 0;            // patokan untuk memilih serentang dengan Shift
+
 Bersama.pasangJatuhan(el("jatuhan"), el("berkas"), async (daftar) => {
   const pdf = Bersama.pdfSaja(daftar);
   if (!pdf.length) {
@@ -78,13 +118,15 @@ Bersama.pasangJatuhan(el("jatuhan"), el("berkas"), async (daftar) => {
   }
   try {
     const buf = await pdf[0].arrayBuffer();
-    bytes = buf;
     const dok = await PDFLib.PDFDocument.load(buf.slice(0));
+    bytes = buf;
     jumlah = dok.getPageCount();
     namaAsli = pdf[0].name;
+    el("rentang").value = "";
     el("rentang").placeholder = "Contoh: 1-3, 5, 8-" + jumlah;
-    Bersama.pesan("kabar", namaAsli + " berhasil dibaca, " + jumlah + " halaman.", "");
+    Bersama.pesan("kabar", Bersama.lolos(namaAsli) + " berhasil dibaca, " + jumlah + " halaman.", "");
     el("bagianPilih").classList.remove("sembunyi");
+    bangunRak();
     el("bagianPilih").scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (err) {
     Bersama.pesan("kabar", "Berkas tidak bisa dibaca, kemungkinan rusak atau berkata sandi.", "gagal");
@@ -97,27 +139,212 @@ el("cara").addEventListener("change", () => {
   el("catatanUnduh").textContent = el("cara").value === "satuan"
     ? "Peramban akan mengunduh banyak berkas sekaligus, jadi kalau muncul permintaan izin untuk beberapa unduhan, pilih Izinkan."
     : "";
+  perbaruiRingkas();
 });
 
+/* ========== Pratinjau halaman yang bisa dipilih ==========
+   Tiap halaman menjadi satu ubin berupa tombol. Pilihan pada ubin dan isian
+   "Halaman yang diambil" selalu disamakan, jadi keduanya boleh dipakai
+   bergantian. Gambar halaman baru digambar ketika ubinnya mendekati layar,
+   sebab menggambar ratusan halaman sekaligus membuat peramban tersendat. */
+const ubinEl = [];                 // ubinEl[n] adalah ubin halaman ke-n
+const antrean = [];
+let sedang = 0;
+
+const pengintai = new IntersectionObserver((masuk) => {
+  masuk.forEach((m) => {
+    if (!m.isIntersecting) return;
+    pengintai.unobserve(m.target);
+    antrean.push({ n: Number(m.target.dataset.n), bingkai: m.target.querySelector(".pilih-bingkai"), muatan });
+    jalankanAntrean();
+  });
+}, { rootMargin: "400px 0px" });
+
+function bangunRak() {
+  muatan++;
+  if (dokJs) dokJs.then((d) => d.destroy()).catch(() => {});
+  // Salinan bytes selalu dibuat baru, sebab pdf.js dapat mengambil alih
+  // penyangganya sehingga berkas aslinya tidak bisa dipakai lagi.
+  dokJs = pdfjsLib.getDocument({ data: bytes.slice(0) }).promise;
+  dokJs.catch(() => {});           // kegagalannya ditangani saat menggambar
+
+  ubinEl.forEach((u) => u && pengintai.unobserve(u));
+  ubinEl.length = 0;
+  antrean.length = 0;
+  terpilih = new Set();
+  terakhirDiklik = 0;
+
+  const rak = el("rak");
+  rak.innerHTML = "";
+  for (let n = 1; n <= jumlah; n++) {
+    const ubin = document.createElement("button");
+    ubin.type = "button";
+    ubin.className = "ubin pilih-hlm";
+    ubin.dataset.n = n;
+
+    const bingkai = document.createElement("span");
+    bingkai.className = "pilih-bingkai";
+    bingkai.innerHTML = "<span class='tunggu'>menggambar...</span>";
+
+    const centang = document.createElement("span");
+    centang.className = "pilih-centang";
+    centang.textContent = "\u2713";
+    centang.setAttribute("aria-hidden", "true");
+
+    const nomor = document.createElement("span");
+    nomor.className = "ubin-nomor";
+    nomor.style.display = "block";
+    nomor.textContent = "Halaman " + n;
+
+    ubin.append(bingkai, centang, nomor);
+    ubin.addEventListener("click", (e) => klikUbin(n, e.shiftKey));
+    ubinEl[n] = ubin;
+    rak.appendChild(ubin);
+    pengintai.observe(ubin);
+  }
+  segarkanUbin();
+}
+
+function jalankanAntrean() {
+  while (sedang < SERENTAK && antrean.length) {
+    const tugas = antrean.shift();
+    if (tugas.muatan !== muatan) continue;      // milik berkas yang sudah diganti
+    sedang++;
+    gambarHalaman(tugas).catch((e) => console.error(e))
+      .finally(() => { sedang--; jalankanAntrean(); });
+  }
+}
+
+async function gambarHalaman(tugas) {
+  try {
+    const dok = await dokJs;
+    const hal = await dok.getPage(tugas.n);
+    const asli = hal.getViewport({ scale: 1 });
+    const rasio = Math.min(LEBAR_UBIN / asli.width, TINGGI_UBIN / asli.height);
+    const kerapatan = Math.min(window.devicePixelRatio || 1, 2);
+    const vp = hal.getViewport({ scale: rasio * kerapatan });
+
+    const kanvas = document.createElement("canvas");
+    kanvas.width = Math.max(1, Math.ceil(vp.width));
+    kanvas.height = Math.max(1, Math.ceil(vp.height));
+    kanvas.style.width = Math.round(vp.width / kerapatan) + "px";
+    kanvas.style.height = Math.round(vp.height / kerapatan) + "px";
+    const ktx = kanvas.getContext("2d");
+    ktx.fillStyle = "#ffffff";
+    ktx.fillRect(0, 0, kanvas.width, kanvas.height);
+    await hal.render({ canvasContext: ktx, viewport: vp }).promise;
+    if (tugas.muatan !== muatan) return;
+    tugas.bingkai.innerHTML = "";
+    tugas.bingkai.append(kanvas);
+  } catch (err) {
+    if (tugas.muatan === muatan) tugas.bingkai.innerHTML = "<span class='tunggu'>gambar gagal</span>";
+    throw err;
+  }
+}
+
+// Nomor halaman diringkas menjadi rentang, misalnya 1, 2, 3, 5 menjadi "1-3, 5".
+function ringkasRentang(nomor, pemisah) {
+  const bagian = [];
+  for (let i = 0; i < nomor.length; i++) {
+    let j = i;
+    while (j + 1 < nomor.length && nomor[j + 1] === nomor[j] + 1) j++;
+    bagian.push(j > i ? nomor[i] + "-" + nomor[j] : String(nomor[i]));
+    i = j;
+  }
+  return bagian.join(pemisah);
+}
+
+const nomorTerpilih = () => [...terpilih].sort((a, b) => a - b);
+
+function klikUbin(n, denganShift) {
+  if (denganShift && terakhirDiklik && terakhirDiklik !== n) {
+    // Seluruh rentang mengikuti keadaan baru ubin yang diklik.
+    const pilih = !terpilih.has(n);
+    const awal = Math.min(terakhirDiklik, n), akhir = Math.max(terakhirDiklik, n);
+    for (let i = awal; i <= akhir; i++) { if (pilih) terpilih.add(i); else terpilih.delete(i); }
+  } else if (terpilih.has(n)) terpilih.delete(n);
+  else terpilih.add(n);
+  terakhirDiklik = n;
+  tulisIsian();
+  segarkanUbin();
+}
+
+// Isian hanya ditulis ulang ketika pilihan berubah lewat ubin atau tombol,
+// tidak ketika pengguna sedang mengetik, supaya ketikannya tidak terganggu.
+function tulisIsian() {
+  el("rentang").value = ringkasRentang(nomorTerpilih(), ", ");
+}
+
+function segarkanUbin() {
+  for (let n = 1; n <= jumlah; n++) {
+    const u = ubinEl[n], pilih = terpilih.has(n);
+    if (!u) continue;
+    u.classList.toggle("terpilih", pilih);
+    u.setAttribute("aria-pressed", pilih ? "true" : "false");
+    u.setAttribute("aria-label", "Halaman " + n + (pilih ? ", dipilih" : ", belum dipilih"));
+  }
+  perbaruiRingkas();
+}
+
+function perbaruiRingkas() {
+  if (!jumlah) { el("ringkasPilih").textContent = ""; return; }
+  const k = terpilih.size, satuan = el("cara").value === "satuan";
+  let t;
+  if (satuan) {
+    t = k ? k + " dari " + jumlah + " halaman dipilih, jadi akan dibuat " + k + " berkas."
+          : "Belum ada halaman yang dipilih, jadi seluruh " + jumlah + " halaman dipecah menjadi " + jumlah + " berkas.";
+  } else {
+    t = k ? k + " dari " + jumlah + " halaman dipilih, yaitu " + ringkasRentang(nomorTerpilih(), ", ") + "."
+          : "Belum ada halaman yang dipilih.";
+  }
+  el("ringkasPilih").textContent = t;
+  el("kosongkanPilihan").disabled = !k;
+  el("pilihSemua").disabled = (k === jumlah);
+}
+
+el("rentang").addEventListener("input", () => {
+  terpilih = new Set(Bersama.bacaRentang(el("rentang").value, jumlah));
+  segarkanUbin();
+});
+
+el("pilihSemua").addEventListener("click", () => {
+  terpilih = new Set(Array.from({ length: jumlah }, (_, i) => i + 1));
+  tulisIsian(); segarkanUbin();
+});
+el("balikPilihan").addEventListener("click", () => {
+  const baru = new Set();
+  for (let n = 1; n <= jumlah; n++) if (!terpilih.has(n)) baru.add(n);
+  terpilih = baru;
+  tulisIsian(); segarkanUbin();
+});
+el("kosongkanPilihan").addEventListener("click", () => {
+  terpilih = new Set();
+  tulisIsian(); segarkanUbin();
+});
+
+/* ========== Memecah lalu menyimpan ========== */
 el("proses").addEventListener("click", async () => {
   const tombol = el("proses");
   tombol.disabled = true; tombol.textContent = "Memproses...";
   try {
     const dasar = Bersama.tanpaAkhiran(namaAsli);
+    const nomor = nomorTerpilih();
     if (el("cara").value === "satuan") {
-      for (let i = 0; i < jumlah; i++) {
-        const sumber = await PDFLib.PDFDocument.load(bytes.slice(0));
+      // Tanpa pilihan, seluruh halaman dipecah seperti sebelumnya.
+      const sasaran = nomor.length ? nomor : Array.from({ length: jumlah }, (_, i) => i + 1);
+      const sumber = await PDFLib.PDFDocument.load(bytes.slice(0));
+      for (const n of sasaran) {
         const baru = await PDFLib.PDFDocument.create();
-        const [h] = await baru.copyPages(sumber, [i]);
+        const [h] = await baru.copyPages(sumber, [n - 1]);
         baru.addPage(h);
-        Bersama.unduh(await baru.save(), dasar + "-hlm" + String(i + 1).padStart(2, "0") + ".pdf");
+        Bersama.unduh(await baru.save(), dasar + "-hlm" + String(n).padStart(2, "0") + ".pdf");
         await jeda(320);   // jeda supaya peramban tidak membatalkan unduhan beruntun
       }
-      Bersama.pesan("kabar", jumlah + " berkas tersimpan di folder unduhan, satu berkas untuk tiap halaman.", "beres");
+      Bersama.pesan("kabar", sasaran.length + " berkas tersimpan di folder unduhan, satu berkas untuk tiap halaman" +
+        (nomor.length ? " yang dipilih" : "") + ".", "beres");
     } else {
-      const nomor = Bersama.bacaRentang(el("rentang").value, jumlah);
       if (!nomor.length) {
-        Bersama.pesan("kabar", "Nomor halaman belum diisi atau tidak ada yang sah. Dokumen ini punya " +
+        Bersama.pesan("kabar", "Belum ada halaman yang dipilih atau nomornya tidak ada yang sah. Dokumen ini punya " +
           jumlah + " halaman.", "gagal");
         tombol.disabled = false; tombol.textContent = "Pecah lalu simpan";
         return;
@@ -126,9 +353,13 @@ el("proses").addEventListener("click", async () => {
       const baru = await PDFLib.PDFDocument.create();
       const salinan = await baru.copyPages(sumber, nomor.map((n) => n - 1));
       salinan.forEach((h) => baru.addPage(h));
-      Bersama.unduh(await baru.save(), dasar + "-hlm-" + nomor.join("_") + ".pdf");
+      // Nama berkas memakai rentang yang diringkas, dan kalau masih terlalu
+      // panjang diganti jumlah halamannya, supaya namanya tidak ditolak sistem.
+      let ekor = ringkasRentang(nomor, "_");
+      if (ekor.length > 60) ekor = nomor.length + "-halaman";
+      Bersama.unduh(await baru.save(), dasar + "-hlm-" + ekor + ".pdf");
       Bersama.pesan("kabar", "Berkas baru berisi " + nomor.length + " halaman, yaitu halaman " +
-        nomor.join(", ") + ", tersimpan di folder unduhan.", "beres");
+        ringkasRentang(nomor, ", ") + ", tersimpan di folder unduhan.", "beres");
     }
   } catch (err) {
     Bersama.pesan("kabar", "Pemecahan gagal. Muat ulang halaman lalu pilih berkasnya sekali lagi.", "gagal");
