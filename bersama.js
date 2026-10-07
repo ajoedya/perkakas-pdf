@@ -12,6 +12,7 @@
     { berkas: "nomor.html",     nama: "Penomor Halaman" },
     { berkas: "tanda-air.html", nama: "Watermark" },
     { berkas: "gambar.html",    nama: "PDF dan Gambar" },
+    { berkas: "word.html",      nama: "PDF ke Word" },
     { berkas: "penanda.html",   nama: "Penanda TTE" },
 	{ berkas: "pengubah-uk.html", nama: "Ubah Ukuran Kertas"}
   ];
