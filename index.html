@@ -18,13 +18,7 @@
 </template>
 <style>
   .kop.beranda { padding-bottom: 0; }
-  .kop-isi.beranda-isi { padding: 32px 24px 40px; }
-  .lencana-percaya {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: rgba(245, 179, 1, 0.14); border: 1px solid rgba(245, 179, 1, 0.4);
-    color: var(--emas); font-size: 13px; font-weight: 600;
-    padding: 7px 14px; border-radius: 999px; margin-bottom: 20px;
-  }
+  .kop-isi.beranda-isi { padding: 32px 24px 50px; }
   .strip-percaya {
     display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
     max-width: 1160px; margin: -20px auto 0; padding: 0 24px;
@@ -36,13 +30,12 @@
     color: var(--biru-tua); font-size: 13px; font-weight: 600;
     padding: 8px 16px; border-radius: 999px; box-shadow: var(--bayangan-sm);
   }
-  .lencana-alat .ikon { font-size: 15px; line-height: 1; }
   section.alat-section { padding-top: 12px; }
   .bungkus.lebar { padding: 12px 24px 32px; }
   .pita-motif-kecil { width: 120px; height: 8px; margin: 0 0 14px; }
   .pita-motif-kecil svg { display: block; width: 100%; height: 100%; }
-  .sudut-ukir { position: absolute; top: 18px; right: 24px; opacity: 0.5; }
-  footer { margin-top: 16px; }
+  /* 46px memberi tempat bagi pita belah ketupat di atas garis kaki. */
+  footer { margin-top: 46px; }
   .kartu-alat {
     display: flex; flex-direction: column; background: var(--putih);
     border: 1px solid var(--garis); border-radius: var(--radius-md);
@@ -62,15 +55,7 @@
     background-repeat: no-repeat; background-size: contain;
     opacity: 0.08; pointer-events: none;
   }
-  .beruang-hias { display: none; }
-  .kartu-alat-atas { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-  .kartu-alat .ikon-alat { margin-bottom: 0; }
   .kartu-alat:hover { transform: translateY(-4px); box-shadow: var(--bayangan-lg); border-color: var(--emas); }
-  .kartu-alat .ikon-alat {
-    width: 34px; height: 34px; border-radius: var(--radius-sm);
-    background: var(--biru-muda); display: flex; align-items: center; justify-content: center;
-    font-size: 16px; flex-shrink: 0;
-  }
   .kartu-alat strong {
     font-family: "Public Sans", system-ui, sans-serif; font-size: 15px; font-weight: 700;
     color: var(--biru-tua); margin-bottom: 10px; display: inline-block;
@@ -81,39 +66,12 @@
   .kartu-alat .buka { font-size: 13px; font-weight: 700; color: var(--biru); margin-top: 10px; }
   .kartu-alat:hover .buka { color: var(--emas-tua); }
   .petak { gap: 14px !important; }
-  .pita-motif { width: 100%; line-height: 0; }
-  .pita-motif svg { display: block; width: 100%; height: 10px; }
-  .lencana-baris { display: flex; gap: 10px; flex-wrap: wrap; }
-  .lencana-daerah {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.25);
-    color: #CBDCEF; font-size: 13px; font-weight: 600;
-    padding: 7px 14px; border-radius: 999px; margin-bottom: 20px;
-  }
 
   /* ============================================================
-     LAPISAN KACA (glassmorphism) untuk beranda.
-     Aturan di atas tidak diubah. Bagian ini hanya menimpa warna
-     latar menu, lencana, dan kartu menjadi tembus pandang, memakai
-     blur 12px yang sama dengan .menu di gaya.css serta token
-     bayangan dan garis yang sudah ada. Hapus bagian ini kalau
-     ingin kembali ke tampilan lama.
+     LAPISAN KACA (glassmorphism) untuk lencana dan kartu beranda.
+     Kaca pada menu, semburat latar, dan pita belah ketupat sudah
+     pindah ke gaya.css supaya berlaku di semua halaman.
      ============================================================ */
-
-  /* Semburat tipis dari palet (emas dan biru) di belakang halaman,
-     supaya kaca punya sesuatu untuk diburamkan. Latar tetap --latar. */
-  body::before {
-    content: ""; position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: -1;
-    pointer-events: none;
-    background:
-      radial-gradient(640px 460px at 90% 45%, rgba(245, 179, 1, 0.14), transparent 70%),
-      radial-gradient(720px 520px at 4% 82%, rgba(20, 83, 154, 0.13), transparent 70%);
-  }
-
-  /* Menu. bersama.js memasang warna latar langsung pada .menu-isi,
-     jadi !important diperlukan agar warna itu tidak menutup kacanya. */
-  .menu { background: rgba(245, 179, 1, 0.84); }
-  .menu-isi { background-color: transparent !important; }
 
   /* Lencana dan kartu. Garis tepi, sudut, bayangan, dan efek sorot
      tetap mengikuti aturan lama. */
@@ -132,15 +90,8 @@
   /* "Buka alat" ditahan di dasar kartu supaya sejajar antarkartu. */
   .kartu-alat .buka { flex: none; margin-top: auto; padding-top: 10px; }
 
-  /* Pita belah ketupat, bentuknya sama dengan motifKaltim yang lama. */
-  .pita-motif {
-    height: 10px; position: relative; z-index: 1;
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='10' viewBox='0 0 20 10'%3E%3Cpolygon points='10,0 20,5 10,10 0,5' fill='%23F5B301'/%3E%3Cpolygon points='10,2.5 15,5 10,7.5 5,5' fill='%23002F5F'/%3E%3C/svg%3E") center / 20px 10px repeat-x;
-  }
-
   /* Peramban tanpa backdrop-filter mendapat warna pekat seperti semula. */
   @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .menu { background: #F5B301; }
     .lencana-alat, .kartu-alat { background: var(--putih); }
   }
 </style>
@@ -148,22 +99,14 @@
 <body>
 
 <header class="kop beranda">
-  <div class="kop-isi beranda-isi">
-    <div class="lencana-baris">
-    </div>
+  <div class="kop-isi lebar beranda-isi">
     <h1>PDF Editor Bubuhan <em>Balikpapan</em></h1>
-    <p>Pengolah <i>file</i> <b>PDF</b> gratis, semua proses dijalankan secara lokal pada peramban dan <em>tidak terkirim ke server mana pun</em>.</p>
+    <p>Pengolah berkas <b>PDF</b> gratis, semua proses dijalankan secara lokal pada peramban dan <em>tidak terkirim ke server mana pun</em>.</p>
   </div>
-  <svg class="sudut-ukir" width="64" height="64" viewBox="0 0 64 64" aria-hidden="true" style="display:none;">
-    <polygon points="32,4 44,16 32,28 20,16" fill="none" stroke="#F5B301" stroke-width="2"/>
-    <polygon points="32,20 40,28 32,36 24,28" fill="none" stroke="#F5B301" stroke-width="2"/>
-    <circle cx="32" cy="48" r="5" fill="none" stroke="#F5B301" stroke-width="2"/>
-  </svg>
-  <div class="pita-motif" aria-hidden="true"></div>
 </header>
 
 <div class="strip-percaya" style="margin-top: -20px;">
-  <span class="lencana-alat">File Diproses Lokal</span>
+  <span class="lencana-alat">Berkas Diproses Lokal</span>
   <span class="lencana-alat">Gratis dan Tanpa Daftar</span>
   <span class="lencana-alat">8 Alat Siap Digunakan</span>
 </div>
@@ -220,13 +163,11 @@
       </a>
 	  <a class="kartu-alat" href="pengubah-uk.html">
         <strong>Ubah Ukuran Kertas</strong>
-        <span>Mengubah ukuran kertas file PDF ke berbagai ukuran yang diinginkan.</span>
+        <span>Mengubah ukuran kertas berkas PDF ke berbagai ukuran yang diinginkan.</span>
         <span class="buka">Buka alat →</span>
       </a>
     </div>
   </section>
-
-  <div class="pita-motif" aria-hidden="true" style="margin-top: 20px;"></div>
 
   <footer>
     Balikpapan - Indonesia ✈︎ Built by Ajoedya ft. Claude ❤️

@@ -18,7 +18,7 @@
   .urutan-berkas{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:8px;}
   .baris-berkas{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;
     padding:9px 10px 9px 12px;background:var(--putih,#fff);
-    border:1px solid var(--garis,#e2e8f0);border-left:6px solid var(--asal,#888);
+    border:1px solid var(--garis,#e2e8f0);border-left:6px solid var(--asal,var(--garis-fokus));
     border-radius:var(--radius-sm,6px);box-shadow:var(--bayangan-sm,none);}
   .urut-berkas{flex:none;min-width:28px;height:28px;display:flex;align-items:center;
     justify-content:center;font-size:14px;font-weight:700;color:var(--biru-tua,#002f5f);
@@ -28,7 +28,7 @@
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .rinci-berkas{display:block;font-size:13px;color:var(--tinta-lembut,#475569);}
   .baris-berkas.kosong .nama-berkas{color:var(--tinta-lembut,#475569);font-weight:500;}
-  .baris-berkas.kosong .urut-berkas{background:#f1f5f9;color:var(--tinta-lembut,#475569);}
+  .baris-berkas.kosong .urut-berkas{background:var(--garis);color:var(--tinta-lembut,#475569);}
   .alat-berkas{display:flex;gap:6px;margin-left:auto;}
   .tb-kecil{flex:none;min-width:34px;height:34px;padding:0 9px;font:inherit;font-size:16px;
     line-height:1;cursor:pointer;color:var(--biru-tua,#002f5f);background:var(--putih,#fff);
@@ -52,7 +52,7 @@
     border-radius:var(--radius-sm,6px);background:var(--putih,#fff);
     padding:7px 8px 7px 12px;cursor:grab;touch-action:pan-y;
     user-select:none;-webkit-user-select:none;overflow:hidden;}
-  .lembar::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--asal,#888);}
+  .lembar::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--asal,var(--garis-fokus));}
   .lembar:focus-visible{outline:3px solid var(--emas,#f5b301);outline-offset:2px;}
   .lembar.melayang{position:fixed;z-index:60;pointer-events:none;cursor:grabbing;
     box-shadow:0 8px 22px rgba(0,30,61,.3);opacity:.95;margin:0;}
@@ -60,14 +60,14 @@
     background:var(--emas-muda,#fff8e6);}
   .lembar.sisip::before{display:none;}
   .bingkai{height:176px;display:flex;align-items:center;
-    justify-content:center;background:#eef2f6;border-radius:3px;overflow:hidden;}
+    justify-content:center;background:var(--biru-muda);border-radius:3px;overflow:hidden;}
   .bingkai canvas{display:block;flex:none;box-shadow:0 1px 3px rgba(0,30,61,.25);}
   .bingkai .tunggu{font-size:12px;color:var(--tinta-lembut,#475569);}
   /* Nomor urut dan tombolnya duduk pada palang di atas gambar, supaya
      gambar halamannya sendiri tidak tertutup apa pun. */
   .palang{display:flex;align-items:center;gap:5px;margin-bottom:6px;}
   .urutPetak{margin-right:auto;min-width:24px;padding:3px 6px;font-size:13px;line-height:1.3;
-    font-weight:700;text-align:center;color:#fff;background:var(--biru-tua,#002f5f);border-radius:4px;}
+    font-weight:700;text-align:center;color:var(--putih);background:var(--biru-tua,#002f5f);border-radius:4px;}
   .lembar .alat{flex:none;width:28px;height:28px;padding:0;display:flex;
     align-items:center;justify-content:center;font:inherit;font-size:16px;line-height:1;
     color:var(--tinta,#0f172a);background:var(--putih,#fff);
@@ -99,10 +99,10 @@
     border-bottom:1px solid var(--garis,#e2e8f0);}
   .pratinjau-kepala strong{flex:1;min-width:0;font-size:15px;font-weight:600;line-height:1.35;
     overflow-wrap:anywhere;}
-  .pratinjau-badan{flex:1;min-height:120px;overflow:auto;background:#eef2f6;padding:16px;
+  .pratinjau-badan{flex:1;min-height:120px;overflow:auto;background:var(--biru-muda);padding:16px;
     text-align:center;font-size:14px;color:var(--tinta-lembut,#475569);}
   .pratinjau-badan canvas{display:block;margin:0 auto;max-width:100%;height:auto;
-    background:#fff;box-shadow:0 2px 8px rgba(0,30,61,.25);}
+    background:var(--putih);box-shadow:0 2px 8px rgba(0,30,61,.25);}
   .pratinjau-kaki{display:flex;flex-wrap:wrap;gap:10px;padding:12px 18px;
     border-top:1px solid var(--garis,#e2e8f0);}
   .pratinjau-kaki .ke-kanan{margin-left:auto;}
@@ -112,7 +112,7 @@
 
 <header class="kop">
   <div class="kop-isi">
-    <h1>Gabung dan susun PDF</h1>
+    <h1>Gabung dan Susun PDF</h1>
     <p>Menyatukan beberapa berkas menjadi satu dokumen, atau merapikan satu berkas saja, dengan susunan yang <em>kamu tentukan sendiri</em>. Tiap halaman tampil sebagai petak gambar yang bisa diseret, diputar, diperbesar, atau dibuang. Halaman yang tersimpan disalin apa adanya, jadi teks dan mutunya tidak berubah.</p>
   </div>
 </header>
