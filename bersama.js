@@ -42,7 +42,7 @@
     merek.href = "index.html";
     merek.style.color = "#002A55";
     merek.style.fontWeight = "700";
-    merek.innerHTML = 'Sederhana tapi Boleh Dicoba.';
+    merek.innerHTML = 'KPKNL Balikpapan';
     isi.appendChild(merek);
 
     // Wrapper Dropdown
