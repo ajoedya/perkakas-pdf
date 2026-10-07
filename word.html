@@ -399,8 +399,8 @@ const PT_KE_EMU = 12700;
 
 function xmlRpr(r) {
   const p = [];
-  const gayaTaut = r.taut && !r.tautPolos;
-  if (gayaTaut) p.push('<w:rStyle w:val="Hyperlink"/>');
+  /* Tautan tidak diberi gaya biru bergaris bawah. Penampilannya mengikuti
+     PDF, sebab banyak PDF memuat tautan yang memang tidak tampak. */
   if (r.keluarga) {
     const f = lolosXml(r.keluarga);
     p.push('<w:rFonts w:ascii="' + f + '" w:hAnsi="' + f + '" w:cs="' + f + '"/>');
@@ -408,10 +408,10 @@ function xmlRpr(r) {
   if (r.tebal) p.push('<w:b/><w:bCs/>');
   if (r.miring) p.push('<w:i/><w:iCs/>');
   if (r.coret) p.push('<w:strike/>');
-  if (r.warna && !gayaTaut) p.push('<w:color w:val="' + r.warna + '"/>');
+  if (r.warna) p.push('<w:color w:val="' + r.warna + '"/>');
   const sz = jepit(Math.round(r.szHalf || 22), 8, 300);
   p.push('<w:sz w:val="' + sz + '"/><w:szCs w:val="' + sz + '"/>');
-  if (r.garisBawah && !gayaTaut) p.push('<w:u w:val="single"/>');
+  if (r.garisBawah) p.push('<w:u w:val="single"/>');
   if (r.vert) p.push('<w:vertAlign w:val="' + r.vert + '"/>');
   return '<w:rPr>' + p.join('') + '</w:rPr>';
 }
@@ -463,8 +463,8 @@ function xmlPpr(b) {
   if (b.garisBaris) sp.push('w:line="' + Math.round(b.garisBaris) + '" w:lineRule="auto"');
   if (sp.length) p.push('<w:spacing ' + sp.join(' ') + '/>');
   const ind = [];
-  if (b.indKiri > 10) ind.push('w:left="' + Math.round(b.indKiri) + '"');
-  if (b.indKanan > 10) ind.push('w:right="' + Math.round(b.indKanan) + '"');
+  if (Math.abs(b.indKiri) > 10) ind.push('w:left="' + Math.round(b.indKiri) + '"');
+  if (Math.abs(b.indKanan) > 10) ind.push('w:right="' + Math.round(b.indKanan) + '"');
   if (b.indGantung > 10) ind.push('w:hanging="' + Math.round(b.indGantung) + '"');
   else if (b.indBaris1 > 10) ind.push('w:firstLine="' + Math.round(b.indBaris1) + '"');
   if (ind.length) p.push('<w:ind ' + ind.join(' ') + '/>');
@@ -494,8 +494,8 @@ function xmlJarak(b) {
 function xmlGaris(b) {
   const sz = jepit(Math.round((b.tebalPt || 0.75) * 8), 2, 48);
   const ind = [];
-  if (b.indKiri > 10) ind.push('w:left="' + Math.round(b.indKiri) + '"');
-  if (b.indKanan > 10) ind.push('w:right="' + Math.round(b.indKanan) + '"');
+  if (Math.abs(b.indKiri) > 10) ind.push('w:left="' + Math.round(b.indKiri) + '"');
+  if (Math.abs(b.indKanan) > 10) ind.push('w:right="' + Math.round(b.indKanan) + '"');
   return '<w:p><w:pPr>' + (b.pisahHalaman ? '<w:pageBreakBefore/>' : '') +
     '<w:pBdr><w:bottom w:val="single" w:sz="' + sz + '" w:space="0" w:color="' + (/^[0-9A-F]{6}$/.test(b.warna || "") ? b.warna : "000000") + '"/></w:pBdr>' +
     '<w:spacing w:before="' + Math.round(Math.max(0, b.jarakSebelum || 0)) + '" w:after="0" w:line="20" w:lineRule="exact"/>' +
@@ -612,7 +612,7 @@ function xmlGambar(blok, media, lebarTersediaPt) {
   const jc = blok.align === "center" ? '<w:jc w:val="center"/>' : (blok.align === "right" ? '<w:jc w:val="right"/>' : '');
   const ppr = (blok.pisahHalaman ? '<w:pageBreakBefore/>' : '') +
     (blok.jarakSebelum > 0 ? '<w:spacing w:before="' + Math.round(blok.jarakSebelum) + '"/>' : '') +
-    (blok.indKiri > 10 && blok.align !== "center" ? '<w:ind w:left="' + Math.round(blok.indKiri) + '"/>' : '') + jc + XML_HURUF_MUNGIL;
+    (Math.abs(blok.indKiri || 0) > 10 && blok.align !== "center" ? '<w:ind w:left="' + Math.round(blok.indKiri) + '"/>' : '') + jc + XML_HURUF_MUNGIL;
   return '<w:p>' + (ppr ? '<w:pPr>' + ppr + '</w:pPr>' : '') + (blok.pisahKolom ? XML_PINDAH_KOLOM : '') +
     '<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0">' +
     '<wp:extent cx="' + cx + '" cy="' + cy + '"/>' +
@@ -648,7 +648,9 @@ function xmlSectPr(sk, refHeader, refFooter, sub) {
     (sk.pgW > sk.pgH ? ' w:orient="landscape"' : '') + '/>' +
     '<w:pgMar w:top="' + Math.round(sk.marAtas) + '" w:right="' + Math.round(sk.marKanan) +
     '" w:bottom="' + Math.round(sk.marBawah) + '" w:left="' + Math.round(sk.marKiri) +
-    '" w:header="' + Math.round(sk.jarakHeader || 425) + '" w:footer="' + Math.round(sk.jarakFooter || 425) + '" w:gutter="0"/>' +
+    /* tanpa kop atau kaki halaman, jaraknya tidak boleh melebihi margin */
+    '" w:header="' + Math.round(refHeader ? (sk.jarakHeader || 425) : Math.min(425, sk.marAtas)) +
+    '" w:footer="' + Math.round(refFooter ? (sk.jarakFooter || 425) : Math.min(425, sk.marBawah)) + '" w:gutter="0"/>' +
     xmlKolom(sub ? sub.kolom : null) + '<w:docGrid w:linePitch="360"/></w:sectPr>';
 }
 
@@ -871,7 +873,9 @@ async function bacaOperator(page, vpTransform, tinggiHal) {
       else if (lebar > 3 && tinggi > 3) kotak.push({ x0: minX, y0: minY, x1: maksX, y1: maksY, warna: keHex(isian[0], isian[1], isian[2]) });
     }
     if (lebar > 2 && tinggi > 2 && !(tinggi <= 3.2 || lebar <= 3.2)) {
-      jejak.push({ x0: minX, y0: minY, x1: maksX, y1: maksY });
+      /* isian atau goresan putih tidak tampak di kertas, jadi ditandai */
+      const terang = (c) => c[0] >= 245 && c[1] >= 245 && c[2] >= 245;
+      jejak.push({ x0: minX, y0: minY, x1: maksX, y1: maksY, tampak: (diisi && !terang(isian)) || (digores && !terang(goresan)) });
     }
     jalur = [];
   }
@@ -1026,6 +1030,45 @@ function cuplikWarna(render, tinggiHal, x0, y0, x1, y1) {
 
 /* Menentukan berapa derajat halaman perlu diputar agar arah baca teksnya
    mendatar. Tanpa ini halaman dengan penanda /Rotate akan terbaca terbalik. */
+/* Alamat tautan dirapikan. Alamat tanpa nama domain yang wajar, misalnya
+   "http://kopsurat/" yang ditinggalkan aplikasi persuratan sebagai penanda
+   templat, bukan tautan sungguhan dan dibuang. */
+function rapikanUrl(url) {
+  let u = String(url || "").trim();
+  if (!u) return "";
+  if (/^(mailto|tel):/i.test(u)) return u;
+  if (!/^[a-z][a-z0-9+.-]*:/i.test(u)) u = "https://" + u.replace(/^\/+/, "");
+  const m = u.match(/^https?:\/\/([^\/?#:@]+)/i);
+  if (!m) return "";
+  return /^[a-z0-9-]+(\.[a-z0-9-]+)+$/i.test(m[1]) && /[a-z]/i.test(m[1].split(".").pop()) || /^\d{1,3}(\.\d{1,3}){3}$/.test(m[1]) ? u : "";
+}
+
+/* Garis yang tidak tampak pada hasil render, misalnya garis putih penyusun
+   tata letak, tidak boleh dianggap garis tabel. Warna di garis dibandingkan
+   dengan warna di kedua sisinya pada beberapa titik. */
+function garisTampak(render, tinggiHal, xa, ya, xb, yb, tebal) {
+  const s = render.skala, d = render.piksel.data, W = render.piksel.width, H = render.piksel.height;
+  const ambil = (x, y) => {
+    const p = (jepit(Math.round((tinggiHal - y) * s), 0, H - 1) * W + jepit(Math.round(x * s), 0, W - 1)) * 4;
+    return [d[p], d[p + 1], d[p + 2]];
+  };
+  const beda = (a, b) => Math.max(Math.abs(a[0] - b[0]), Math.abs(a[1] - b[1]), Math.abs(a[2] - b[2]));
+  const mendatar = Math.abs(xb - xa) >= Math.abs(yb - ya);
+  const jauh = Math.max(1.6, tebal / 2 + 1.3);
+  let tampak = 0;
+  [0.12, 0.31, 0.5, 0.69, 0.88].forEach((f) => {
+    const x = xa + (xb - xa) * f, y = ya + (yb - ya) * f;
+    const s1 = mendatar ? ambil(x, y + jauh) : ambil(x + jauh, y), s2 = mendatar ? ambil(x, y - jauh) : ambil(x - jauh, y);
+    let maks = 0;
+    [-0.4, 0, 0.4].forEach((o) => {
+      const c = mendatar ? ambil(x, y + o) : ambil(x + o, y);
+      maks = Math.max(maks, Math.min(beda(c, s1), beda(c, s2)));
+    });
+    if (maks > 18) tampak++;
+  });
+  return tampak >= 3;
+}
+
 const PETA_SIMBOL = {
   "\uF0B7": "\u2022", "\uF0A7": "\u25AA", "\uF0D8": "\u27A2", "\uF0FC": "\u2713", "\uF076": "\u2756",
   "\uF06F": "o", "\uF02D": "-", "\uF0A8": "\u25CF", "\uF06E": "\u25A0", "\uF071": "\u25A1", "\uF0E0": "\u2192"
@@ -1075,6 +1118,15 @@ async function ekstrakHalaman(dok, no, opsi) {
     const skala = Math.min(2, Math.max(1.25, 1400 / Math.max(lebarHal, tinggiHal)));
     try { render = await renderHalaman(page, skala, putaran); } catch (e) { render = null; }
   }
+  /* garis yang tidak tampak dibuang sebelum dipakai mengenali tabel */
+  const hampirPutih = (w) => /^[EF][0-9A-F][EF][0-9A-F][EF][0-9A-F]$/.test(w || "");
+  if (render && render.piksel) {
+    vek.garisH = vek.garisH.filter((g) => garisTampak(render, tinggiHal, g.x0, g.y, g.x1, g.y, g.tebal));
+    vek.garisV = vek.garisV.filter((g) => garisTampak(render, tinggiHal, g.x, g.y0, g.x, g.y1, g.tebal));
+  } else {
+    vek.garisH = vek.garisH.filter((g) => !hampirPutih(g.warna));
+    vek.garisV = vek.garisV.filter((g) => !hampirPutih(g.warna));
+  }
 
   const singgahan = new Map();
   const item = [];
@@ -1111,7 +1163,7 @@ async function ekstrakHalaman(dok, no, opsi) {
     try {
       const anot = await page.getAnnotations({ intent: "display" });
       anot.forEach((a) => {
-        const url = a.url || (a.unsafeUrl) || "";
+        const url = rapikanUrl(a.url || a.unsafeUrl || "");
         if (a.subtype !== "Link" || !url) return;
         const r = a.rect;
         const p1 = terapkanM(r[0], r[1], vp1.transform), p2 = terapkanM(r[2], r[3], vp1.transform);
@@ -2477,6 +2529,9 @@ function rakitParagraf(baris, geo, konteks) {
     blok.atasPt = pertama.y + fontAwal * (alami * Math.min(1, kisi) - 0.22);
     blok.bawahPt = terakhir.y - terakhir.fontPt * (0.22 + alami * Math.max(0, kisi - 1));
     /* bahan untuk menyambung paragraf yang terpotong oleh pergantian kolom atau halaman */
+    /* teks yang melewati batas wadahnya diberi indentasi negatif */
+    if (geo && geo.kiri != null && g.kiri < geo.kiri - 0.5) blok.indKiri += (g.kiri - geo.kiri) * PT_KE_TWIP;
+    if (geo && geo.kanan != null && g.kanan > geo.kanan + 0.5) blok.indKanan += (geo.kanan - g.kanan) * PT_KE_TWIP;
     blok.akhirPenuh = terakhir.xAkhir >= Math.max(kananBlok, g.kanan - lebarGeo * 0.03) - Math.max(3, lebarBlok * 0.022);
     blok.awalRel = pertama.xMulai - g.kiri;
     blok.badanRel = kiriLanjut - g.kiri;
@@ -2496,6 +2551,7 @@ function paragrafSel(item, konteks, geo) {
     x.jarakSebelum = bawah === null ? 0 : jepit(Math.round((bawah - x.atasPt) * PT_KE_TWIP), 0, 400);
     bawah = x.bawahPt;
     if (x.indKiri < 30 && !x.daftar) x.indKiri = 0;
+    if (x.indKanan < 0) x.indKanan = 0;
   });
   return p;
 }
@@ -2563,7 +2619,7 @@ async function ambilGambarHalaman(mentah, opsi) {
     });
     const jejak = mentah.vek.jejak.filter((j) => {
       const w = j.x1 - j.x0, h = j.y1 - j.y0;
-      return w > 5 && h > 5 && w * h < luasHal * 0.85 && !diTabel(j);
+      return w > 5 && h > 5 && w * h < luasHal * 0.85 && j.tampak !== false && !diTabel(j);
     });
     const gugus = gabungKotak(jejak.map((j) => Object.assign({ n: 1 }, j)), 8);
     for (const g of gugus) {
@@ -2692,10 +2748,12 @@ function bangunBlokTabelSpasi(potong, geo, konteks) {
   });
 
   /* garis yang menempel menjadi tepi atas atau tepi bawah sel yang dilewatinya */
+  const dasarGaris = new Map();
   (potong.garis || []).forEach((g) => {
     let r = -1;
     deret.forEach((d, i) => { if (d.awal.y > g.y) r = i; });
     const sisi = r < 0 ? "atas" : "bawah";
+    if (r >= 0) dasarGaris.set(r, Math.min(g.y, dasarGaris.has(r) ? dasarGaris.get(r) : Infinity));
     baris[Math.max(0, r)].forEach((sel) => {
       const xa = batas[sel.kolom], xb = batas[sel.kolom + 1];
       if (Math.min(g.x1, xb) - Math.max(g.x0, xa) < (xb - xa) * 0.5) return;
@@ -2708,12 +2766,19 @@ function bangunBlokTabelSpasi(potong, geo, konteks) {
   const puncak = deret.map((d) => d.awal.y + Math.max(...d.awal.item.map((p) => p.fontPt)) * 0.93);
   const ujung = deret[deret.length - 1].akhir;
   const dasar = ujung.y - ujung.fontPt * 0.22;
-  const tinggiBaris = deret.map((d, r) => Math.max(20, Math.round((puncak[r] - (r < deret.length - 1 ? puncak[r + 1] : dasar)) * PT_KE_TWIP)));
+  /* deret yang bergaris bawah dipanjangkan sampai garisnya, supaya garis itu
+     tidak menempel pada teks seperti garis bawah huruf */
+  const tinggiBaris = deret.map((d, r) => {
+    let bawahDeret = r < deret.length - 1 ? puncak[r + 1] : dasar;
+    if (dasarGaris.has(r)) bawahDeret = Math.min(bawahDeret, dasarGaris.get(r));
+    return Math.max(20, Math.round((puncak[r] - bawahDeret) * PT_KE_TWIP));
+  });
+  const dasarTabel = dasarGaris.has(deret.length - 1) ? Math.min(dasar, dasarGaris.get(deret.length - 1)) : dasar;
   return {
     jenis: "tabel", y: semua[0].y, kolomTwip: kolomTwip, baris: baris, tanpaGaris: true,
     bantalan: { kiri: 0, kanan: 0 }, tinggiBaris: tinggiBaris,
     indKiri: Math.round((batas[0] - geo.kiri) * PT_KE_TWIP),
-    atasPt: puncak[0], bawahPt: dasar
+    atasPt: puncak[0], bawahPt: dasarTabel
   };
 }
 
@@ -2868,7 +2933,7 @@ function blokGambar(e, geo) {
   const b = Object.assign({}, e.gambar.blok);
   const tengah = (e.x0 + e.x1) / 2, tengahGeo = (geo.kiri + geo.kanan) / 2;
   if (Math.abs(tengah - tengahGeo) <= Math.max(4, (geo.kanan - geo.kiri) * 0.02) && e.x0 - geo.kiri > 6) b.align = "center";
-  else { b.align = "left"; b.indKiri = Math.max(0, (e.x0 - geo.kiri) * PT_KE_TWIP); }
+  else { b.align = "left"; b.indKiri = (e.x0 - geo.kiri) * PT_KE_TWIP; }
   b.atasPt = e.atas; b.bawahPt = e.bawah;
   return b;
 }
@@ -2876,7 +2941,7 @@ function blokGambar(e, geo) {
 function blokGaris(g, geo) {
   return {
     jenis: "garis", tebalPt: g.tebal, warna: g.warna,
-    indKiri: Math.max(0, (g.x0 - geo.kiri) * PT_KE_TWIP), indKanan: Math.max(0, (geo.kanan - g.x1) * PT_KE_TWIP),
+    indKiri: (g.x0 - geo.kiri) * PT_KE_TWIP, indKanan: (geo.kanan - g.x1) * PT_KE_TWIP,
     atasPt: g.y + g.tebal / 2 + 1, bawahPt: g.y - g.tebal / 2
   };
 }
@@ -2954,6 +3019,28 @@ function alirkan(elemen, geo, konteks, bawahAwal, awal) {
   return beriJarak(blok, bawahAwal, awal);
 }
 
+/* Bila isi halaman mencapai dasar kertas, selisih kecil tinggi baris di Word
+   sudah cukup untuk melempar baris terakhir ke halaman baru. Supaya ada ruang
+   cadangan, jarak kosong yang besar di halaman itu dikurangi sedikit. */
+function longgarkanDasar(blok, marginBawahPt) {
+  if (marginBawahPt == null) return;
+  const dasar = blok.reduce((m, b) => (b.bawahPt != null ? Math.min(m, b.bawahPt) : m), Infinity);
+  if (!isFinite(dasar)) return;
+  let perlu = 16 - (dasar - marginBawahPt);
+  if (perlu <= 0) return;
+  const SISA = 10;
+  const lebih = (b) => b.jenis === "jarak" ? Math.max(0, (b.tinggiPt || 0) - SISA)
+    : (b.jenis === "kolom" ? 0 : Math.max(0, (b.jarakSebelum || 0) / PT_KE_TWIP - SISA));
+  const total = blok.reduce((n, b) => n + lebih(b), 0);
+  if (total <= 0) return;
+  const nisbah = Math.min(1, perlu / total);
+  blok.forEach((b) => {
+    const kurang = lebih(b) * nisbah;
+    if (kurang <= 0) return;
+    if (b.jenis === "jarak") b.tinggiPt -= kurang; else b.jarakSebelum -= kurang * PT_KE_TWIP;
+  });
+}
+
 function bangunHalaman(mentah, konteks) {
   const L = konteks.marginKiriPt, R = mentah.lebar - konteks.marginKananPt;
   const geoHal = { kiri: L, kanan: R };
@@ -3014,6 +3101,7 @@ function bangunHalaman(mentah, konteks) {
   if (mentah.miringan.length) {
     olahBaris(bentukBaris(mentah.miringan), konteks, geoHal).forEach((b) => blok.push(b));
   }
+  if (!wilayah.some((w) => w.jenis === "kolom")) longgarkanDasar(blok, konteks.marginBawahPt);
   if (mengapung.length) {
     /* Dijangkarkan pada paragraf terdekat dan letak tegaknya dihitung dari
        paragraf itu, supaya gambar ikut bergeser bila teksnya bergeser.
@@ -3184,12 +3272,25 @@ function hitungMargin(daftarHal) {
   if (!xM.length && !gX0.length) return { kiri: 56, kanan: 56, atas: 56, bawah: 56, kiriPt: 56 };
   /* halaman yang hanya berisi gambar, misalnya hasil pindaian, memakai batas gambarnya */
   if (!xM.length) { gX0.forEach((v) => xM.push(v)); gX1.forEach((v) => xA.push(v)); }
-  const kiri = jepit(persentil(xM, 0.03) - 2, 14, W * 0.25);
-  const kanan = jepit(W - persentil(xA, 0.97) - 2, 14, W * 0.25);
+  /* Tepi isi diambil dari letak yang dipakai banyak baris. Baris yang menjorok
+     ke luar, seperti catatan kaki tanda tangan elektronik selebar halaman,
+     tidak ikut menentukan margin dan nanti diberi indentasi negatif. */
+  const tepiUtama = (nilai, arah) => {
+    if (nilai.length < 6) return null;
+    const urut = nilai.slice().sort((a, b) => arah * (b - a));
+    const butuh = Math.max(3, Math.ceil(nilai.length * 0.12));
+    for (let i = 0; i + butuh <= urut.length; i++) {
+      if (Math.abs(urut[i] - urut[i + butuh - 1]) <= 3) return urut[i];
+    }
+    return null;
+  };
+  const tepiKiri = tepiUtama(xM, -1), tepiKanan = tepiUtama(xA, 1);
+  const kiri = jepit((tepiKiri !== null ? tepiKiri : persentil(xM, 0.03)) - 2, 14, W * 0.25);
+  const kanan = jepit(W - (tepiKanan !== null ? tepiKanan : persentil(xA, 0.97)) - 2, 14, W * 0.25);
   const atas = jepit(T - Math.max(...yAtas) - 2, 14, T * 0.2);
   /* batas bawah dilonggarkan sedikit supaya selisih kecil ukuran huruf tidak
      melempar baris terakhir ke halaman baru */
-  const bawah = jepit(Math.min(...yBawah) - 22, 14, T * 0.2);
+  const bawah = jepit(Math.min(...yBawah) - 22, 6, T * 0.2);
   return { kiri, kanan, atas, bawah, kiriPt: kiri };
 }
 
@@ -3271,7 +3372,7 @@ async function konversiBerkas(entri, opsi, lapor) {
   halaman.forEach((h) => {
     const m = marginPer.get(kunciUkuran(h));
     h.margin = m;
-    h.kon = Object.assign({}, konteksDasar, { marginKiriPt: m.kiri, marginKananPt: m.kanan, marginAtasPt: m.atas, garisTipis: h.vek.garisH, taut: h.taut, longgar: !!h.ocr });
+    h.kon = Object.assign({}, konteksDasar, { marginKiriPt: m.kiri, marginKananPt: m.kanan, marginAtasPt: m.atas, marginBawahPt: m.bawah, garisTipis: h.vek.garisH, taut: h.taut, longgar: !!h.ocr });
   });
 
   const kopKaki = analisisKopKaki(halaman, Object.assign({}, konteksDasar, { marginKiriPt: 0, garisTipis: [], taut: [] }));
