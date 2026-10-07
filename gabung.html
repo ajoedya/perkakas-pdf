@@ -86,6 +86,15 @@
   .kaki{display:block;margin-top:6px;font-size:12px;line-height:1.35;color:var(--tinta-lembut,#475569);}
   .kaki b{display:block;font-weight:600;color:var(--tinta,#0f172a);
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .cap-nomor{display:block;font-weight:600;color:var(--biru,#14539a);}
+  .cap-nomor.tanpa{font-weight:400;color:var(--tinta-lembut,#475569);}
+  .cap-nomor:empty{display:none;}
+
+  /* ---------- Nomor halaman ---------- */
+  .centang{display:flex;gap:10px;align-items:flex-start;margin:4px 0 18px;
+    font-size:15px;font-weight:600;line-height:1.4;cursor:pointer;}
+  .centang input{flex:none;width:18px;height:18px;margin:2px 0 0;accent-color:var(--biru,#14539a);}
+  .centang small{display:block;margin-top:2px;font-size:13px;font-weight:400;color:var(--tinta-lembut,#475569);}
   #ringkas{font-size:15px;font-weight:600;color:var(--biru-tua,#002f5f);margin:0;}
   .siar{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;}
 
@@ -113,7 +122,7 @@
 <header class="kop">
   <div class="kop-isi">
     <h1>Gabung dan Susun PDF</h1>
-    <p>Menyatukan beberapa berkas menjadi satu dokumen, atau merapikan satu berkas saja, dengan susunan yang <em>kamu tentukan sendiri</em>. Tiap halaman tampil sebagai petak gambar yang bisa diseret, diputar, diperbesar, atau dibuang. Halaman yang tersimpan disalin apa adanya, jadi teks dan mutunya tidak berubah.</p>
+    <p>Menyatukan beberapa berkas menjadi satu dokumen, atau merapikan satu berkas saja, dengan susunan yang <em>kamu tentukan sendiri</em>. Tiap halaman tampil sebagai petak gambar yang bisa diseret, diputar, diperbesar, atau dibuang, lalu hasilnya bisa sekalian diberi nomor halaman. Halaman yang tersimpan disalin apa adanya, jadi teks dan mutunya tidak berubah.</p>
   </div>
 </header>
 
@@ -151,8 +160,57 @@
     </div>
   </section>
 
+  <section id="bagianNomor" class="sembunyi">
+    <p class="nomor" id="nomorNomor">Langkah 4</p>
+    <h2>Beri nomor halaman</h2>
+    <label class="centang"><input type="checkbox" id="pakaiNomor"><span>Bubuhkan nomor halaman pada hasil<small>Langkah ini boleh dilewati. Nomor mengikuti urutan di papan, jadi halaman yang dipindah atau dibuang sudah ikut terhitung.</small></span></label>
+
+    <div id="aturNomor" class="sembunyi">
+      <div class="isian-baris">
+        <div class="isian">
+          <label for="posisi">Posisi</label>
+          <select id="posisi">
+            <option value="bawah-tengah">Bawah tengah</option>
+            <option value="bawah-kanan">Bawah kanan</option>
+            <option value="bawah-kiri">Bawah kiri</option>
+            <option value="atas-tengah">Atas tengah</option>
+            <option value="atas-kanan">Atas kanan</option>
+            <option value="atas-kiri">Atas kiri</option>
+          </select>
+        </div>
+        <div class="isian">
+          <label for="bentuk">Bentuk tulisan</label>
+          <select id="bentuk">
+            <option value="angka">1</option>
+            <option value="dari">1 dari 10</option>
+            <option value="strip">- 1 -</option>
+            <option value="halaman">Halaman 1</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="isian-baris">
+        <div class="isian">
+          <label for="mulaiHal">Mulai dibubuhkan pada urutan ke</label>
+          <input type="number" id="mulaiHal" value="1" min="1">
+        </div>
+        <div class="isian">
+          <label for="mulaiNomor">Nomor pertama yang dipakai</label>
+          <input type="number" id="mulaiNomor" value="1" min="0">
+        </div>
+        <div class="isian">
+          <label for="besar">Ukuran huruf</label>
+          <input type="number" id="besar" value="10" min="6" max="24">
+        </div>
+      </div>
+
+      <div id="kabarNomor" class="kabar" role="status"></div>
+      <p class="petunjuk" style="margin-top:0;">Contoh pemakaian, kalau lembar pengantar tidak boleh bernomor, isi urutan ke dengan 2 dan nomor pertama dengan 1, sehingga penomoran dimulai dari lembar kedua tetapi angkanya tetap mulai dari satu. Nomor ditaruh mengikuti arah halaman sesudah diputar. Nomor yang didapat tiap halaman tertulis di bawah petaknya, dan letaknya bisa diperiksa lewat tombol kaca pembesar.</p>
+    </div>
+  </section>
+
   <section id="bagianSimpan" class="sembunyi">
-    <p class="nomor" id="nomorSimpan">Langkah 4</p>
+    <p class="nomor" id="nomorSimpan">Langkah 5</p>
     <h2>Simpan hasilnya</h2>
     <div class="isian">
       <label for="namaHasil">Nama berkas hasil</label>
@@ -228,7 +286,8 @@ let namaDisentuh = false;          // nama hasil sudah diketik sendiri, jadi jan
 
 // Satu berkas berarti pekerjaannya menyusun, lebih dari satu berarti menggabung.
 function namaUsulan() {
-  return berkas.length === 1 ? Bersama.tanpaAkhiran(berkas[0].nama) + "-tersusun.pdf" : "gabungan.pdf";
+  if (berkas.length !== 1) return "gabungan.pdf";
+  return Bersama.tanpaAkhiran(berkas[0].nama) + (el("pakaiNomor").checked ? "-bernomor.pdf" : "-tersusun.pdf");
 }
 el("namaHasil").addEventListener("input", () => { namaDisentuh = true; });
 
@@ -298,10 +357,11 @@ function gambarSemua() {
   // langkah itu disembunyikan dan nomor langkah sesudahnya ikut maju.
   const ada = berkas.length > 0, banyak = berkas.length > 1;
   el("bagianBerkas").classList.toggle("sembunyi", !banyak);
-  ["bagianPapan", "bagianSimpan"].forEach((id) => el(id).classList.toggle("sembunyi", !ada));
+  ["bagianPapan", "bagianNomor", "bagianSimpan"].forEach((id) => el(id).classList.toggle("sembunyi", !ada));
   el("nomorPapan").textContent = "Langkah " + (banyak ? 3 : 2);
-  el("nomorSimpan").textContent = "Langkah " + (banyak ? 4 : 3);
-  if (!namaDisentuh) el("namaHasil").value = namaUsulan();
+  el("nomorNomor").textContent = "Langkah " + (banyak ? 4 : 3);
+  el("nomorSimpan").textContent = "Langkah " + (banyak ? 5 : 4);
+  segarkanNomor();
 }
 
 /* Urutan berkas pada daftar selalu disamakan dengan urutan kemunculannya di
@@ -493,6 +553,9 @@ function ambilPetak(p) {
   kaki.querySelector("b").textContent = b.nama;
   kaki.querySelector("b").title = b.nama;
   kaki.append(document.createTextNode("halaman " + (p.indeks + 1)));
+  const cap = document.createElement("span");
+  cap.className = "cap-nomor";
+  kaki.append(cap);
 
   const putarBaris = document.createElement("div");
   putarBaris.className = "putar-baris";
@@ -567,6 +630,7 @@ async function kanvasHalaman(b, indeks, lebarMaks, tinggiMaks, putar) {
   const vp = hal.getViewport({ scale: rasio * kerapatan, rotation: arah });
 
   const kanvas = document.createElement("canvas");
+  kanvas.dataset.lebarTitik = asli.width;   // lebar halaman yang tampak, dalam titik
   kanvas.width = Math.max(1, Math.ceil(vp.width));
   kanvas.height = Math.max(1, Math.ceil(vp.height));
   kanvas.style.width = Math.round(vp.width / kerapatan) + "px";
@@ -972,6 +1036,8 @@ async function gambarPratinjau() {
 
   el("pratinjauJudul").textContent = "Urutan ke-" + (i + 1) + " dari " + petak.length +
     ", " + b.nama + " halaman " + (p.indeks + 1);
+  const nomorIni = tulisanNomor(aturanNomor(), i, petak.length);
+  if (nomorIni) el("pratinjauJudul").textContent += ", diberi nomor \u201C" + nomorIni + "\u201D";
   el("pratinjauSebelum").disabled = (i === 0);
   el("pratinjauSesudah").disabled = (i === petak.length - 1);
   badan.textContent = "Sedang menggambar halaman...";
@@ -980,6 +1046,7 @@ async function gambarPratinjau() {
     const lebar = Math.max(200, Math.min(window.innerWidth * 0.96, 940) - 32);
     const kanvas = await kanvasHalaman(b, p.indeks, lebar, 20000, p.putar);
     if (tiket !== lihat.tiket) return;
+    lukisNomor(kanvas, i);
     kanvas.style.height = "auto";
     badan.textContent = "";
     badan.append(kanvas);
@@ -1035,7 +1102,109 @@ dlg.addEventListener("close", () => {
   if (k && k.isConnected) k.focus();
 });
 
-/* ========== 9. Menggabung lalu menyimpan ==========
+/* ========== 9. Nomor halaman ==========
+   Nomor mengikuti urutan di papan, bukan nomor halaman pada berkas asalnya.
+   Letaknya dihitung pada bidang halaman yang tampak, yaitu sesudah putaran
+   bawaan dan putaran dari pengguna, supaya nomor pada halaman yang diputar
+   tetap jatuh di tepi bawah atau atas yang terlihat oleh pembaca. */
+const TEPI_NOMOR = 28;             // jarak nomor dari tepi kertas, dalam titik
+
+// Mengembalikan null kalau penomoran tidak dipakai.
+function aturanNomor() {
+  if (!el("pakaiNomor").checked) return null;
+  const angka = (id, bawaan) => {
+    const n = parseInt(el(id).value, 10);
+    return Number.isFinite(n) ? n : bawaan;
+  };
+  return { posisi: el("posisi").value, bentuk: el("bentuk").value,
+           mulaiHal: Math.max(1, angka("mulaiHal", 1)),
+           mulaiNomor: Math.max(0, angka("mulaiNomor", 1)),
+           besar: Math.min(24, Math.max(6, angka("besar", 10))) };
+}
+
+// Tulisan nomor bagi halaman pada urutan ke-(i + 1), atau null kalau
+// halaman itu tidak bernomor.
+function tulisanNomor(a, i, total) {
+  if (!a || i + 1 < a.mulaiHal) return null;
+  const nomor = a.mulaiNomor + (i + 1 - a.mulaiHal);
+  if (a.bentuk === "dari") return nomor + " dari " + (a.mulaiNomor + total - a.mulaiHal);
+  if (a.bentuk === "strip") return "- " + nomor + " -";
+  if (a.bentuk === "halaman") return "Halaman " + nomor;
+  return String(nomor);
+}
+
+// Titik awal tulisan pada bidang halaman yang tampak, diukur dari sudut kiri bawah.
+function letakNomor(a, lebar, tinggi, lebarTulisan) {
+  let x = (lebar - lebarTulisan) / 2;
+  if (a.posisi.endsWith("kanan")) x = lebar - TEPI_NOMOR - lebarTulisan;
+  if (a.posisi.endsWith("kiri")) x = TEPI_NOMOR;
+  const y = a.posisi.startsWith("atas") ? tinggi - TEPI_NOMOR - a.besar : TEPI_NOMOR;
+  return { x, y };
+}
+
+function bubuhNomor(h, tulisan, a, font) {
+  const k = h.getCropBox();
+  const arah = derajat(Math.round(h.getRotation().angle / 90) * 90);
+  const rebah = (arah === 90 || arah === 270);
+  const t = letakNomor(a, rebah ? k.height : k.width, rebah ? k.width : k.height,
+                       font.widthOfTextAtSize(tulisan, a.besar));
+  // Titik pada bidang tampak dipetakan balik ke sumbu halaman yang belum diputar.
+  let x = k.x + t.x, y = k.y + t.y;
+  if (arah === 90)  { x = k.x + k.width - t.y; y = k.y + t.x; }
+  if (arah === 180) { x = k.x + k.width - t.x; y = k.y + k.height - t.y; }
+  if (arah === 270) { x = k.x + t.y;           y = k.y + k.height - t.x; }
+  h.drawText(tulisan, { x, y, size: a.besar, font, color: PDFLib.rgb(0.1, 0.1, 0.1),
+                        rotate: PDFLib.degrees(arah) });
+}
+
+// Menuliskan nomor di atas gambar pratinjau besar dengan letak dan ukuran
+// yang sama seperti pada berkas hasil, supaya bisa diperiksa sebelum disimpan.
+function lukisNomor(kanvas, i) {
+  const a = aturanNomor(), tulisan = tulisanNomor(a, i, petak.length);
+  const lebar = parseFloat(kanvas.dataset.lebarTitik);
+  if (!tulisan || !lebar) return;
+  const skala = kanvas.width / lebar, tinggi = kanvas.height / skala;
+  const ktx = kanvas.getContext("2d");
+  ktx.save();
+  ktx.scale(skala, skala);
+  ktx.font = a.besar + "px Helvetica, Arial, sans-serif";
+  ktx.fillStyle = "rgb(26,26,26)";
+  ktx.textBaseline = "alphabetic";
+  const t = letakNomor(a, lebar, tinggi, ktx.measureText(tulisan).width);
+  ktx.fillText(tulisan, t.x, tinggi - t.y);
+  ktx.restore();
+}
+
+function segarkanNomor() {
+  const a = aturanNomor(), total = petak.length;
+  el("aturNomor").classList.toggle("sembunyi", !a);
+  el("mulaiHal").max = Math.max(1, total);
+  petak.forEach((p, i) => {
+    const k = petakEl.get(p.kunci), cap = k && k.querySelector(".cap-nomor");
+    if (!cap) return;
+    const tulisan = tulisanNomor(a, i, total);
+    cap.textContent = !a ? "" : tulisan ? "nomor " + tulisan : "tanpa nomor";
+    cap.classList.toggle("tanpa", !tulisan);
+  });
+  if (!a || !total) Bersama.pesan("kabarNomor", "", "");
+  else if (a.mulaiHal > total) {
+    Bersama.pesan("kabarNomor", "Urutan awal melebihi jumlah halaman di papan, yaitu " + total +
+      ". Kecilkan angkanya supaya ada halaman yang bernomor.", "gagal");
+  } else {
+    const bernomor = total - a.mulaiHal + 1, akhir = a.mulaiNomor + bernomor - 1;
+    Bersama.pesan("kabarNomor", bernomor + " dari " + total + " halaman akan bernomor, " +
+      (bernomor > 1 ? "dari angka " + a.mulaiNomor + " sampai " + akhir : "dengan angka " + a.mulaiNomor) + "." +
+      (a.mulaiHal > 1 ? " " + (a.mulaiHal - 1) + " halaman pertama dibiarkan tanpa nomor." : ""), "");
+  }
+  if (!namaDisentuh) el("namaHasil").value = namaUsulan();
+}
+
+["pakaiNomor", "posisi", "bentuk", "mulaiHal", "mulaiNomor", "besar"].forEach((id) => {
+  el(id).addEventListener("input", segarkanNomor);
+  el(id).addEventListener("change", segarkanNomor);
+});
+
+/* ========== 10. Menggabung lalu menyimpan ==========
    Seluruh halaman yang dipakai dari satu berkas disalin dalam satu kali
    copyPages, baru kemudian ditaruh menurut urutan papan. Menyalinnya sepotong
    demi sepotong membuat fon dan gambar yang sama ikut tersalin berulang kali,
@@ -1043,6 +1212,12 @@ dlg.addEventListener("close", () => {
 el("gabung").addEventListener("click", async () => {
   if (!petak.length) {
     Bersama.pesan("kabarSimpan", "Papan masih kosong, tidak ada halaman yang bisa disimpan.", "gagal");
+    return;
+  }
+  const aturan = aturanNomor();
+  if (aturan && aturan.mulaiHal > petak.length) {
+    Bersama.pesan("kabarSimpan", "Nomor halaman diminta mulai dari urutan ke-" + aturan.mulaiHal +
+      ", padahal di papan hanya ada " + petak.length + " halaman. Perbaiki dulu pada langkah nomor halaman.", "gagal");
     return;
   }
   const tombol = el("gabung");
@@ -1062,11 +1237,15 @@ el("gabung").addEventListener("click", async () => {
       const hal = await hasil.copyPages(sumber, milik.map((p) => p.indeks));
       milik.forEach((p, k) => salinan.set(p.kunci, hal[k]));
     }
-    petak.forEach((p) => {
+    const fontNomor = aturan ? await hasil.embedFont(PDFLib.StandardFonts.Helvetica) : null;
+    let bernomor = 0;
+    petak.forEach((p, i) => {
       const h = salinan.get(p.kunci);
       // Putaran ditambahkan ke putaran bawaan halaman, bukan menimpanya.
       if (p.putar) h.setRotation(PDFLib.degrees(derajat(h.getRotation().angle + p.putar)));
       hasil.addPage(h);
+      const tulisan = tulisanNomor(aturan, i, petak.length);
+      if (tulisan) { bubuhNomor(h, tulisan, aturan, fontNomor); bernomor++; }
     });
 
     const banyak = new Set(petak.map((p) => p.berkasId)).size > 1;
@@ -1078,7 +1257,7 @@ el("gabung").addEventListener("click", async () => {
       hasil.getPageCount() + " halaman berukuran " + Bersama.ukuran(bytes.length) +
       (banyak ? " dan tersimpan di folder unduhan" : " di folder unduhan") +
       (terbuang.length ? ", dengan " + terbuang.length + " halaman yang kamu buang tidak diikutkan" : "") +
-      ".", "beres");
+      "." + (bernomor ? " " + bernomor + " halaman diberi nomor." : ""), "beres");
   } catch (err) {
     Bersama.pesan("kabarSimpan", "Penyimpanan gagal. Coba buang berkas yang mencurigakan lalu ulangi.", "gagal");
     console.error(err);

@@ -9,7 +9,6 @@
     { berkas: "koreksi.html",   nama: "Edit Teks" },
     { berkas: "gabung.html",    nama: "Gabung dan Susun PDF" },
     { berkas: "pecah.html",     nama: "Pecah PDF" },
-    { berkas: "nomor.html",     nama: "Penomor Halaman" },
     { berkas: "tanda-air.html", nama: "Watermark" },
     { berkas: "gambar.html",    nama: "PDF dan Gambar" },
     { berkas: "word.html",      nama: "PDF ke Word" },
