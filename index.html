@@ -18,19 +18,8 @@
 </template>
 <style>
   .kop.beranda { padding-bottom: 0; }
-  .kop-isi.beranda-isi { padding: 32px 24px 50px; }
-  .strip-percaya {
-    display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
-    max-width: 1160px; margin: -20px auto 0; padding: 0 24px;
-    position: relative; z-index: 2;
-  }
-  .lencana-alat {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: var(--putih); border: 1px solid var(--garis);
-    color: var(--biru-tua); font-size: 13px; font-weight: 600;
-    padding: 8px 16px; border-radius: 999px; box-shadow: var(--bayangan-sm);
-  }
-  section.alat-section { padding-top: 12px; }
+  .kop-isi.beranda-isi { padding: 32px 24px 44px; }
+  section.alat-section { padding-top: 28px; }
   .bungkus.lebar { padding: 12px 24px 32px; }
   .pita-motif-kecil { width: 120px; height: 8px; margin: 0 0 14px; }
   .pita-motif-kecil svg { display: block; width: 100%; height: 100%; }
@@ -68,19 +57,13 @@
   .petak { gap: 14px !important; }
 
   /* ============================================================
-     LAPISAN KACA (glassmorphism) untuk lencana dan kartu beranda.
+     LAPISAN KACA (glassmorphism) untuk kartu beranda.
      Kaca pada menu, semburat latar, dan pita belah ketupat sudah
      pindah ke gaya.css supaya berlaku di semua halaman.
      ============================================================ */
 
-  /* Lencana dan kartu. Garis tepi, sudut, bayangan, dan efek sorot
-     tetap mengikuti aturan lama. */
-  .lencana-alat {
-    background: rgba(255, 255, 255, 0.72);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
-    box-shadow: var(--bayangan-md);
-  }
+  /* Garis tepi, sudut, bayangan, dan efek sorot kartu tetap mengikuti
+     aturan lama. */
   .kartu-alat {
     background: rgba(255, 255, 255, 0.62);
     -webkit-backdrop-filter: blur(12px);
@@ -92,7 +75,7 @@
 
   /* Peramban tanpa backdrop-filter mendapat warna pekat seperti semula. */
   @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .lencana-alat, .kartu-alat { background: var(--putih); }
+    .kartu-alat { background: var(--putih); }
   }
 </style>
 </head>
@@ -104,12 +87,6 @@
     <p>Pengolah berkas <b>PDF</b> gratis, semua proses dijalankan secara lokal pada peramban dan <em>tidak terkirim ke server mana pun</em>.</p>
   </div>
 </header>
-
-<div class="strip-percaya" style="margin-top: -20px;">
-  <span class="lencana-alat">Berkas Diproses Lokal</span>
-  <span class="lencana-alat">Gratis dan Tanpa Daftar</span>
-  <span class="lencana-alat">8 Alat Siap Digunakan</span>
-</div>
 
 <div class="bungkus lebar">
 
