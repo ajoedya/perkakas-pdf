@@ -20,11 +20,17 @@
   // Memasang favicon secara otomatis jika belum ada di tag <head>
   function pasangFavicon() {
     if (!document.querySelector("link[rel*='icon']")) {
-      const link = document.createElement("link");
-      link.rel = "icon";
-      link.type = "image/x-icon";
-      link.href = "favicon.ico";
-      document.head.appendChild(link);
+      // Urutannya: .ico untuk peramban lama, .svg untuk peramban baru,
+      // lalu ikon layar utama untuk ponsel
+      [
+        { rel: "icon", type: "image/x-icon", href: "favicon.ico", sizes: "any" },
+        { rel: "icon", type: "image/svg+xml", href: "favicon.svg" },
+        { rel: "apple-touch-icon", href: "favicon-180.png" }
+      ].forEach((ikon) => {
+        const link = document.createElement("link");
+        Object.keys(ikon).forEach((k) => link.setAttribute(k, ikon[k]));
+        document.head.appendChild(link);
+      });
     }
   }
 
