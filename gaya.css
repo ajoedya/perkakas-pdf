@@ -22,6 +22,11 @@
   --garis: #E2E8F0;
   --garis-fokus: #CBD5E1;
 
+  --emas-teks: #7A5600;
+
+  /* Motif pita belah ketupat, dipakai di dasar kop dan di atas kaki halaman */
+  --motif-pita: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='10' viewBox='0 0 20 10'%3E%3Cpolygon points='10,0 20,5 10,10 0,5' fill='%23F5B301'/%3E%3Cpolygon points='10,2.5 15,5 10,7.5 5,5' fill='%23002F5F'/%3E%3C/svg%3E");
+
   /* Status */
   --bahaya: #DC2626;
   --bahaya-muda: #FEF2F2;
@@ -135,7 +140,9 @@ body {
 
 /* ---------- Kop Halaman ---------- */
 .kop {
-  background: linear-gradient(135deg, var(--biru-tua) 0%, #001E3D 100%);
+  background:
+    var(--motif-pita) bottom center / 20px 10px repeat-x,
+    linear-gradient(135deg, var(--biru-tua) 0%, #001E3D 100%);
   color: var(--putih);
   position: relative;
   overflow: hidden;
@@ -159,8 +166,10 @@ body {
   opacity: 0.1; pointer-events: none;
 }
 
+/* Lebar teks kop disamakan dengan .bungkus supaya judul sejajar dengan isi
+   di bawahnya. Halaman yang memakai .bungkus.lebar menambahkan kelas lebar. */
 .kop-isi {
-  max-width: 1160px;
+  max-width: 920px;
   margin: 0 auto;
   padding: 56px 24px 44px;
   position: relative;
@@ -384,7 +393,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
   padding: 16px 20px;
   margin: 0 0 24px;
   font-size: 15px;
-  color: #7A5600;
+  color: var(--emas-teks);
   box-shadow: var(--bayangan-sm);
 }
 
@@ -737,6 +746,62 @@ footer::before {
   height: 2px;
   background: var(--emas);
   margin: -27px 0 24px;
+}
+
+footer::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -26px;
+  height: 10px;
+  background: var(--motif-pita) center / 20px 10px repeat-x;
+}
+
+/* ============================================================
+   LAPISAN KACA (glassmorphism), berlaku di semua halaman.
+   Menu dan kotak unggah dibuat tembus pandang dengan blur 12px,
+   di atas semburat tipis dari palet. Hapus bagian ini kalau
+   ingin kembali ke tampilan pekat.
+   ============================================================ */
+
+/* Semburat emas dan biru di belakang halaman, supaya kaca punya
+   sesuatu untuk diburamkan. Warna dasar latar tetap --latar. */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; right: 0; bottom: 0; left: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(640px 460px at 90% 45%, rgba(245, 179, 1, 0.14), transparent 70%),
+    radial-gradient(720px 520px at 4% 82%, rgba(20, 83, 154, 0.13), transparent 70%);
+}
+
+.menu {
+  background: rgba(245, 179, 1, 0.84);
+}
+
+/* bersama.js memasang warna latar langsung pada .menu-isi, jadi !important
+   diperlukan agar warna itu tidak menutup kacanya. */
+.menu-isi {
+  background-color: transparent !important;
+}
+
+.jatuhan {
+  background: rgba(255, 255, 255, 0.62);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.kop-isi.lebar {
+  max-width: 1160px;
+}
+
+/* Peramban tanpa backdrop-filter mendapat warna pekat seperti semula. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .menu { background: var(--emas); }
+  .jatuhan { background: var(--putih); }
 }
 
 /* Adaptabilitas Gerak */
