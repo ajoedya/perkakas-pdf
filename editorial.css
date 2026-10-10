@@ -184,13 +184,34 @@ body.beranda-editorial::before { display: none !important; }
 .beranda-editorial .editorial-cari button:focus-visible { outline: 3px solid #c5a15b; outline-offset: -3px; }
 .beranda-editorial .editorial-cari button span { display: none; }
 
-/* Artwork pesisir: full bleed ke tepi kiri, captions di atas artwork. */
+/* Semburat hangat di belakang banner: latar kertas beralih perlahan ke warna langit foto. */
+.beranda-editorial .editorial-cerita::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: calc(var(--editorial-gutter) * -1);
+  right: calc(var(--editorial-column-gap) * -.85);
+  bottom: 0;
+  height: clamp(380px, 36vw, 520px);
+  background: linear-gradient(to bottom, rgba(240,218,185,0), rgba(240,218,185,.34) 58%, rgba(226,214,194,.46));
+  -webkit-mask-image: linear-gradient(to right, #000 80%, transparent);
+  mask-image: linear-gradient(to right, #000 80%, transparent);
+  pointer-events: none;
+}
+
+/* Foto pelabuhan: full bleed ke tepi kiri. Tepi atas dan kanan melebur ke latar
+   lewat mask supaya tidak ada garis potong yang tegas; keterangan tetap di atas foto. */
 .beranda-editorial .editorial-lanskap {
-  margin: auto -15px 0 calc(var(--editorial-gutter) * -1);
+  margin: auto calc(var(--editorial-column-gap) * -.85) 0 calc(var(--editorial-gutter) * -1);
   position: relative;
+  z-index: 1;
   overflow: hidden;
   height: clamp(215px, 18vw, 264px);
-  background: #a6bbc2;
+  background: transparent;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 46%), linear-gradient(to right, #000 86%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to bottom, transparent, #000 46%), linear-gradient(to right, #000 86%, transparent);
+  mask-composite: intersect;
 }
 .beranda-editorial .editorial-lanskap::before {
   content: "";
@@ -208,7 +229,7 @@ body.beranda-editorial::before { display: none !important; }
   content: "";
   position: absolute;
   inset: 37% 0 0;
-  background: linear-gradient(to bottom, transparent, rgba(3,34,61,.25) 45%, rgba(3,30,59,.65));
+  background: linear-gradient(to bottom, transparent, rgba(4,33,58,.18) 45%, rgba(4,33,58,.5));
   pointer-events: none;
 }
 .beranda-editorial .editorial-lanskap img {
@@ -344,8 +365,8 @@ body.beranda-editorial::before { display: none !important; }
 .beranda-editorial .editorial-penutup {
   margin: 0 calc(var(--editorial-gutter) * -1);
   padding: 31px var(--editorial-gutter) 33px;
-  background: linear-gradient(110deg,#f7f4ed,#faf8f3 60%,#f7f3e9);
-  border-top: 1px solid #ece5d9;
+  background: linear-gradient(to bottom, rgba(4,33,58,.09), rgba(4,33,58,0) 30px), linear-gradient(110deg,#f7f4ed,#faf8f3 60%,#f7f3e9);
+  border-top: 0;
   border-bottom: 0;
   border-radius: 0;
   display: grid;
@@ -424,9 +445,29 @@ body.beranda-editorial::before { display: none !important; }
   .beranda-editorial .editorial-deskripsi { max-width: 620px; }
   .beranda-editorial .editorial-privasi,
   .beranda-editorial .editorial-cari { max-width: 620px; }
-  .beranda-editorial .editorial-lanskap { margin: 10px calc(var(--editorial-gutter) * -1) 0; height: 265px; }
+  .beranda-editorial .editorial-lanskap {
+    margin: 10px calc(var(--editorial-gutter) * -1) 0;
+    height: 265px;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 46%);
+    mask-image: linear-gradient(to bottom, transparent, #000 46%);
+  }
+  .beranda-editorial .editorial-cerita::after {
+    right: calc(var(--editorial-gutter) * -1);
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
   .beranda-editorial .editorial-cerita::before { left: -70px; top: 350px; }
-  .beranda-editorial .editorial-alat { padding: 29px 0 35px; }
+  .beranda-editorial .editorial-alat { padding: 29px 0 35px; position: relative; }
+  .beranda-editorial .editorial-alat::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: calc(var(--editorial-gutter) * -1);
+    right: calc(var(--editorial-gutter) * -1);
+    height: 30px;
+    background: linear-gradient(to bottom, rgba(4,33,58,.09), rgba(4,33,58,0));
+    pointer-events: none;
+  }
   .beranda-editorial .editorial-kartu-grid { grid-template-columns: repeat(4, minmax(0,1fr)); grid-auto-rows: minmax(185px,auto); }
   .beranda-editorial .editorial-kartu { min-height: 185px; }
   .beranda-editorial .editorial-penutup { grid-template-columns: 1fr; gap: 24px; }
@@ -441,6 +482,7 @@ body.beranda-editorial::before { display: none !important; }
   .beranda-editorial .editorial-kartu strong { font-size: 17px; }
   .beranda-editorial .editorial-kartu > span:nth-child(3) { font-size: 14px; }
   .beranda-editorial .editorial-lanskap { height: 225px; }
+  .beranda-editorial .editorial-lanskap img { object-position: 80% 48%; }
   .beranda-editorial .editorial-nilai { gap: 0; }
   .beranda-editorial .editorial-nilai > div { padding: 3px 12px; }
 }
