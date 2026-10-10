@@ -823,3 +823,96 @@ body::before {
     animation: none !important;
   }
 }
+
+/* ============================================================
+   Editorial Kalimantan — lapisan bersama, aman bagi fungsi alat.
+   Aturan ini hanya mengubah presentasi elemen yang sudah ada.
+   ============================================================ */
+:root {
+  --latar: #fcfbf8;
+  --tinta: #162640;
+  --tinta-lembut: #566478;
+  --garis: #e1dfd8;
+  --biru-muda: #eff3f6;
+  --emas-muda: #f5f0e6;
+  --emas-tua: #9b762f;
+  --radius-sm: 5px;
+  --radius-md: 7px;
+  --bayangan-sm: none;
+  --bayangan-md: 0 3px 12px rgba(16,43,80,.07);
+  --bayangan-lg: 0 10px 25px rgba(16,43,80,.09);
+}
+body { background: var(--latar); }
+body::before { display: none; }
+.menu {
+  background: #fff !important;
+  color: var(--biru-tua);
+  border-bottom: 1px solid #ddd9d0;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.menu-isi {
+  background: transparent !important;
+  max-width: 1480px;
+  min-height: 74px;
+  gap: 18px;
+  padding: 10px 34px;
+}
+.menu-nama {
+  color: #0d2747;
+  font-size: 18px;
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -.03em;
+  white-space: normal;
+  margin-right: auto;
+}
+.menu-nama small { display: block; color: #718093; font-size: 10px; font-weight: 600; letter-spacing: .14em; margin-top: 4px; }
+.menu-beranda { font-size: 13px; text-decoration: none; color: #263b55; padding: 9px 11px; }
+.menu-beranda[aria-current="page"] { border-bottom: 2px solid #b28a43; font-weight: 700; }
+.menu-beranda:focus-visible { outline: 2px solid #a77c31; outline-offset: 3px; }
+.menu-dropdown-wrapper { margin-left: 0; }
+.menu-dropdown-btn {
+  background: transparent;
+  border: 1px solid #d8d8d4;
+  box-shadow: none;
+  color: #172e4c;
+  border-radius: 4px;
+  font-size: 13px;
+  padding: 11px 14px;
+}
+.menu-dropdown-btn:hover, .menu-dropdown-btn[aria-expanded="true"] { color: #102c50; background: #f4f0e8; border-color: #bd9d65; }
+.menu-dropdown-content { border-radius: 4px; min-width: 245px; max-height: min(70vh,540px); overflow-y: auto; }
+.menu-dropdown-content a:hover { padding-left: 18px; }
+.kop { background: linear-gradient(130deg,#082647,#173c60); border-bottom: 2px solid #b9934c; }
+.kop::before { opacity: .08; }
+.kop h1 { font-family: "Newsreader",Georgia,serif; font-size: clamp(36px,4.5vw,56px); line-height: 1.1; font-weight: 500; letter-spacing: -.025em; }
+.kop em { color: #e4bf7b; font-weight: 500; }
+.kop-isi { padding-top: 43px; padding-bottom: 37px; }
+h2, h3 { letter-spacing: -.02em; }
+.jatuhan {
+  background: #fff;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  border: 1.5px dashed #abb9c9;
+  box-shadow: none;
+  border-radius: 7px;
+  transform: none;
+}
+.jatuhan:hover, .jatuhan.aktif { background: #f6f8fa; transform: none; border-color: #a57e34; box-shadow: none; }
+.tombol { box-shadow: none; }
+.tombol:hover { transform: none; }
+.kartu:hover { transform: none; }
+footer { border-top: 1px solid #ded7c9; }
+footer::before { display: none; }
+footer::after { background: url("motif-kalimantan.svg") left center / 35px 35px repeat-x; opacity: .22; height: 14px; }
+@media(max-width:690px) {
+ .menu-isi { padding: 12px 18px; min-height: 66px; gap: 8px; }
+ .menu-nama { font-size: 15px; }
+ .menu-nama small { font-size: 8px; letter-spacing: .08em; }
+ .menu-beranda { font-size: 12px; padding: 7px; }
+ .menu-dropdown-btn { font-size: 12px; padding: 10px; }
+ .menu-dropdown-content { right: 0; max-width: min(90vw,310px); }
+ .kop-isi { padding-top: 34px; padding-bottom: 31px; }
+}
