@@ -18,29 +18,30 @@
   <div class="editorial-split">
     <div class="editorial-cerita">
       <section class="editorial-pembuka" aria-labelledby="judul-utama">
-        <p class="editorial-label">Bubuhan Balikpapan &nbsp; / &nbsp; Perkakas Digital</p>
+        <p class="editorial-label">SEDERHANA <span>/</span> BERMANFAAT <span>/</span> AMAN</p>
         <h1 id="judul-utama">Perkakas PDF <span>untuk pekerjaan yang lebih efisien.</span></h1>
-        <p class="editorial-deskripsi">Berbagai alat pengolah PDF untuk pekerjaan sehari-hari. Mudah digunakan, tanpa pendaftaran, dan diproses langsung di peramban Anda.</p>
+        <p class="editorial-deskripsi">Berbagai perkakas PDF yang mudah digunakan, cepat, dan aman — mendukung kelancaran pekerjaan Anda di KPKNL Balikpapan.</p>
 
         <div class="editorial-privasi">
-          <strong>Privasi dokumen.</strong>
-          <p>Isi berkas diproses di perangkat Anda, bukan diunggah ke server aplikasi.</p>
+          <p class="editorial-privasi-label">PRIVASI TERJAGA</p>
+          <strong>Dokumen Anda diproses langsung di browser.</strong>
+          <p>File tidak diunggah ke server aplikasi, sehingga privasi dokumen lebih terjaga.</p>
         </div>
 
         <form class="editorial-cari" role="search" id="cariPerkakas">
-          <label for="cariAlat">Cari perkakas</label>
+          <label for="cariAlat" class="sr-only">Cari perkakas PDF</label>
           <div class="editorial-cari-baris">
             <input type="search" id="cariAlat" name="q" autocomplete="off" placeholder="Contoh: gabung, watermark, Word..." aria-controls="daftarAlat">
             <button type="submit">Cari <span aria-hidden="true">→</span></button>
           </div>
-          <p class="editorial-bantuan">Ketik nama atau kegunaan alat; daftar di sebelah akan tersaring.</p>
+          <p class="editorial-bantuan sr-only">Ketik nama atau kegunaan alat; daftar di sebelah akan tersaring.</p>
         </form>
       </section>
 
       <figure class="editorial-lanskap">
-        <img src="ilustrasi-pesisir.svg" alt="Ilustrasi abstrak lanskap pesisir Kalimantan, dengan perairan dan perbukitan" width="840" height="360">
+        <img src="ilustrasi-pesisir.svg" alt="Ilustrasi pesisir Kalimantan dengan perbukitan, perairan, dan siluet kota" width="900" height="360">
         <figcaption>
-          <span>KPKNL BALIKPAPAN</span>
+          <span>KPKNL BALIKPAPAN <i aria-hidden="true"></i></span>
           <span>Perkakas sederhana untuk pekerjaan yang lebih baik.</span>
         </figcaption>
       </figure>
@@ -48,10 +49,8 @@
 
     <section class="editorial-alat" id="alat" aria-labelledby="judul-alat">
       <header class="editorial-alat-kepala">
-        <p class="editorial-label">Koleksi Perkakas <span> / PDF</span></p>
-        <h2 id="judul-alat">Semua yang Anda butuhkan, dalam satu tempat.</h2>
-        <p>Pilih alat untuk mulai mengolah dokumen PDF dengan cepat dan lebih mudah.</p>
-        <p class="editorial-jumlah" id="jumlahAlat" role="status" aria-live="polite">9 perkakas tersedia</p>
+        <h2 id="judul-alat" class="sr-only">Daftar Perkakas PDF</h2>
+        <p class="editorial-jumlah sr-only" id="jumlahAlat" role="status" aria-live="polite">9 perkakas tersedia</p>
       </header>
 
       <div class="editorial-kartu-grid" id="daftarAlat">
@@ -98,12 +97,16 @@
   </div>
 
   <section class="editorial-penutup" aria-labelledby="judul-penutup">
-    <img src="motif-kalimantan.svg" alt="" width="130" height="130" loading="lazy">
-    <div>
-      <p class="editorial-label">Sederhana / Bermanfaat / Aman</p>
+    <div class="editorial-penutup-isi">
+      <p class="editorial-label">AMAN / TERPERCAYA / UNTUK ANDA</p>
       <h2 id="judul-penutup">Dokumen Anda, tetap di tangan Anda.</h2>
+      <p>Seluruh proses pengolahan dilakukan di perangkat Anda melalui peramban, tanpa mengunggah isi dokumen ke server aplikasi.</p>
     </div>
-    <p>Tanpa perlu mengunggah isi dokumen ke server aplikasi. Pilih alat, kerjakan di peramban, lalu simpan hasilnya.</p>
+    <div class="editorial-nilai" aria-label="Keunggulan Perkakas PDF">
+      <div><strong>Aman</strong><span>Dokumen tidak diunggah ke server aplikasi.</span></div>
+      <div><strong>Sederhana</strong><span>Mudah digunakan tanpa instalasi.</span></div>
+      <div><strong>Bermanfaat</strong><span>Untuk pekerjaan yang lebih baik.</span></div>
+    </div>
   </section>
   <footer class="editorial-kaki">
     <span>KPKNL Balikpapan · Perkakas PDF</span>
