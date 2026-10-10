@@ -38,17 +38,33 @@ body.beranda-editorial::before { display: none !important; }
 
 /* Menu atas kini diatur bersama di gaya.css supaya sama di semua halaman. */
 
-/* Editorial split: kanan mulai dengan alat, bukan blok header tambahan. */
+/* Editorial split: kanan mulai dengan alat, bukan blok header tambahan.
+   Hiasan baru dibatasi ke area pinggir kiri, bukan menimpa kartu atau formulir. */
 .beranda-editorial .editorial-halaman {
   max-width: 1550px;
   margin: 0 auto;
   padding: 0 var(--editorial-gutter);
 }
 .beranda-editorial .editorial-split {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, .456fr) minmax(0, .544fr);
   column-gap: var(--editorial-column-gap);
   align-items: stretch;
+}
+/* Garis hias #1: satu sumbu emas dengan belah ketupat berselang.
+   Hanya dekorasi, tidak menangkap pointer/fokus, tidak memengaruhi layout. */
+.beranda-editorial .editorial-split::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  width: 72px;
+  top: 10px;
+  bottom: 0;
+  left: calc(var(--editorial-gutter) * -1 + clamp(12px, 2.4vw, 36px));
+  background: url("ornamen-kalimantan-garis.svg") center top / 72px 100% no-repeat;
+  opacity: .88;
 }
 .beranda-editorial .editorial-cerita {
   min-width: 0;
@@ -56,17 +72,18 @@ body.beranda-editorial::before { display: none !important; }
   flex-direction: column;
   position: relative;
 }
+/* Lengkung flora satu sisi: samar, tidak diputar dan tidak berulang. */
 .beranda-editorial .editorial-cerita::before {
   content: "";
   position: absolute;
-  top: 340px;
-  left: calc(var(--editorial-gutter) * -1.12);
-  width: clamp(90px, 11vw, 160px);
-  height: 290px;
-  background: url("motif-kalimantan.svg") center / contain no-repeat;
-  opacity: .29;
+  top: 225px;
+  left: calc(var(--editorial-gutter) * -1 - 10px);
+  width: clamp(135px, 12vw, 175px);
+  height: 490px;
+  background: url("ornamen-kalimantan-lengkung.svg") left center / contain no-repeat;
+  opacity: .34;
   pointer-events: none;
-  transform: rotate(-17deg);
+  z-index: 0;
 }
 .beranda-editorial .editorial-pembuka {
   z-index: 1;
@@ -213,18 +230,7 @@ body.beranda-editorial::before { display: none !important; }
   mask-image: linear-gradient(to bottom, transparent, #000 46%), linear-gradient(to right, #000 86%, transparent);
   mask-composite: intersect;
 }
-.beranda-editorial .editorial-lanskap::before {
-  content: "";
-  position: absolute;
-  z-index: 1;
-  width: 180px;
-  height: 240px;
-  top: -24px;
-  left: -77px;
-  background: url("motif-kalimantan.svg") center / contain no-repeat;
-  opacity: .43;
-  pointer-events: none;
-}
+/* Foto sengaja dibiarkan bersih: tanpa overlay batik di atas pemandangan. */
 .beranda-editorial .editorial-lanskap::after {
   content: "";
   position: absolute;
@@ -380,18 +386,7 @@ body.beranda-editorial::before { display: none !important; }
   position: relative;
   overflow: hidden;
 }
-.beranda-editorial .editorial-penutup::before,
-.beranda-editorial .editorial-penutup::after {
-  content: "";
-  position: absolute;
-  pointer-events: none;
-  background: url("motif-kalimantan.svg") center / contain no-repeat;
-  opacity: .4;
-  width: 128px;
-  height: 180px;
-}
-.beranda-editorial .editorial-penutup::before { left: -60px; bottom: -60px; transform: rotate(-10deg); }
-.beranda-editorial .editorial-penutup::after { right: -52px; bottom: -58px; transform: rotate(10deg); }
+/* Tidak mengulang motif besar di footer; ruang kosong adalah bagian desain. */
 .beranda-editorial .editorial-penutup-isi { position: relative; z-index: 1; }
 .beranda-editorial .editorial-penutup .editorial-label { margin: 0 0 8px; }
 .beranda-editorial .editorial-penutup h2 {
@@ -462,7 +457,7 @@ body.beranda-editorial::before { display: none !important; }
     -webkit-mask-image: none;
     mask-image: none;
   }
-  .beranda-editorial .editorial-cerita::before { left: -70px; top: 350px; }
+  .beranda-editorial .editorial-cerita::before { top: 260px; opacity: .2; }
   .beranda-editorial .editorial-alat { padding: 29px 0 35px; position: relative; }
   .beranda-editorial .editorial-alat::before {
     content: "";
@@ -479,7 +474,10 @@ body.beranda-editorial::before { display: none !important; }
   .beranda-editorial .editorial-penutup { grid-template-columns: 1fr; gap: 24px; }
   .beranda-editorial .editorial-nilai { max-width: 690px; }
 }
+/* Pada viewport sempit ornamen pinggir disembunyikan agar tidak bertumpuk dengan konten. */
 @media (max-width: 700px) {
+  .beranda-editorial .editorial-split::before,
+  .beranda-editorial .editorial-cerita::before { display: none; }
   .beranda-editorial .editorial-pembuka { padding: 30px 0 24px; }
   .beranda-editorial h1 { font-size: clamp(34px, 8.4vw, 52px); }
   .beranda-editorial .editorial-deskripsi { font-size: 16px; }
