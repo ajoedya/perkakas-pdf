@@ -240,19 +240,29 @@ a:hover { color: var(--biru-hover); }
   mask-composite: intersect;
   pointer-events: none;
 }
-/* Satu ornamen geometris samar pada header alat, sekeluarga dengan beranda. */
+/* Pita anyaman kembar di tepi kiri dan kanan kop, sekeluarga dengan beranda.
+   Hanya tampil bila tepi halaman cukup lebar sehingga pita tidak menimpa teks,
+   lihat aturan @media tepat di bawah. */
 .kop::before {
   content: "";
+  display: none;
   position: absolute;
-  top: 8px;
-  right: clamp(5px, 2vw, 26px);
-  width: 72px;
-  height: 205px;
-  background: url("ornamen-kalimantan-garis.svg") center / 72px 205px no-repeat;
-  opacity: .24;
+  top: 0;
+  bottom: 0;
+  left: clamp(8px, 3vw, 44px);
+  right: clamp(8px, 3vw, 44px);
+  background:
+    url("ornamen-kalimantan-anyaman.svg") left top / 48px 24px repeat-y,
+    url("ornamen-kalimantan-anyaman.svg") right top / 48px 24px repeat-y;
+  opacity: .2;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 80%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 80%, transparent);
   pointer-events: none;
   z-index: 1;
 }
+@media (min-width: 1140px) { .kop::before { display: block; } }
+/* Halaman berisi lebar (1160px) butuh layar lebih lebar supaya pitanya muat. */
+@media (max-width: 1379px) { .kop:has(.kop-isi.lebar)::before { display: none; } }
 .kop-isi {
   position: relative;
   z-index: 1;
@@ -608,7 +618,6 @@ footer {
   .kop::after { height: 118px; }
   .kop-isi { padding: 96px 18px 28px; }
   .kop p { font-size: 16px; }
-  .kop::before { display: none; }
   .bungkus { padding: 4px 14px 40px; }
   .bungkus > section,
   .bungkus > form > section { margin-top: 16px; padding: 22px 18px 24px; }
