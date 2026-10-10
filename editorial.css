@@ -7,7 +7,8 @@
 body.beranda-editorial {
   --editorial-navy: #08274d;
   --editorial-gold: #a77a2a;
-  --editorial-muted: #667b97;
+  --editorial-muted: #55657c;
+  --editorial-gold-text: #84601d;
   --editorial-paper: #fdfbf7;
   --editorial-line: #e9e5dd;
   --editorial-gutter: clamp(18px, 6.2vw, 94px);
@@ -16,7 +17,7 @@ body.beranda-editorial {
   background: var(--editorial-paper);
   color: var(--editorial-navy);
   font-family: "Public Sans", sans-serif;
-  font-size: 14px;
+  font-size: 15px;
 }
 .beranda-editorial *,
 .beranda-editorial *::before,
@@ -35,71 +36,7 @@ body.beranda-editorial::before { display: none !important; }
   border: 0 !important;
 }
 
-/* Navbar bersama: tampilan beranda yang merujuk ke mockup. */
-.beranda-editorial .menu {
-  background: #fffefa !important;
-  border-bottom: 1px solid #e8e4db;
-  box-shadow: none;
-  z-index: 100;
-  isolation: isolate;
-}
-.beranda-editorial .menu::after {
-  content: "";
-  position: absolute;
-  top: -64px;
-  right: -34px;
-  width: 170px;
-  height: 170px;
-  background: url("motif-kalimantan.svg") center / contain no-repeat;
-  opacity: .37;
-  z-index: -1;
-  pointer-events: none;
-}
-.beranda-editorial .menu-isi {
-  max-width: 1550px;
-  min-height: 79px;
-  padding: 10px var(--editorial-gutter);
-  background: transparent !important;
-}
-.beranda-editorial .menu-nama {
-  color: var(--editorial-navy);
-  font: 600 28px/1.05 "Newsreader", Georgia, serif;
-  letter-spacing: -.025em;
-}
-.beranda-editorial .menu-nama small {
-  color: #778ba3;
-  font: 600 11px/1.4 "Public Sans", sans-serif;
-  letter-spacing: .18em;
-  margin-top: 3px;
-}
-.beranda-editorial .menu-beranda {
-  color: var(--editorial-navy);
-  font-size: 14px;
-  font-weight: 600;
-  padding: 10px 7px;
-  margin-right: 14px;
-}
-.beranda-editorial .menu-beranda[aria-current="page"] {
-  border-bottom: 2px solid var(--editorial-gold);
-}
-.beranda-editorial .menu-dropdown-btn {
-  background: #fffdfa;
-  border: 1px solid #d7c7aa;
-  border-radius: 5px;
-  color: var(--editorial-navy);
-  padding: 12px 21px;
-  font-size: 14px;
-  font-weight: 600;
-}
-.beranda-editorial .menu-dropdown-btn:hover,
-.beranda-editorial .menu-dropdown-btn[aria-expanded="true"] {
-  border-color: var(--editorial-gold);
-  background: #f9f5ed;
-  color: var(--editorial-navy);
-}
-.beranda-editorial .menu-dropdown-btn:focus-visible,
-.beranda-editorial .menu-beranda:focus-visible,
-.beranda-editorial .menu-nama:focus-visible { outline: 3px solid var(--editorial-gold); outline-offset: 3px; }
+/* Menu atas kini diatur bersama di gaya.css supaya sama di semua halaman. */
 
 /* Editorial split: kanan mulai dengan alat, bukan blok header tambahan. */
 .beranda-editorial .editorial-halaman {
@@ -136,9 +73,9 @@ body.beranda-editorial::before { display: none !important; }
   padding: 34px 10px 0 0;
 }
 .beranda-editorial .editorial-label {
-  color: var(--editorial-gold);
+  color: var(--editorial-gold-text);
   font-family: "Public Sans", sans-serif;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: .15em;
   line-height: 1.55;
@@ -163,10 +100,10 @@ body.beranda-editorial::before { display: none !important; }
 .beranda-editorial h1 span { display: block; color: var(--editorial-gold); }
 .beranda-editorial .editorial-deskripsi {
   max-width: 53ch;
-  color: #667993;
-  font-size: 15px;
+  color: var(--editorial-muted);
+  font-size: 17px;
   font-weight: 400;
-  line-height: 1.68;
+  line-height: 1.65;
   margin: 0 0 21px;
 }
 .beranda-editorial .editorial-privasi {
@@ -181,16 +118,16 @@ body.beranda-editorial::before { display: none !important; }
   min-height: 105px;
 }
 .beranda-editorial .editorial-privasi .editorial-privasi-label {
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.5;
   letter-spacing: .13em;
-  color: var(--editorial-gold);
+  color: var(--editorial-gold-text);
   font-weight: 700;
   margin: 0 0 5px;
 }
 .beranda-editorial .editorial-privasi strong {
   display: block;
-  font: 500 18px/1.25 "Newsreader", Georgia, serif;
+  font: 500 20px/1.25 "Newsreader", Georgia, serif;
   color: var(--editorial-navy);
   margin: 0 0 4px;
 }
@@ -198,9 +135,9 @@ body.beranda-editorial::before { display: none !important; }
   border: 0;
   padding: 0;
   margin: 0;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.55;
-  color: #667993;
+  color: var(--editorial-muted);
 }
 .beranda-editorial .editorial-cari {
   display: block;
@@ -226,11 +163,11 @@ body.beranda-editorial::before { display: none !important; }
   box-shadow: none;
   background: transparent;
   color: var(--editorial-navy);
-  font-size: 13px;
-  min-height: 48px;
+  font-size: 16px;
+  min-height: 50px;
   padding: 12px 17px;
 }
-.beranda-editorial #cariAlat::placeholder { color: #8393a8; opacity: 1; }
+.beranda-editorial #cariAlat::placeholder { color: #6f7f94; opacity: 1; }
 .beranda-editorial .editorial-cari button {
   flex: none;
   min-width: 112px;
@@ -239,7 +176,7 @@ body.beranda-editorial::before { display: none !important; }
   border-radius: 0;
   background: #062d58;
   color: white;
-  font: 600 13px "Public Sans", sans-serif;
+  font: 600 15px "Public Sans", sans-serif;
   cursor: pointer;
   padding: 10px 19px;
 }
@@ -290,12 +227,12 @@ body.beranda-editorial::before { display: none !important; }
   color: #fff;
   display: grid;
   gap: 4px;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.4;
   text-shadow: 0 1px 8px #102943;
 }
 .beranda-editorial .editorial-lanskap figcaption span:first-child {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: .18em;
 }
@@ -350,9 +287,9 @@ body.beranda-editorial::before { display: none !important; }
   align-items: center;
   column-gap: 8px;
   row-gap: 3px;
-  font: 500 16px/1 "Newsreader", Georgia, serif;
+  font: 500 17px/1 "Newsreader", Georgia, serif;
   letter-spacing: .04em;
-  color: var(--editorial-gold);
+  color: var(--editorial-gold-text);
   margin-bottom: 12px;
 }
 .beranda-editorial .editorial-kartu-nomor small {
@@ -361,8 +298,8 @@ body.beranda-editorial::before { display: none !important; }
   padding: 4px 8px;
   background: #f2e9d7;
   border-radius: 12px;
-  color: #8c651c;
-  font: 700 9px/1 "Public Sans",sans-serif;
+  color: #765412;
+  font: 700 10px/1 "Public Sans",sans-serif;
   letter-spacing: .04em;
 }
 .beranda-editorial .editorial-kartu strong {
@@ -374,22 +311,22 @@ body.beranda-editorial::before { display: none !important; }
   overflow-wrap: break-word;
 }
 .beranda-editorial .editorial-kartu > span:nth-child(3) {
-  color: #677a96;
-  font-size: 12.5px;
+  color: var(--editorial-muted);
+  font-size: 14px;
   line-height: 1.55;
 }
 .beranda-editorial .editorial-kartu .editorial-buka {
   margin-top: auto;
   padding-top: 17px;
   color: #073565;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   line-height: 1.4;
 }
 .beranda-editorial .editorial-kartu .editorial-buka span { margin-left: 5px; }
 .beranda-editorial .editorial-keterangan {
-  color: #8090a5;
-  font-size: 11px;
+  color: var(--editorial-muted);
+  font-size: 14px;
   line-height: 1.55;
   margin: 17px 0 0;
 }
@@ -397,8 +334,8 @@ body.beranda-editorial::before { display: none !important; }
   background: #f8f4eb;
   padding: 18px 22px;
   border-left: 3px solid #aa8444;
-  color: #56687f;
-  font-size: 13px;
+  color: var(--editorial-muted);
+  font-size: 15px;
 }
 .beranda-editorial .editorial-kosong[hidden] { display: none; }
 
@@ -430,7 +367,7 @@ body.beranda-editorial::before { display: none !important; }
 .beranda-editorial .editorial-penutup::before { left: -60px; bottom: -60px; transform: rotate(-10deg); }
 .beranda-editorial .editorial-penutup::after { right: -52px; bottom: -58px; transform: rotate(10deg); }
 .beranda-editorial .editorial-penutup-isi { position: relative; z-index: 1; }
-.beranda-editorial .editorial-penutup .editorial-label { margin: 0 0 8px; font-size: 10px; }
+.beranda-editorial .editorial-penutup .editorial-label { margin: 0 0 8px; }
 .beranda-editorial .editorial-penutup h2 {
   color: var(--editorial-navy);
   font-size: clamp(26px, 2.9vw, 42px);
@@ -438,8 +375,8 @@ body.beranda-editorial::before { display: none !important; }
   margin: 0 0 10px;
 }
 .beranda-editorial .editorial-penutup-isi > p:last-child {
-  color: #75849a;
-  font-size: 12px;
+  color: var(--editorial-muted);
+  font-size: 15px;
   line-height: 1.6;
   margin: 0;
 }
@@ -452,11 +389,11 @@ body.beranda-editorial::before { display: none !important; }
 .beranda-editorial .editorial-nilai > div { min-width: 0; padding: 3px 19px; border-left: 1px solid #daccb2; }
 .beranda-editorial .editorial-nilai strong {
   display: block;
-  font: 500 18px/1.15 "Newsreader",Georgia,serif;
+  font: 500 20px/1.15 "Newsreader",Georgia,serif;
   color: var(--editorial-navy);
   margin-bottom: 6px;
 }
-.beranda-editorial .editorial-nilai span { display: block; font-size: 11px; line-height: 1.55; color: #748197; }
+.beranda-editorial .editorial-nilai span { display: block; font-size: 14px; line-height: 1.55; color: var(--editorial-muted); }
 .beranda-editorial .editorial-kaki {
   margin: 0;
   border-top: 1px solid #eee9e0;
@@ -465,22 +402,12 @@ body.beranda-editorial::before { display: none !important; }
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 5px 20px;
-  color: #8390a3;
-  font-size: 11px;
-  letter-spacing: .025em;
+  color: var(--editorial-muted);
+  font-size: 14px;
+  letter-spacing: .01em;
 }
 .beranda-editorial .editorial-kaki::before,
 .beranda-editorial .editorial-kaki::after { display: none; }
-.beranda-editorial .lewati-konten {
-  position: fixed;
-  left: 10px;
-  top: -100px;
-  padding: 12px 16px;
-  z-index: 1000;
-  background: white;
-  color: var(--editorial-navy);
-}
-.beranda-editorial .lewati-konten:focus { top: 8px; }
 
 /* Responsive: desktop 3 × 3, medium 2 kolom, mobile 1 kolom. */
 @media (max-width: 1230px) and (min-width: 1041px) {
@@ -505,18 +432,13 @@ body.beranda-editorial::before { display: none !important; }
   .beranda-editorial .editorial-nilai { max-width: 690px; }
 }
 @media (max-width: 700px) {
-  .beranda-editorial .menu-isi { padding: 10px var(--editorial-gutter); min-height: 69px; }
-  .beranda-editorial .menu-nama { font-size: 23px; }
-  .beranda-editorial .menu-nama small { font-size: 9px; }
-  .beranda-editorial .menu-beranda { display: none; }
-  .beranda-editorial .menu-dropdown-btn { padding: 11px; font-size: 12px; }
   .beranda-editorial .editorial-pembuka { padding: 30px 0 24px; }
   .beranda-editorial h1 { font-size: clamp(42px, 9.5vw, 64px); }
-  .beranda-editorial .editorial-deskripsi { font-size: 14px; }
+  .beranda-editorial .editorial-deskripsi { font-size: 16px; }
   .beranda-editorial .editorial-kartu-grid { grid-template-columns: repeat(2,minmax(0,1fr)); grid-auto-rows: minmax(175px,auto); gap: 11px; }
   .beranda-editorial .editorial-kartu { padding: 16px 15px; min-height: 175px; }
   .beranda-editorial .editorial-kartu strong { font-size: 19px; }
-  .beranda-editorial .editorial-kartu > span:nth-child(3) { font-size: 12px; }
+  .beranda-editorial .editorial-kartu > span:nth-child(3) { font-size: 14px; }
   .beranda-editorial .editorial-lanskap { height: 225px; }
   .beranda-editorial .editorial-nilai { gap: 0; }
   .beranda-editorial .editorial-nilai > div { padding: 3px 12px; }
