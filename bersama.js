@@ -82,14 +82,8 @@
       menuKonten.appendChild(a);
     });
 
-    const kompres = document.createElement("a");
-    kompres.href = "kompres.html";
-    kompres.textContent = "Kompres PDF (uji coba)";
-    if (kini === "kompres.html") {
-      kompres.classList.add("aktif");
-      kompres.setAttribute("aria-current", "page");
-    }
-    menuKonten.appendChild(kompres);
+    // Kompres PDF sengaja tidak dicantumkan selama masih uji coba.
+    // Halamannya tetap bisa dibuka langsung lewat kompres.html.
 
     function aturTerbuka(terbuka) {
       container.classList.toggle("terbuka", terbuka);
