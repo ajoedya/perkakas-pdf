@@ -20,12 +20,15 @@
   // Memasang favicon secara otomatis jika belum ada di tag <head>
   function pasangFavicon() {
     if (!document.querySelector("link[rel*='icon']")) {
-      // Urutannya: .ico untuk peramban lama, .svg untuk peramban baru,
-      // lalu ikon layar utama untuk ponsel
+      // Urutannya: .ico untuk peramban lama, .png untuk peramban baru,
+      // lalu ikon layar utama untuk ponsel. Akhiran ?v= dinaikkan tiap kali
+      // gambarnya diganti, supaya peramban tidak memakai ikon lama dari tembolok.
       [
-        { rel: "icon", type: "image/x-icon", href: "favicon.ico", sizes: "any" },
-        { rel: "icon", type: "image/svg+xml", href: "favicon.svg" },
-        { rel: "apple-touch-icon", href: "favicon-180.png" }
+        { rel: "icon", type: "image/x-icon", href: "favicon.ico?v=2" },
+        { rel: "icon", type: "image/png", sizes: "32x32", href: "favicon-32.png?v=2" },
+        { rel: "icon", type: "image/png", sizes: "16x16", href: "favicon-16.png?v=2" },
+        { rel: "icon", type: "image/png", sizes: "192x192", href: "favicon-192.png?v=2" },
+        { rel: "apple-touch-icon", href: "favicon-180.png?v=2" }
       ].forEach((ikon) => {
         const link = document.createElement("link");
         Object.keys(ikon).forEach((k) => link.setAttribute(k, ikon[k]));
