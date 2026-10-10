@@ -221,13 +221,37 @@ a:hover { color: var(--biru-hover); }
 
 /* ---------- Kop halaman alat ----------
    Kop terang seperti bagian pembuka beranda, dengan label nomor perkakas
-   berwarna emas, judul tebal, dan ornamen Kalimantan di kanan. */
+   berwarna emas, judul tebal, dan ornamen Kalimantan di kanan.
+   Foto pelabuhan dari banner beranda dipasang di sisi kanan dan dileburkan:
+   ke kiri memudar ke warna kertas supaya teks tetap terbaca, ke bawah memudar
+   ke latar halaman supaya tidak ada garis potong dengan isi alat. */
 .kop {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(110deg, #f9f6ef, var(--latar) 62%);
-  border-bottom: 1px solid var(--garis);
+  background:
+    linear-gradient(to bottom, rgba(253,251,247,0) 45%, var(--latar) 100%),
+    linear-gradient(100deg, #f9f6ef 0%, var(--latar) 40%, #f8eddb 100%);
   color: var(--biru-tua);
+}
+.kop::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  /* Tepi kiri foto mengikuti kolom teks (lebar 920px, teks sekitar 650px),
+     jadi foto baru mulai muncul tepat setelah teks berakhir. */
+  left: calc(max(0px, (100% - 920px) / 2) + 600px);
+  background: url("banner-pelabuhan.jpg") right 46% / auto 150% no-repeat;
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0, rgba(0,0,0,.06) 80px, #000 64%),
+    linear-gradient(to bottom, #000 48%, transparent 98%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent 0, rgba(0,0,0,.06) 80px, #000 64%),
+    linear-gradient(to bottom, #000 48%, transparent 98%);
+  mask-composite: intersect;
+  pointer-events: none;
 }
 .kop::before {
   content: "";
@@ -240,6 +264,7 @@ a:hover { color: var(--biru-hover); }
   opacity: .32;
   transform: rotate(12deg);
   pointer-events: none;
+  z-index: 1;
 }
 .kop-isi {
   position: relative;
@@ -569,6 +594,22 @@ footer {
   line-height: 1.55;
 }
 
+/* ---------- Layar sedang dan ponsel ----------
+   Teks kop hampir selebar layar, jadi foto tidak dipasang di samping teks.
+   Foto dijadikan pita di atas judul yang memudar ke bawah. */
+@media (max-width: 1040px) {
+  .kop::after {
+    left: 0;
+    bottom: auto;
+    height: 136px;
+    background-position: center 52%;
+    background-size: cover;
+    -webkit-mask-image: linear-gradient(to bottom, #000 30%, transparent 96%);
+    mask-image: linear-gradient(to bottom, #000 30%, transparent 96%);
+  }
+  .kop-isi { padding-top: 116px; }
+}
+
 /* ---------- Ponsel ---------- */
 @media (max-width: 700px) {
   .menu-isi { min-height: 69px; padding: 10px 18px; gap: 8px; }
@@ -577,7 +618,8 @@ footer {
   .menu-beranda { display: none; }
   .menu-dropdown-btn { padding: 11px 13px; font-size: 14px; }
   .menu-dropdown-content { max-width: min(90vw, 320px); }
-  .kop-isi { padding: 32px 18px 28px; }
+  .kop::after { height: 118px; }
+  .kop-isi { padding: 96px 18px 28px; }
   .kop p { font-size: 16px; }
   .kop::before { width: 140px; height: 180px; top: -30px; right: -60px; opacity: .25; }
   .bungkus { padding: 4px 14px 40px; }

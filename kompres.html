@@ -28,6 +28,8 @@
   .batas{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 6px;}
   .batas input{width:120px;}
   .batas span{font-size:15px;color:var(--tinta-lembut);}
+  /* .batas memakai display:flex, jadi .sembunyi perlu ditegaskan agar kolom batas benar-benar tersembunyi. */
+  .batas.sembunyi{display:none;}
 
   /* Daftar hasil */
   .hasil{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:10px;}
@@ -55,7 +57,7 @@
 
 <header class="kop">
   <div class="kop-isi">
-    <p class="kop-label"><a href="index.html">Perkakas PDF</a> / Uji coba</p>
+    <p class="kop-label"><a href="index.html">Perkakas PDF</a> / 09</p>
     <h1>Kompres PDF</h1>
     <p>Mengecilkan berkas PDF tanpa mengubah teksnya menjadi gambar. Yang diperkecil hanya gambar di dalamnya, sesuai ukuran tampilnya di halaman, lalu struktur berkasnya dirapikan. Teks, tautan, dan isian formulir <em>tetap utuh dan bisa dicari</em>.</p>
   </div>
