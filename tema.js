@@ -21,8 +21,6 @@
   var DAFTAR = [
     { id: "pelabuhan", nama: "Pelabuhan Senja", warna: ["#08274d", "#b8893a"],
       gambar: "Pemandangan teluk saat matahari terbenam dengan perbukitan, gedung kota, dermaga, kilang, dan kapal" },
-    { id: "teras", nama: "Teras Ukir", warna: ["#2b2350", "#c27a2e"],
-      gambar: "Pemandangan teluk dan kilang saat senja dari teras kayu berukir" },
     { id: "hutan", nama: "Hutan Hujan", warna: ["#123a2b", "#b48a30"],
       gambar: "Hutan hujan berkabut di tepi sungai saat matahari terbit, dengan orang utan di dahan pohon" },
     { id: "mangrove", nama: "Mangrove", warna: ["#0b3d46", "#c18b2f"],
