@@ -1,6 +1,6 @@
 /*
  * Perkakas PDF | Editorial Split v2
- * Dirancang mengikuti mockup terpilih: 3 × 3 tool catalog, kiri narasi,
+ * Dirancang mengikuti mockup terpilih: katalog 8 alat dalam 2 kolom, kiri narasi,
  * ilustrasi pesisir, dan ornamen geometris/organik terinspirasi Kalimantan.
  * Semua aturan beranda dibatasi ke body.beranda-editorial.
  */
@@ -86,14 +86,14 @@ body.beranda-editorial::before { display: none !important; }
 .beranda-editorial h1,
 .beranda-editorial h2,
 .beranda-editorial .editorial-kartu strong {
-  font-family: "Newsreader", Georgia, serif;
-  letter-spacing: -.03em;
-  font-weight: 500;
+  font-family: "Public Sans", system-ui, sans-serif;
+  letter-spacing: -.025em;
+  font-weight: 700;
 }
 .beranda-editorial h1 {
   color: var(--editorial-navy);
-  font-size: clamp(44px, 4.25vw, 65px);
-  line-height: .99;
+  font-size: clamp(38px, 3.6vw, 54px);
+  line-height: 1.06;
   margin: 0 0 19px;
   max-width: 600px;
 }
@@ -127,7 +127,7 @@ body.beranda-editorial::before { display: none !important; }
 }
 .beranda-editorial .editorial-privasi strong {
   display: block;
-  font: 500 20px/1.25 "Newsreader", Georgia, serif;
+  font: 700 17px/1.3 "Public Sans", system-ui, sans-serif;
   color: var(--editorial-navy);
   margin: 0 0 4px;
 }
@@ -245,7 +245,7 @@ body.beranda-editorial::before { display: none !important; }
   vertical-align: middle;
 }
 
-/* 9 alat yang benar-benar ada, 3 kolom seperti mockup pada desktop. */
+/* 8 alat, 2 kolom di desktop supaya kisi penuh tanpa petak kosong. */
 .beranda-editorial .editorial-alat {
   padding: 30px 0 18px;
   min-width: 0;
@@ -254,8 +254,8 @@ body.beranda-editorial::before { display: none !important; }
 .beranda-editorial .editorial-alat-kepala { margin: 0; padding: 0; }
 .beranda-editorial .editorial-kartu-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0,1fr));
-  grid-auto-rows: minmax(209px,auto);
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  grid-auto-rows: minmax(180px,auto);
   gap: 14px;
 }
 .beranda-editorial .editorial-kartu {
@@ -263,7 +263,7 @@ body.beranda-editorial::before { display: none !important; }
   flex-direction: column;
   align-items: flex-start;
   min-width: 0;
-  min-height: 209px;
+  min-height: 180px;
   padding: 20px 20px 18px;
   background: #fff;
   border: 1px solid #e7e7e5;
@@ -287,8 +287,9 @@ body.beranda-editorial::before { display: none !important; }
   align-items: center;
   column-gap: 8px;
   row-gap: 3px;
-  font: 500 17px/1 "Newsreader", Georgia, serif;
-  letter-spacing: .04em;
+  font: 700 14px/1 "Public Sans", system-ui, sans-serif;
+  letter-spacing: .08em;
+  font-variant-numeric: tabular-nums;
   color: var(--editorial-gold-text);
   margin-bottom: 12px;
 }
@@ -305,7 +306,7 @@ body.beranda-editorial::before { display: none !important; }
 .beranda-editorial .editorial-kartu strong {
   display: block;
   color: var(--editorial-navy);
-  font-size: clamp(17px, 1.5vw, 22px);
+  font-size: clamp(16px, 1.25vw, 18px);
   line-height: 1.15;
   margin: 0 0 10px;
   overflow-wrap: break-word;
@@ -370,7 +371,7 @@ body.beranda-editorial::before { display: none !important; }
 .beranda-editorial .editorial-penutup .editorial-label { margin: 0 0 8px; }
 .beranda-editorial .editorial-penutup h2 {
   color: var(--editorial-navy);
-  font-size: clamp(26px, 2.9vw, 42px);
+  font-size: clamp(24px, 2.4vw, 34px);
   line-height: 1.05;
   margin: 0 0 10px;
 }
@@ -389,7 +390,7 @@ body.beranda-editorial::before { display: none !important; }
 .beranda-editorial .editorial-nilai > div { min-width: 0; padding: 3px 19px; border-left: 1px solid #daccb2; }
 .beranda-editorial .editorial-nilai strong {
   display: block;
-  font: 500 20px/1.15 "Newsreader",Georgia,serif;
+  font: 700 16px/1.25 "Public Sans", system-ui, sans-serif;
   color: var(--editorial-navy);
   margin-bottom: 6px;
 }
@@ -409,35 +410,35 @@ body.beranda-editorial::before { display: none !important; }
 .beranda-editorial .editorial-kaki::before,
 .beranda-editorial .editorial-kaki::after { display: none; }
 
-/* Responsive: desktop 3 × 3, medium 2 kolom, mobile 1 kolom. */
+/* Responsive: desktop dan medium 2 kolom, tablet 4 kolom, ponsel 2 lalu 1 kolom. */
 @media (max-width: 1230px) and (min-width: 1041px) {
   .beranda-editorial .editorial-kartu-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .beranda-editorial .editorial-kartu { min-height: 158px; }
   .beranda-editorial .editorial-pembuka { padding-top: 30px; }
-  .beranda-editorial h1 { font-size: clamp(43px,4.35vw,55px); }
+  .beranda-editorial h1 { font-size: clamp(38px,3.8vw,48px); }
 }
 @media (max-width: 1040px) {
   .beranda-editorial .editorial-split { grid-template-columns: 1fr; }
   .beranda-editorial .editorial-pembuka { padding: 38px 0 30px; }
-  .beranda-editorial h1 { max-width: 680px; font-size: clamp(48px, 6.3vw, 73px); }
+  .beranda-editorial h1 { max-width: 680px; font-size: clamp(40px, 5.4vw, 58px); }
   .beranda-editorial .editorial-deskripsi { max-width: 620px; }
   .beranda-editorial .editorial-privasi,
   .beranda-editorial .editorial-cari { max-width: 620px; }
   .beranda-editorial .editorial-lanskap { margin: 10px calc(var(--editorial-gutter) * -1) 0; height: 265px; }
   .beranda-editorial .editorial-cerita::before { left: -70px; top: 350px; }
   .beranda-editorial .editorial-alat { padding: 29px 0 35px; }
-  .beranda-editorial .editorial-kartu-grid { grid-template-columns: repeat(3, minmax(0,1fr)); grid-auto-rows: minmax(185px,auto); }
+  .beranda-editorial .editorial-kartu-grid { grid-template-columns: repeat(4, minmax(0,1fr)); grid-auto-rows: minmax(185px,auto); }
   .beranda-editorial .editorial-kartu { min-height: 185px; }
   .beranda-editorial .editorial-penutup { grid-template-columns: 1fr; gap: 24px; }
   .beranda-editorial .editorial-nilai { max-width: 690px; }
 }
 @media (max-width: 700px) {
   .beranda-editorial .editorial-pembuka { padding: 30px 0 24px; }
-  .beranda-editorial h1 { font-size: clamp(42px, 9.5vw, 64px); }
+  .beranda-editorial h1 { font-size: clamp(34px, 8.4vw, 52px); }
   .beranda-editorial .editorial-deskripsi { font-size: 16px; }
   .beranda-editorial .editorial-kartu-grid { grid-template-columns: repeat(2,minmax(0,1fr)); grid-auto-rows: minmax(175px,auto); gap: 11px; }
   .beranda-editorial .editorial-kartu { padding: 16px 15px; min-height: 175px; }
-  .beranda-editorial .editorial-kartu strong { font-size: 19px; }
+  .beranda-editorial .editorial-kartu strong { font-size: 17px; }
   .beranda-editorial .editorial-kartu > span:nth-child(3) { font-size: 14px; }
   .beranda-editorial .editorial-lanskap { height: 225px; }
   .beranda-editorial .editorial-nilai { gap: 0; }
@@ -446,7 +447,7 @@ body.beranda-editorial::before { display: none !important; }
 @media (max-width: 440px) {
   .beranda-editorial .editorial-kartu-grid { grid-template-columns: 1fr; grid-auto-rows: auto; }
   .beranda-editorial .editorial-kartu { min-height: 120px; }
-  .beranda-editorial .editorial-kartu strong { font-size: 22px; }
+  .beranda-editorial .editorial-kartu strong { font-size: 18px; }
   .beranda-editorial .editorial-kartu-nomor { margin-bottom: 6px; }
   .beranda-editorial .editorial-privasi { padding: 14px 17px; }
   .beranda-editorial .editorial-cari button { min-width: 80px; }
