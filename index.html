@@ -3,154 +3,150 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Perkakas PDF</title>
+<meta name="description" content="Perkakas PDF KPKNL Balikpapan. Gabung, pecah, koreksi, konversi, dan kelola PDF langsung di peramban.">
+<title>Perkakas PDF — KPKNL Balikpapan</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600&family=Public+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="gaya.css">
-<template id="__bundler_thumbnail" data-bg-color="#002F5F">
-  <svg viewBox="0 0 120 56" xmlns="http://www.w3.org/2000/svg">
-    <rect x="42" y="8" width="36" height="40" rx="3" fill="#FFFFFF"/>
-    <rect x="48" y="16" width="24" height="3" fill="#002F5F"/>
-    <rect x="48" y="23" width="24" height="3" fill="#002F5F"/>
-    <rect x="48" y="30" width="16" height="3" fill="#F5B301"/>
-  </svg>
-</template>
-<style>
-  .kop.beranda { padding-bottom: 0; }
-  .kop-isi.beranda-isi { padding: 32px 24px 44px; }
-  section.alat-section { padding-top: 28px; }
-  .bungkus.lebar { padding: 12px 24px 32px; }
-  .pita-motif-kecil { width: 120px; height: 8px; margin: 0 0 14px; }
-  .pita-motif-kecil svg { display: block; width: 100%; height: 100%; }
-  /* 46px memberi tempat bagi pita belah ketupat di atas garis kaki. */
-  footer { margin-top: 46px; }
-  .kartu-alat {
-    display: flex; flex-direction: column; background: var(--putih);
-    border: 1px solid var(--garis); border-radius: var(--radius-md);
-    padding: 18px; text-decoration: none; color: inherit;
-    transition: var(--transisi); box-shadow: var(--bayangan-sm); position: relative;
-    overflow: hidden;
-  }
-  .kartu-alat::before {
-    content: ""; position: absolute; top: 0; left: -75%; width: 50%; height: 100%;
-    background: linear-gradient(115deg, transparent, rgba(255,255,255,0.55), transparent);
-    transform: skewX(-20deg); transition: left 0.6s ease;
-  }
-  .kartu-alat:hover::before { left: 125%; }
-  .kartu-alat::after {
-    content: ""; position: absolute; bottom: -13px; right: -13px; width: 117px; height: 117px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 5 C68 5 82 18 82 35 C82 48 73 54 63 50 C56 47 55 39 61 36 C66 34 69 39 65 42' fill='none' stroke='%23002F5F' stroke-width='2.5'/%3E%3Cpath d='M50 5 C40 8 33 16 34 26 C35 34 42 37 47 33 C51 30 50 24 45 23' fill='none' stroke='%23F5B301' stroke-width='2.5'/%3E%3Cpath d='M10 55 C10 40 22 30 36 32 C46 33 48 43 40 46 C34 48 31 41 36 39' fill='none' stroke='%23F5B301' stroke-width='2.5'/%3E%3Cpath d='M10 55 C4 65 5 78 15 84 C23 89 32 84 30 76 C29 70 22 69 20 74' fill='none' stroke='%23002F5F' stroke-width='2.5'/%3E%3Cpath d='M82 35 C90 42 92 54 85 62 C79 69 68 67 68 59 C68 54 74 52 77 56' fill='none' stroke='%23002F5F' stroke-width='2'/%3E%3Cpath d='M36 32 C48 26 62 28 68 38' fill='none' stroke='%23F5B301' stroke-width='1.5' stroke-dasharray='2 3'/%3E%3Ccircle cx='50' cy='5' r='3.5' fill='%23002F5F'/%3E%3Ccircle cx='10' cy='55' r='3.5' fill='%23F5B301'/%3E%3Ccircle cx='82' cy='35' r='3' fill='%23002F5F'/%3E%3Ccircle cx='15' cy='84' r='3' fill='%23F5B301'/%3E%3C/svg%3E");
-    background-repeat: no-repeat; background-size: contain;
-    opacity: 0.08; pointer-events: none;
-  }
-  .kartu-alat:hover { transform: translateY(-4px); box-shadow: var(--bayangan-lg); border-color: var(--emas); }
-  .kartu-alat strong {
-    font-family: "Public Sans", system-ui, sans-serif; font-size: 15px; font-weight: 700;
-    color: var(--biru-tua); margin-bottom: 10px; display: inline-block;
-    background: var(--biru-muda); padding: 5px 12px; border-radius: var(--radius-sm);
-    align-self: flex-start;
-  }
-  .kartu-alat span { font-size: 13px; color: var(--tinta-lembut); line-height: 1.5; flex: 1; }
-  .kartu-alat .buka { font-size: 13px; font-weight: 700; color: var(--biru); margin-top: 10px; }
-  .kartu-alat:hover .buka { color: var(--emas-tua); }
-  .petak { gap: 14px !important; }
-
-  /* ============================================================
-     LAPISAN KACA (glassmorphism) untuk kartu beranda.
-     Kaca pada menu, semburat latar, dan pita belah ketupat sudah
-     pindah ke gaya.css supaya berlaku di semua halaman.
-     ============================================================ */
-
-  /* Garis tepi, sudut, bayangan, dan efek sorot kartu tetap mengikuti
-     aturan lama. */
-  .kartu-alat {
-    background: rgba(255, 255, 255, 0.62);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
-  }
-  .kartu-alat:focus-visible { outline: 3px solid var(--emas); outline-offset: 3px; }
-  /* "Buka alat" ditahan di dasar kartu supaya sejajar antarkartu. */
-  .kartu-alat .buka { flex: none; margin-top: auto; padding-top: 10px; }
-
-  /* Peramban tanpa backdrop-filter mendapat warna pekat seperti semula. */
-  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .kartu-alat { background: var(--putih); }
-  }
-</style>
+<link rel="stylesheet" href="editorial.css">
 </head>
-<body>
+<body class="beranda-editorial">
+<a class="lewati-konten" href="#konten">Lewati navigasi</a>
 
-<header class="kop beranda">
-  <div class="kop-isi lebar beranda-isi">
-    <h1>PDF Editor Bubuhan <em>Balikpapan</em></h1>
-    <p>Pengolah berkas <b>PDF</b> gratis, semua proses dijalankan secara lokal pada peramban dan <em>tidak terkirim ke server mana pun</em>.</p>
+<main id="konten" class="editorial-halaman">
+  <div class="editorial-split">
+    <div class="editorial-cerita">
+      <section class="editorial-pembuka" aria-labelledby="judul-utama">
+        <p class="editorial-label">Bubuhan Balikpapan &nbsp; / &nbsp; Perkakas Digital</p>
+        <h1 id="judul-utama">Perkakas PDF <span>untuk pekerjaan yang lebih efisien.</span></h1>
+        <p class="editorial-deskripsi">Berbagai alat pengolah PDF untuk pekerjaan sehari-hari. Mudah digunakan, tanpa pendaftaran, dan diproses langsung di peramban Anda.</p>
+
+        <div class="editorial-privasi">
+          <strong>Privasi dokumen.</strong>
+          <p>Isi berkas diproses di perangkat Anda, bukan diunggah ke server aplikasi.</p>
+        </div>
+
+        <form class="editorial-cari" role="search" id="cariPerkakas">
+          <label for="cariAlat">Cari perkakas</label>
+          <div class="editorial-cari-baris">
+            <input type="search" id="cariAlat" name="q" autocomplete="off" placeholder="Contoh: gabung, watermark, Word..." aria-controls="daftarAlat">
+            <button type="submit">Cari <span aria-hidden="true">→</span></button>
+          </div>
+          <p class="editorial-bantuan">Ketik nama atau kegunaan alat; daftar di sebelah akan tersaring.</p>
+        </form>
+      </section>
+
+      <figure class="editorial-lanskap">
+        <img src="ilustrasi-pesisir.svg" alt="Ilustrasi abstrak lanskap pesisir Kalimantan, dengan perairan dan perbukitan" width="840" height="360">
+        <figcaption>
+          <span>KPKNL BALIKPAPAN</span>
+          <span>Perkakas sederhana untuk pekerjaan yang lebih baik.</span>
+        </figcaption>
+      </figure>
+    </div>
+
+    <section class="editorial-alat" id="alat" aria-labelledby="judul-alat">
+      <header class="editorial-alat-kepala">
+        <p class="editorial-label">Koleksi Perkakas <span> / PDF</span></p>
+        <h2 id="judul-alat">Semua yang Anda butuhkan, dalam satu tempat.</h2>
+        <p>Pilih alat untuk mulai mengolah dokumen PDF dengan cepat dan lebih mudah.</p>
+        <p class="editorial-jumlah" id="jumlahAlat" role="status" aria-live="polite">9 perkakas tersedia</p>
+      </header>
+
+      <div class="editorial-kartu-grid" id="daftarAlat">
+        <a class="editorial-kartu" href="gabung.html" data-cari="gabung susun halaman urut putar hapus nomor">
+          <span class="editorial-kartu-nomor">01</span><strong>Gabung &amp; Susun PDF</strong>
+          <span>Gabungkan, urutkan, putar, dan beri nomor halaman.</span><span class="editorial-buka">Buka perkakas <span aria-hidden="true">→</span></span>
+        </a>
+        <a class="editorial-kartu" href="pecah.html" data-cari="pecah pisah ekstrak halaman">
+          <span class="editorial-kartu-nomor">02</span><strong>Pecah PDF</strong>
+          <span>Ambil halaman tertentu atau pisahkan seluruh halaman.</span><span class="editorial-buka">Buka perkakas <span aria-hidden="true">→</span></span>
+        </a>
+        <a class="editorial-kartu" href="koreksi.html" data-cari="edit teks koreksi sunting isi pdf">
+          <span class="editorial-kartu-nomor">03</span><strong>Edit Teks</strong>
+          <span>Koreksi, tambahkan, atau hapus teks dalam naskah.</span><span class="editorial-buka">Buka perkakas <span aria-hidden="true">→</span></span>
+        </a>
+        <a class="editorial-kartu" href="tanda-air.html" data-cari="watermark tanda air salinan konsep">
+          <span class="editorial-kartu-nomor">04</span><strong>Watermark</strong>
+          <span>Tambahkan tulisan seperti SALINAN atau KONSEP.</span><span class="editorial-buka">Buka perkakas <span aria-hidden="true">→</span></span>
+        </a>
+        <a class="editorial-kartu" href="gambar.html" data-cari="pdf gambar jpg png konversi foto">
+          <span class="editorial-kartu-nomor">05</span><strong>PDF &amp; Gambar</strong>
+          <span>Ubah halaman PDF ke JPG atau susun gambar jadi PDF.</span><span class="editorial-buka">Buka perkakas <span aria-hidden="true">→</span></span>
+        </a>
+        <a class="editorial-kartu" href="word.html" data-cari="pdf ke word docx ocr pindai konversi">
+          <span class="editorial-kartu-nomor">06</span><strong>PDF ke Word</strong>
+          <span>Konversi menjadi dokumen Word, termasuk hasil pindaian.</span><span class="editorial-buka">Buka perkakas <span aria-hidden="true">→</span></span>
+        </a>
+        <a class="editorial-kartu" href="penanda.html" data-cari="penanda tte elektronik tandatangan tanda tangan">
+          <span class="editorial-kartu-nomor">07</span><strong>Penanda TTE</strong>
+          <span>Tambahkan penanda tulisan tanda tangan elektronik.</span><span class="editorial-buka">Buka perkakas <span aria-hidden="true">→</span></span>
+        </a>
+        <a class="editorial-kartu" href="pengubah-uk.html" data-cari="ubah ukuran kertas a4 f4 legal halaman">
+          <span class="editorial-kartu-nomor">08</span><strong>Ubah Ukuran Kertas</strong>
+          <span>Sesuaikan ukuran halaman PDF dengan kebutuhan.</span><span class="editorial-buka">Buka perkakas <span aria-hidden="true">→</span></span>
+        </a>
+        <a class="editorial-kartu" href="kompres.html" data-cari="kompres kecilkan ukuran dpi optimasi uji coba">
+          <span class="editorial-kartu-nomor">09 <small>UJI COBA</small></span><strong>Kompres PDF</strong>
+          <span>Kurangi ukuran file; hasil bisa bervariasi.</span><span class="editorial-buka">Buka perkakas <span aria-hidden="true">→</span></span>
+        </a>
+      </div>
+      <p class="editorial-kosong" id="alatKosong" hidden>Tidak ada perkakas yang cocok. Coba kata kunci lain.</p>
+      <p class="editorial-keterangan">Fitur kompres masih dalam pengembangan. Periksa hasil sebelum dipakai pada dokumen penting.</p>
+    </section>
   </div>
-</header>
 
-<div class="bungkus lebar">
-
-  <section class="alat-section" id="alat">
-    <p class="nomor">Daftar Perkakas</p>
-    <h2>Pilih alat yang mau dipakai!</h2>
-    <div class="pita-motif-kecil" aria-hidden="true">
-      <svg viewBox="0 0 24 8" preserveAspectRatio="none">
-        <pattern id="motifKecil" width="12" height="8" patternUnits="userSpaceOnUse">
-          <polygon points="6,0 12,4 6,8 0,4" fill="var(--emas)"/>
-          <polygon points="6,1.5 9,4 6,6.5 3,4" fill="var(--biru-tua)"/>
-        </pattern>
-        <rect width="24" height="8" fill="url(#motifKecil)"/>
-      </svg>
+  <section class="editorial-penutup" aria-labelledby="judul-penutup">
+    <img src="motif-kalimantan.svg" alt="" width="130" height="130" loading="lazy">
+    <div>
+      <p class="editorial-label">Sederhana / Bermanfaat / Aman</p>
+      <h2 id="judul-penutup">Dokumen Anda, tetap di tangan Anda.</h2>
     </div>
-    <div class="petak">
-      <a class="kartu-alat" href="koreksi.html">
-        <strong>Edit Teks</strong>
-        <span>Sunting teks yang ada pada naskah kamu, untuk koreksi, menambah, atau menghapus teks.</span>
-        <span class="buka">Buka alat →</span>
-      </a>
-      <a class="kartu-alat" href="gabung.html">
-        <strong>Gabung dan Susun PDF</strong>
-        <span>Menyatukan beberapa PDF atau merapikan satu berkas, dengan halaman yang bisa diurutkan, diputar, dibuang, dan diberi nomor.</span>
-        <span class="buka">Buka alat →</span>
-      </a>
-      <a class="kartu-alat" href="pecah.html">
-        <strong>Pecah PDF</strong>
-        <span>Mengambil halaman tertentu menjadi berkas baru, atau memecah seluruh dokumen per halaman.</span>
-        <span class="buka">Buka alat →</span>
-      </a>
-      <a class="kartu-alat" href="tanda-air.html">
-        <strong>Watermark</strong>
-        <span>Menuliskan kata seperti SALINAN atau KONSEP secara menyerong di tengah tiap halaman.</span>
-        <span class="buka">Buka alat →</span>
-      </a>
-      <a class="kartu-alat" href="gambar.html">
-        <strong>PDF dan Gambar</strong>
-        <span>Mengubah tiap halaman PDF menjadi gambar, atau menyusun beberapa gambar menjadi satu PDF.</span>
-        <span class="buka">Buka alat →</span>
-      </a>
-      <a class="kartu-alat" href="word.html">
-        <strong>PDF ke Word</strong>
-        <span>Mengubah PDF menjadi berkas Word yang bisa disunting, termasuk hasil pindaian yang dibaca dengan OCR.</span>
-        <span class="buka">Buka alat →</span>
-      </a>
-      <a class="kartu-alat" href="penanda.html">
-        <strong>Penanda TTE</strong>
-        <span>Membubuhkan tulisan Ditandatangani secara elektronik di atas nama penandatangan.</span>
-        <span class="buka">Buka alat →</span>
-      </a>
-	  <a class="kartu-alat" href="pengubah-uk.html">
-        <strong>Ubah Ukuran Kertas</strong>
-        <span>Mengubah ukuran kertas berkas PDF ke berbagai ukuran yang diinginkan.</span>
-        <span class="buka">Buka alat →</span>
-      </a>
-    </div>
+    <p>Tanpa perlu mengunggah isi dokumen ke server aplikasi. Pilih alat, kerjakan di peramban, lalu simpan hasilnya.</p>
   </section>
-
-  <footer>
-    KPKNL Balikpapan - Berintegritas dalam Tugas, Prima dalam Pelayanan!
+  <footer class="editorial-kaki">
+    <span>KPKNL Balikpapan · Perkakas PDF</span>
+    <span>Berintegritas dalam Tugas, Prima dalam Pelayanan.</span>
   </footer>
-</div>
+</main>
 
 <script src="bersama.js"></script>
+<script>
+(function () {
+  "use strict";
+  const form = document.getElementById("cariPerkakas");
+  const input = document.getElementById("cariAlat");
+  const cards = Array.from(document.querySelectorAll(".editorial-kartu"));
+  const status = document.getElementById("jumlahAlat");
+  const kosong = document.getElementById("alatKosong");
+
+  function cari() {
+    const query = input.value.trim().toLocaleLowerCase("id");
+    let terlihat = 0;
+    for (const kartu of cards) {
+      const teks = (kartu.textContent + " " + kartu.dataset.cari).toLocaleLowerCase("id");
+      const cocok = !query || teks.includes(query);
+      kartu.hidden = !cocok;
+      if (cocok) terlihat++;
+    }
+    status.textContent = query ? terlihat + " dari " + cards.length + " perkakas cocok" : cards.length + " perkakas tersedia";
+    kosong.hidden = terlihat > 0;
+  }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    cari();
+    document.getElementById("alat").scrollIntoView({ behavior: "auto", block: "start" });
+  });
+  input.addEventListener("input", cari);
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && input.value) {
+      input.value = "";
+      cari();
+    }
+  });
+})();
+</script>
 </body>
 </html>

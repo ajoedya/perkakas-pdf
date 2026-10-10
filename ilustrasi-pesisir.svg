@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 360" role="img" aria-labelledby="judul deskripsi">
+<title id="judul">Pesisir Kalimantan</title><desc id="deskripsi">Ilustrasi grafis pesisir, air dan perbukitan pada sore hari, dihiasi garis tipis bernuansa emas.</desc>
+<defs><linearGradient id="langit" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#e9e3d8"/><stop offset=".55" stop-color="#d2d8d8"/><stop offset="1" stop-color="#a5bbc3"/></linearGradient><linearGradient id="air" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#8da8b3"/><stop offset="1" stop-color="#284967"/></linearGradient></defs>
+<rect width="840" height="360" fill="url(#langit)"/><circle cx="628" cy="87" r="45" fill="#d5b783" opacity=".65"/>
+<path d="M0 186 87 145 160 164 255 115 350 168 444 139 527 169 611 133 699 175 778 136 840 156v143H0Z" fill="#7d9091" opacity=".33"/>
+<path d="M0 218 103 186 177 211 268 171 363 220 440 193 504 215 603 187 715 223 796 190 840 204v156H0Z" fill="#496c77" opacity=".82"/>
+<path d="M0 234h840v126H0Z" fill="url(#air)"/><path d="M0 249c148-9 291 12 430 2 131-10 286-14 410 3M0 288c155-12 301 10 476-1 108-7 234-10 364 5M0 316c165-6 327 11 474 0 122-9 258-6 366 3" stroke="#d9ded8" opacity=".22" stroke-width="3" fill="none"/>
+<path d="M0 270c71-6 94-21 167-21 82 0 117 22 202 18 89-3 137-17 223-13 101 6 157 25 248 11v95H0Z" fill="#163c50" opacity=".45"/>
+<path d="M0 229c74-14 108-8 172-21l-16 21H0ZM600 235c72-16 154-14 240-28v38Z" fill="#203e49"/>
+<path d="M73 226v-24m15 24v-33m15 33v-18m17 19v-26m22 24v-40m16 40v-25m34 30v-27m17 31v-42m15 39v-22M664 226v-18m14 16v-42m19 38v-29m15 33v-27m20 29v-41m15 41v-26m24 31v-33" stroke="#314a53" stroke-width="5"/>
+<path d="M43 250h94M667 250h119" stroke="#d8bc86" stroke-width="2" opacity=".8"/>
+<g fill="none" stroke="#c9ac71" stroke-width="2" opacity=".8"><path d="M34 34h65v65H34zM43 43h47v47H43z" transform="rotate(45 66 66)"/><path d="M686 29h73v73h-73z" transform="rotate(45 722 65)"/><path d="M700 45h45v45h-45z" transform="rotate(45 722 67)"/></g>
+</svg>

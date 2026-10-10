@@ -37,31 +37,38 @@
     const kini = (location.pathname.split("/").pop() || "index.html").toLowerCase();
     const bar = document.createElement("nav");
     bar.className = "menu";
-    bar.setAttribute("aria-label", "Menu utama");
-    
+    bar.setAttribute("aria-label", "Navigasi utama");
+
     const isi = document.createElement("div");
     isi.className = "menu-isi";
-    isi.style.backgroundColor = "#F5B301";
 
     const merek = document.createElement("a");
     merek.className = "menu-nama";
     merek.href = "index.html";
-    merek.style.color = "#002A55";
-    merek.style.fontWeight = "700";
-    merek.innerHTML = 'KPKNL Balikpapan';
+    merek.innerHTML = "Perkakas PDF<small>KPKNL BALIKPAPAN</small>";
     isi.appendChild(merek);
 
-    // Wrapper Dropdown
+    const beranda = document.createElement("a");
+    beranda.className = "menu-beranda";
+    beranda.href = "index.html";
+    beranda.textContent = "Beranda";
+    if (kini === "index.html") beranda.setAttribute("aria-current", "page");
+    isi.appendChild(beranda);
+
     const container = document.createElement("div");
     container.className = "menu-dropdown-wrapper";
 
     const tombol = document.createElement("button");
     tombol.className = "menu-dropdown-btn";
     tombol.type = "button";
-    tombol.innerHTML = 'Daftar Perkakas PDF';
+    tombol.textContent = "Daftar Perkakas";
+    tombol.setAttribute("aria-expanded", "false");
+    tombol.setAttribute("aria-controls", "menu-perkakas");
+    tombol.setAttribute("aria-haspopup", "true");
 
     const menuKonten = document.createElement("div");
     menuKonten.className = "menu-dropdown-content";
+    menuKonten.id = "menu-perkakas";
 
     HALAMAN.forEach((item) => {
       if (item.berkas === "index.html") return;
@@ -75,21 +82,40 @@
       menuKonten.appendChild(a);
     });
 
-    container.appendChild(tombol);
-    container.appendChild(menuKonten);
-    isi.appendChild(container);
+    const kompres = document.createElement("a");
+    kompres.href = "kompres.html";
+    kompres.textContent = "Kompres PDF (uji coba)";
+    if (kini === "kompres.html") {
+      kompres.classList.add("aktif");
+      kompres.setAttribute("aria-current", "page");
+    }
+    menuKonten.appendChild(kompres);
 
+    function aturTerbuka(terbuka) {
+      container.classList.toggle("terbuka", terbuka);
+      tombol.setAttribute("aria-expanded", String(terbuka));
+    }
+
+    container.append(tombol, menuKonten);
+    isi.appendChild(container);
     bar.appendChild(isi);
     document.body.insertBefore(bar, document.body.firstChild);
 
-    // Event Listener Klik Dropdown Menu
-    tombol.addEventListener("click", function (e) {
+    tombol.addEventListener("click", (e) => {
       e.stopPropagation();
-      container.classList.toggle("terbuka");
+      aturTerbuka(!container.classList.contains("terbuka"));
     });
-
-    document.addEventListener("click", function () {
-      container.classList.remove("terbuka");
+    document.addEventListener("click", (e) => {
+      if (!container.contains(e.target)) aturTerbuka(false);
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && container.classList.contains("terbuka")) {
+        aturTerbuka(false);
+        tombol.focus();
+      }
+    });
+    container.addEventListener("focusout", (e) => {
+      if (!container.contains(e.relatedTarget)) aturTerbuka(false);
     });
   }
 
