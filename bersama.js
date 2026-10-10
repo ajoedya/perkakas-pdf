@@ -99,7 +99,13 @@
     container.append(tombol, menuKonten);
     isi.appendChild(container);
     bar.appendChild(isi);
-    document.body.insertBefore(bar, document.body.firstChild);
+    // Pada beranda, tautan "Lewati navigasi" harus menjadi elemen fokus pertama.
+    const lewati = document.querySelector(".lewati-konten");
+    if (lewati) {
+      lewati.insertAdjacentElement("afterend", bar);
+    } else {
+      document.body.insertBefore(bar, document.body.firstChild);
+    }
 
     tombol.addEventListener("click", (e) => {
       e.stopPropagation();
