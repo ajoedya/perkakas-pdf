@@ -64,7 +64,18 @@ Menu atas ditulis sekali saja di dalam `bersama.js`, pada senarai `HALAMAN` di b
 { berkas: "namabaru.html", nama: "Nama di Menu" }
 ```
 
-Halaman baru cukup memuat `gaya.css` pada bagian kepala dan `bersama.js` pada bagian bawah, lalu seluruh warna dan menunya mengikuti sendiri.
+Halaman baru cukup memuat `tema.js` dan `gaya.css` pada bagian kepala (dengan urutan itu) serta `bersama.js` pada bagian bawah, lalu seluruh warna, tema, dan menunya mengikuti sendiri.
+
+### Mengganti atau menambah tema
+
+Situs punya beberapa tema yang dipilih pengguna lewat tombol **Tema** di menu atas. Pilihannya disimpan di peramban masing-masing pengguna. Tiap tema hanya berisi warna dan satu gambar banner, sedangkan tata letaknya sama.
+
+Tema diatur di dua tempat:
+
+1. **`tema.js`**, senarai `DAFTAR`. Di sini nama tema, dua warna contoh untuk bulatan pada tombol, dan uraian gambar bannernya.
+2. **`gaya.css`**, bagian "Tema". Tiap tema punya satu blok `:root[data-tema="..."]` berisi nilai warna dan nama berkas bannernya. Tema bawaan memakai nilai pada blok `:root` di bagian paling atas berkas.
+
+Untuk menambah tema, unggah gambar bannernya (perbandingan 3 banding 1, lebar sekitar 1800 piksel), salin satu blok tema di `gaya.css` lalu ganti nilainya, dan tambahkan satu baris di `DAFTAR`. Pastikan warna teks tetap terbaca di atas warna latar yang baru.
 
 ---
 
