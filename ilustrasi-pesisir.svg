@@ -1,13 +1,59 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 360" role="img" aria-labelledby="judul deskripsi">
-<title id="judul">Pesisir Kalimantan</title><desc id="deskripsi">Ilustrasi grafis pesisir, air dan perbukitan pada sore hari, dihiasi garis tipis bernuansa emas.</desc>
-<defs><linearGradient id="langit" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#e9e3d8"/><stop offset=".55" stop-color="#d2d8d8"/><stop offset="1" stop-color="#a5bbc3"/></linearGradient><linearGradient id="air" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#8da8b3"/><stop offset="1" stop-color="#284967"/></linearGradient></defs>
-<rect width="840" height="360" fill="url(#langit)"/><circle cx="628" cy="87" r="45" fill="#d5b783" opacity=".65"/>
-<path d="M0 186 87 145 160 164 255 115 350 168 444 139 527 169 611 133 699 175 778 136 840 156v143H0Z" fill="#7d9091" opacity=".33"/>
-<path d="M0 218 103 186 177 211 268 171 363 220 440 193 504 215 603 187 715 223 796 190 840 204v156H0Z" fill="#496c77" opacity=".82"/>
-<path d="M0 234h840v126H0Z" fill="url(#air)"/><path d="M0 249c148-9 291 12 430 2 131-10 286-14 410 3M0 288c155-12 301 10 476-1 108-7 234-10 364 5M0 316c165-6 327 11 474 0 122-9 258-6 366 3" stroke="#d9ded8" opacity=".22" stroke-width="3" fill="none"/>
-<path d="M0 270c71-6 94-21 167-21 82 0 117 22 202 18 89-3 137-17 223-13 101 6 157 25 248 11v95H0Z" fill="#163c50" opacity=".45"/>
-<path d="M0 229c74-14 108-8 172-21l-16 21H0ZM600 235c72-16 154-14 240-28v38Z" fill="#203e49"/>
-<path d="M73 226v-24m15 24v-33m15 33v-18m17 19v-26m22 24v-40m16 40v-25m34 30v-27m17 31v-42m15 39v-22M664 226v-18m14 16v-42m19 38v-29m15 33v-27m20 29v-41m15 41v-26m24 31v-33" stroke="#314a53" stroke-width="5"/>
-<path d="M43 250h94M667 250h119" stroke="#d8bc86" stroke-width="2" opacity=".8"/>
-<g fill="none" stroke="#c9ac71" stroke-width="2" opacity=".8"><path d="M34 34h65v65H34zM43 43h47v47H43z" transform="rotate(45 66 66)"/><path d="M686 29h73v73h-73z" transform="rotate(45 722 65)"/><path d="M700 45h45v45h-45z" transform="rotate(45 722 67)"/></g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 360" role="img" aria-labelledby="judul deskripsi">
+<title id="judul">Ilustrasi pesisir Balikpapan</title>
+<desc id="deskripsi">Perbukitan Kalimantan, laut yang tenang, siluet kota pesisir, dan matahari berwarna emas dalam gaya ilustrasi editorial.</desc>
+<defs>
+ <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#faf7ef"/><stop offset=".60" stop-color="#e6e9e8"/><stop offset="1" stop-color="#a9c2c7"/>
+ </linearGradient>
+ <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#7eacbd"/><stop offset=".55" stop-color="#5185a2"/><stop offset="1" stop-color="#173e60"/>
+ </linearGradient>
+ <linearGradient id="front" x1="0" y1="0" x2=".2" y2="1">
+  <stop offset="0" stop-color="#235577"/><stop offset="1" stop-color="#0c2b47"/>
+ </linearGradient>
+</defs>
+<rect width="900" height="360" fill="url(#sky)"/>
+<g fill="#d5dad7" opacity=".46">
+<path d="M80 49c8-8 21-8 30-2 8-6 23-6 32 1 17-5 26 1 35 7H66c2-5 6-6 14-6z"/>
+<path d="M225 29c13-10 22-7 31-2 10-8 20-8 30-2 15-3 25 3 30 8h-99z"/>
+<path d="M574 74c13-8 24-8 38-3 8-5 20-4 27 0 15-7 28-4 34 3z"/>
+</g>
+<circle cx="748" cy="121" r="44" fill="#e4c48e" opacity=".95"/>
+<path fill="#c7d7d8" d="M0 161 95 139 151 154 237 123 315 148 408 113 487 160 568 129 649 159 731 142 814 155 900 125v104H0Z"/>
+<path fill="#98b8c1" d="M0 203 109 171 185 188 271 153 344 189 412 160 490 194 554 180 631 203 724 172 806 199 900 169v82H0Z"/>
+<path fill="#678f9f" d="M0 219 72 201 143 224 226 188 306 228 380 211 473 233 562 197 651 225 738 202 822 228 900 204v66H0Z"/>
+<path fill="#446f86" d="M0 253 63 235 133 249 238 223 322 252 424 225 519 254 601 234 691 262 783 233 900 252v56H0Z"/>
+<path d="M0 255h900v105H0Z" fill="url(#sea)"/>
+<g stroke="#d0e1df" stroke-width="2" opacity=".5" fill="none">
+<path d="M14 272c95 2 164-3 249 0 121 6 205-1 325 2 127 4 220-6 302 0"/>
+<path d="M31 285c165-6 256 4 358 2 110-2 194-8 326-3 65 1 121 4 171 1"/>
+<path d="M0 314c85 4 192 0 290 3 121 3 191-6 320-5 122 0 219 5 290 1"/>
+<path d="M51 340c135-3 212-2 312 2 126 6 231-6 367-4"/>
+</g>
+<!-- Balikpapan waterfront skyline; illustrative, not a literal city photograph -->
+<g fill="#426b7b" opacity=".66">
+ <path d="M43 235h10v-28h8v28h12v-16h8v16h11v-24h10v24h12v-31h8v31h13v-22h9v22h11v-17h8v17h10v-26h12v26h12v-16h9v16h15v-21h9v21h11v-14h9v14h16v-29h9v29h11v-23h10v23h18v10H43Z"/>
+ <path d="M610 245h10v-21h8v21h12v-32h8v32h11v-25h8v25h11v-41h8v41h14v-21h10v21h11v-35h8v35h10v-21h8v21h11v-29h8v29h13v-22h7v22h14v-32h7v32h12v-20h10v20h18v10H610Z"/>
+</g>
+<g stroke="#3c6475" stroke-width="3.5" opacity=".8">
+  <path d="M128 209v-34m30 32v-43m19 43v-26m504 37v-43m29 43v-31m19 31v-42"/>
+</g>
+<!-- Distant piers and boats -->
+<path d="M17 258h187v4H17zM627 265h201v4H627z" fill="#294d63" opacity=".78"/>
+<g fill="#e1cfaa" opacity=".55">
+ <path d="M517 280h72v2h-72zM623 287h86v1.5h-86zM267 296h90v2h-90zM727 301h52v2h-52z"/>
+</g>
+<!-- Dark foreground topography and foliage -->
+<path d="M0 296c94-31 145-17 239 15 98 39 170 34 244 25 66-11 130-39 199-32 74 6 140 28 218 3v53H0Z" fill="#245576" opacity=".9"/>
+<path d="M0 331c74-42 126-36 205-14 67 17 151 24 231 12 86-17 158-13 239 1 91 14 155 6 225-20v50H0Z" fill="url(#front)"/>
+<g fill="#103b5a">
+ <path d="M0 360V258l25 30 14-36 16 37 17-31 10 48 19-35 15 46 19-34 16 77Z"/>
+ <path d="M0 305c56-20 105-14 151 6l-21 49H0Z"/>
+ <path d="M900 360V274l-20 25-17-39-15 48-23-31-11 47-19-20-7 56Z"/>
+ <path d="M900 320c-44-20-94-21-140-12l15 52h125Z"/>
+</g>
+<g stroke="#17445f" fill="none" stroke-linecap="round">
+<path stroke-width="5" d="M46 356c7-27 7-52-3-71M43 309l-29-16m29 17 22-29m-22 39-36-4m40-5 35-4M826 355c-4-24 0-46 9-75m-5 28 22-24m-22 32-29-19m28 32 35-11"/>
+<path stroke-width="3" d="M115 351c-4-21 0-42 5-58m-4 28-20-19m19 18 24-15M753 356c1-21 3-41 10-55m-6 29 19-16m-18 10-21-18"/>
+</g>
 </svg>
