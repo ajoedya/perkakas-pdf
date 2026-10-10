@@ -13,7 +13,8 @@
     { berkas: "gambar.html",    nama: "PDF dan Gambar" },
     { berkas: "word.html",      nama: "PDF ke Word" },
     { berkas: "penanda.html",   nama: "Penanda TTE" },
-	{ berkas: "pengubah-uk.html", nama: "Ubah Ukuran Kertas"}
+    { berkas: "pengubah-uk.html", nama: "Ubah Ukuran Kertas" },
+    { berkas: "kompres.html",   nama: "Kompres PDF" }
   ];
 
   // Memasang favicon secara otomatis jika belum ada di tag <head>
@@ -81,9 +82,6 @@
       }
       menuKonten.appendChild(a);
     });
-
-    // Kompres PDF sengaja tidak dicantumkan selama masih uji coba.
-    // Halamannya tetap bisa dibuka langsung lewat kompres.html.
 
     function aturTerbuka(terbuka) {
       container.classList.toggle("terbuka", terbuka);
