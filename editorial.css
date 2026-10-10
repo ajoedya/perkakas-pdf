@@ -441,6 +441,7 @@ body.beranda-editorial::before { display: none !important; }
   .beranda-editorial .editorial-kartu strong { font-size: 17px; }
   .beranda-editorial .editorial-kartu > span:nth-child(3) { font-size: 14px; }
   .beranda-editorial .editorial-lanskap { height: 225px; }
+  .beranda-editorial .editorial-lanskap img { object-position: 80% 48%; }
   .beranda-editorial .editorial-nilai { gap: 0; }
   .beranda-editorial .editorial-nilai > div { padding: 3px 12px; }
 }
