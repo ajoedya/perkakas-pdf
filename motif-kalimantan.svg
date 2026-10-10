@@ -1,7 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-label="Ornamen geometris terinspirasi ukiran Kalimantan">
-<g fill="none" stroke="#b18b4d" stroke-linecap="round" stroke-linejoin="round">
-<path stroke-width="3.2" d="M80 7C49 25 33 47 42 68c9 22 30 15 30 0 0-11-13-15-19-7M80 7c31 18 47 40 38 61-9 22-30 15-30 0 0-11 13-15 19-7M80 153c-31-18-47-40-38-61 9-22 30-15 30 0 0 11-13 15-19 7M80 153c31-18 47-40 38-61-9-22-30-15-30 0 0 11 13 15 19 7"/>
-<path stroke-width="2.5" d="M80 19v122M19 80h122M80 39 61 80l19 41 19-41zM80 49 70 80l10 31 10-31z"/>
-<path stroke-width="2" d="M32 32 15 15M128 32l17-17M32 128l-17 17M128 128l17 17M20 55c-17 10-17 40 0 50M140 55c17 10 17 40 0 50"/>
-</g><g fill="#b18b4d"><circle cx="80" cy="7" r="4"/><circle cx="80" cy="153" r="4"/><circle cx="7" cy="80" r="4"/><circle cx="153" cy="80" r="4"/><circle cx="80" cy="80" r="5"/></g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 300" role="img" aria-labelledby="title desc">
+<title id="title">Ornamen terinspirasi motif Kalimantan</title>
+<desc id="desc">Ornamen simetris melengkung dan geometris berwarna emas lembut yang terinspirasi dekorasi tradisional Kalimantan.</desc>
+<g fill="none" stroke="#ba9559" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke-width="4" d="M120 7C101 30 86 36 69 37 26 39 20 76 43 94c19 16 42 2 39-16-2-14-20-16-27-5M120 7c19 23 34 29 51 30 43 2 49 39 26 57-19 16-42 2-39-16 2-14 20-16 27-5M120 293c-19-23-34-29-51-30-43-2-49-39-26-57 19-16 42-2 39 16-2 14-20 16-27 5M120 293c19-23 34-29 51-30 43-2 49-39 26-57-19-16-42-2-39 16 2 14 20 16 27 5"/>
+  <path stroke-width="3.7" d="M120 31C107 58 110 78 92 87 66 101 61 121 80 137c14 12 33 2 29-11-3-10-15-11-19-3M120 31c13 27 10 47 28 56 26 14 31 34 12 50-14 12-33 2-29-11 3-10 15-11 19-3M120 269c-13-27-10-47-28-56-26-14-31-34-12-50 14-12 33-2 29 11-3 10-15 11-19 3M120 269c13-27 10-47 28-56 26-14 31-34 12-50-14-12-33-2-29 11 3 10 15 11 19 3"/>
+  <path stroke-width="3" d="M120 55c-12 27-5 46 0 57 5-11 12-30 0-57zM120 245c-12-27-5-46 0-57 5 11 12 30 0 57z"/>
+  <path stroke-width="2.9" d="M120 110c-20 18-24 31-24 40 0 9 4 22 24 40 20-18 24-31 24-40 0-9-4-22-24-40zM120 126c-11 12-14 20-14 24s3 12 14 24c11-12 14-20 14-24s-3-12-14-24z"/>
+  <path stroke-width="2.4" d="M27 128c-25 0-25 44 0 44 13 0 16-18 4-20M213 128c25 0 25 44 0 44-13 0-16-18-4-20M22 43 9 28 22 14l14 14zM218 43l13-15-13-14-14 14zM22 257 9 272l13 14 14-14zM218 257l13 15-13 14-14-14z"/>
+  <path stroke-width="2" d="M56 113 28 102 15 111l13 11 22 3M184 113l28-11 13 9-13 11-22 3M56 187l-28 11-13-9 13-11 22-3M184 187l28 11 13-9-13-11-22-3"/>
+</g>
+<g fill="#b18b4f" opacity=".88">
+<circle cx="120" cy="7" r="5"/><circle cx="120" cy="293" r="5"/>
+<circle cx="120" cy="150" r="5"/><circle cx="21" cy="150" r="4"/><circle cx="219" cy="150" r="4"/>
+<path d="M120 85l5 9-5 9-5-9zM120 197l5 9-5 9-5-9z"/>
+</g>
 </svg>
