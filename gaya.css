@@ -110,21 +110,8 @@ a:hover { color: var(--biru-hover); }
   background: #fffefa;
   border-bottom: 1px solid #e8e4db;
 }
-/* Ornamen Kalimantan di pojok kanan atas, sama seperti beranda. */
-.menu::after {
-  content: "";
-  position: absolute;
-  top: -64px;
-  right: 0;
-  width: 136px;
-  height: 170px;
-  /* Ornamen 170px yang 34px terakhirnya dipotong, supaya tidak keluar dari
-     tepi kanan layar dan membuat halaman bisa digulir menyamping. */
-  background: url("motif-kalimantan.svg") left center / 170px 170px no-repeat;
-  opacity: .37;
-  z-index: -1;
-  pointer-events: none;
-}
+/* Kepala navigasi tetap bersih. Motif vertikal dipakai di pinggir halaman,
+   bukan di atas teks/merek agar identitas tetap mudah dibaca. */
 .menu-isi {
   max-width: 1550px;
   margin: 0 auto;
@@ -253,16 +240,16 @@ a:hover { color: var(--biru-hover); }
   mask-composite: intersect;
   pointer-events: none;
 }
+/* Satu ornamen geometris samar pada header alat, sekeluarga dengan beranda. */
 .kop::before {
   content: "";
   position: absolute;
-  top: -40px;
-  right: clamp(-90px, -4vw, -30px);
-  width: 210px;
-  height: 270px;
-  background: url("motif-kalimantan.svg") center / contain no-repeat;
-  opacity: .32;
-  transform: rotate(12deg);
+  top: 8px;
+  right: clamp(5px, 2vw, 26px);
+  width: 72px;
+  height: 205px;
+  background: url("ornamen-kalimantan-garis.svg") center / 72px 205px no-repeat;
+  opacity: .24;
   pointer-events: none;
   z-index: 1;
 }
@@ -621,7 +608,7 @@ footer {
   .kop::after { height: 118px; }
   .kop-isi { padding: 96px 18px 28px; }
   .kop p { font-size: 16px; }
-  .kop::before { width: 140px; height: 180px; top: -30px; right: -60px; opacity: .25; }
+  .kop::before { display: none; }
   .bungkus { padding: 4px 14px 40px; }
   .bungkus > section,
   .bungkus > form > section { margin-top: 16px; padding: 22px 18px 24px; }
