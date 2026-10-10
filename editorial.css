@@ -52,38 +52,30 @@ body.beranda-editorial::before { display: none !important; }
   column-gap: var(--editorial-column-gap);
   align-items: stretch;
 }
-/* Garis hias #1: satu sumbu emas dengan belah ketupat berselang.
-   Hanya dekorasi, tidak menangkap pointer/fokus, tidak memengaruhi layout. */
-.beranda-editorial .editorial-split::before {
+/* Pita anyaman kembar: jalinan belah ketupat yang samar di tepi kiri dan kanan,
+   simetris dan seluruhnya di luar kolom isi. Hanya dekorasi, tidak menangkap
+   pointer/fokus dan tidak memengaruhi layout. */
+.beranda-editorial .editorial-split::before,
+.beranda-editorial .editorial-split::after {
   content: "";
   position: absolute;
   z-index: 2;
   pointer-events: none;
-  width: 72px;
-  top: 10px;
+  width: 48px;
+  top: 0;
   bottom: 0;
-  left: calc(var(--editorial-gutter) * -1 + clamp(12px, 2.4vw, 36px));
-  background: url("ornamen-kalimantan-garis.svg") center top / 72px 100% no-repeat;
-  opacity: .88;
+  background: url("ornamen-kalimantan-anyaman.svg") left top / 48px 24px repeat-y;
+  opacity: .2;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 9%, #000 91%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 9%, #000 91%, transparent);
 }
+.beranda-editorial .editorial-split::before { left: calc(var(--editorial-gutter) * -.5 - 24px); }
+.beranda-editorial .editorial-split::after { right: calc(var(--editorial-gutter) * -.5 - 24px); }
 .beranda-editorial .editorial-cerita {
   min-width: 0;
   display: flex;
   flex-direction: column;
   position: relative;
-}
-/* Lengkung flora satu sisi: samar, tidak diputar dan tidak berulang. */
-.beranda-editorial .editorial-cerita::before {
-  content: "";
-  position: absolute;
-  top: 225px;
-  left: calc(var(--editorial-gutter) * -1 - 10px);
-  width: clamp(135px, 12vw, 175px);
-  height: 490px;
-  background: url("ornamen-kalimantan-lengkung.svg") left center / contain no-repeat;
-  opacity: .34;
-  pointer-events: none;
-  z-index: 0;
 }
 .beranda-editorial .editorial-pembuka {
   z-index: 1;
@@ -457,7 +449,11 @@ body.beranda-editorial::before { display: none !important; }
     -webkit-mask-image: none;
     mask-image: none;
   }
-  .beranda-editorial .editorial-cerita::before { top: 260px; opacity: .2; }
+  /* Tepi halaman menyempit: pita cukup satu belah ketupat. */
+  .beranda-editorial .editorial-split::before,
+  .beranda-editorial .editorial-split::after { width: 24px; }
+  .beranda-editorial .editorial-split::before { left: calc(var(--editorial-gutter) * -.5 - 12px); }
+  .beranda-editorial .editorial-split::after { right: calc(var(--editorial-gutter) * -.5 - 12px); }
   .beranda-editorial .editorial-alat { padding: 29px 0 35px; position: relative; }
   .beranda-editorial .editorial-alat::before {
     content: "";
@@ -477,7 +473,7 @@ body.beranda-editorial::before { display: none !important; }
 /* Pada viewport sempit ornamen pinggir disembunyikan agar tidak bertumpuk dengan konten. */
 @media (max-width: 700px) {
   .beranda-editorial .editorial-split::before,
-  .beranda-editorial .editorial-cerita::before { display: none; }
+  .beranda-editorial .editorial-split::after { display: none; }
   .beranda-editorial .editorial-pembuka { padding: 30px 0 24px; }
   .beranda-editorial h1 { font-size: clamp(34px, 8.4vw, 52px); }
   .beranda-editorial .editorial-deskripsi { font-size: 16px; }
