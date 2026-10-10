@@ -24,12 +24,12 @@
       // lalu ikon layar utama untuk ponsel. Akhiran ?v= dinaikkan tiap kali
       // gambarnya diganti, supaya peramban tidak memakai ikon lama dari tembolok.
       [
-        { rel: "icon", type: "image/x-icon", href: "favicon.ico?v=3" },
-        { rel: "icon", type: "image/svg+xml", href: "favicon.svg?v=3" },
-        { rel: "icon", type: "image/png", sizes: "32x32", href: "favicon-32.png?v=3" },
-        { rel: "icon", type: "image/png", sizes: "16x16", href: "favicon-16.png?v=3" },
-        { rel: "icon", type: "image/png", sizes: "192x192", href: "favicon-192.png?v=3" },
-        { rel: "apple-touch-icon", href: "favicon-180.png?v=3" }
+        { rel: "icon", type: "image/x-icon", href: "favicon.ico?v=4" },
+        { rel: "icon", type: "image/svg+xml", href: "favicon.svg?v=4" },
+        { rel: "icon", type: "image/png", sizes: "32x32", href: "favicon-32.png?v=4" },
+        { rel: "icon", type: "image/png", sizes: "16x16", href: "favicon-16.png?v=4" },
+        { rel: "icon", type: "image/png", sizes: "192x192", href: "favicon-192.png?v=4" },
+        { rel: "apple-touch-icon", href: "favicon-180.png?v=4" }
       ].forEach((ikon) => {
         const link = document.createElement("link");
         Object.keys(ikon).forEach((k) => link.setAttribute(k, ikon[k]));
