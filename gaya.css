@@ -214,7 +214,6 @@ a:hover { color: var(--biru-hover); }
    ke latar halaman supaya tidak ada garis potong dengan isi alat. */
 .kop {
   position: relative;
-  overflow: hidden;
   background:
     linear-gradient(to bottom, rgba(253,251,247,0) 45%, var(--latar) 100%),
     linear-gradient(100deg, #f9f6ef 0%, var(--latar) 40%, #f8eddb 100%);
@@ -261,6 +260,23 @@ a:hover { color: var(--biru-hover); }
   padding: 44px 24px 38px;
 }
 .kop-isi.lebar { max-width: 1160px; }
+/* Ornamen sulur di tepi kiri, sama dengan beranda. Berdiri di luar kolom isi
+   (24px dari teks dan panel), mulai dari kop lalu turun ke tepi halaman.
+   Hanya tampil bila tepi kirinya cukup lebar, lihat aturan @media di bawah. */
+.kop-isi::before {
+  content: "";
+  display: none;
+  position: absolute;
+  top: 22px;
+  left: -66px;
+  width: 66px;
+  height: 470px;
+  background: url("ornamen-kalimantan-lengkung.png") center / contain no-repeat;
+  opacity: .55;
+  pointer-events: none;
+}
+@media (min-width: 1080px) { .kop-isi:not(.lebar)::before { display: block; } }
+@media (min-width: 1320px) { .kop-isi.lebar::before { display: block; } }
 .kop-label {
   margin: 0 0 14px;
   color: var(--emas-teks);
