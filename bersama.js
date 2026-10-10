@@ -5,16 +5,16 @@
   "use strict";
 
   const HALAMAN = [
-    { berkas: "index.html",     nama: "Beranda" },
-    { berkas: "koreksi.html",   nama: "Edit Teks" },
-    { berkas: "gabung.html",    nama: "Gabung dan Susun PDF" },
-    { berkas: "pecah.html",     nama: "Pecah PDF" },
-    { berkas: "tanda-air.html", nama: "Watermark" },
-    { berkas: "gambar.html",    nama: "PDF dan Gambar" },
-    { berkas: "word.html",      nama: "PDF ke Word" },
-    { berkas: "penanda.html",   nama: "Penanda TTE" },
-    { berkas: "pengubah-uk.html", nama: "Ubah Ukuran Kertas" },
-    { berkas: "kompres.html",   nama: "Kompres PDF" }
+    { berkas: "index",     nama: "Beranda" },
+    { berkas: "koreksi",   nama: "Edit Teks" },
+    { berkas: "gabung",    nama: "Gabung dan Susun PDF" },
+    { berkas: "pecah",     nama: "Pecah PDF" },
+    { berkas: "tanda-air", nama: "Watermark" },
+    { berkas: "gambar",    nama: "PDF dan Gambar" },
+    { berkas: "word",      nama: "PDF ke Word" },
+    { berkas: "penanda",   nama: "Penanda TTE" },
+    { berkas: "pengubah-uk", nama: "Ubah Ukuran Kertas" },
+    { berkas: "kompres",   nama: "Kompres PDF" }
   ];
 
   // Memasang favicon secara otomatis jika belum ada di tag <head>
@@ -38,8 +38,33 @@
     }
   }
 
+  // Nama halaman yang sedang dibuka tanpa akhiran, misalnya "pecah".
+  // Beranda, baik dibuka sebagai / maupun /index.html, menjadi "index".
+  function namaHalaman() {
+    const akhir = decodeURIComponent(location.pathname.split("/").pop() || "").toLowerCase();
+    return akhir.replace(/\.html?$/, "") || "index";
+  }
+
+  // Alamat yang masih berakhiran .html, misalnya dari markah buku lama,
+  // dirapikan di bilah alamat tanpa memuat ulang halaman. GitHub Pages
+  // melayani /pecah sebagai pecah.html, jadi alamat pendek itu tetap bisa
+  // dibuka ulang dan dibagikan. Server lokal untuk pratinjau dilewati, sebab
+  // umumnya tidak mengenal alamat tanpa .html.
+  function rapikanAlamat() {
+    if (!/^https?:$/.test(location.protocol) || !window.history || !history.replaceState) return;
+    if (/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) return;
+    const p = location.pathname;
+    let baru = null;
+    if (/\/index\.html?$/i.test(p)) baru = p.replace(/index\.html?$/i, "");
+    else if (/\.html?$/i.test(p)) baru = p.replace(/\.html?$/i, "");
+    if (baru !== null) history.replaceState(history.state, "", baru + location.search + location.hash);
+  }
+  rapikanAlamat();
+
   function pasangMenu() {
-    const kini = (location.pathname.split("/").pop() || "index.html").toLowerCase();
+    // Alamat halaman dibandingkan tanpa akhiran .html, sebab situs memakai
+    // alamat pendek seperti /pecah, dan beranda bisa berupa / atau /index.
+    const kini = namaHalaman();
     const bar = document.createElement("nav");
     bar.className = "menu";
     bar.setAttribute("aria-label", "Navigasi utama");
@@ -49,15 +74,15 @@
 
     const merek = document.createElement("a");
     merek.className = "menu-nama";
-    merek.href = "index.html";
+    merek.href = "./";
     merek.innerHTML = "Perkakas PDF<small>KPKNL BALIKPAPAN</small>";
     isi.appendChild(merek);
 
     const beranda = document.createElement("a");
     beranda.className = "menu-beranda";
-    beranda.href = "index.html";
+    beranda.href = "./";
     beranda.textContent = "Beranda";
-    if (kini === "index.html") beranda.setAttribute("aria-current", "page");
+    if (kini === "index") beranda.setAttribute("aria-current", "page");
     isi.appendChild(beranda);
 
     const container = document.createElement("div");
@@ -76,7 +101,7 @@
     menuKonten.id = "menu-perkakas";
 
     HALAMAN.forEach((item) => {
-      if (item.berkas === "index.html") return;
+      if (item.berkas === "index") return;
       const a = document.createElement("a");
       a.href = item.berkas;
       a.textContent = item.nama;
