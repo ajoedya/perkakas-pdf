@@ -5,12 +5,14 @@
  * Semua aturan beranda dibatasi ke body.beranda-editorial.
  */
 body.beranda-editorial {
-  --editorial-navy: #08274d;
-  --editorial-gold: #a77a2a;
-  --editorial-muted: #55657c;
-  --editorial-gold-text: #84601d;
-  --editorial-paper: #fdfbf7;
-  --editorial-line: #e9e5dd;
+  /* Warna beranda mengambil dari variabel di gaya.css, supaya ikut berganti
+     bersama tema. */
+  --editorial-navy: var(--biru-tua);
+  --editorial-gold: var(--emas-tua);
+  --editorial-muted: var(--tinta-lembut);
+  --editorial-gold-text: var(--emas-teks);
+  --editorial-paper: var(--latar);
+  --editorial-line: var(--garis-editorial);
   --editorial-gutter: clamp(18px, 6.2vw, 94px);
   --editorial-column-gap: clamp(22px, 3.85vw, 56px);
   margin: 0;
@@ -116,7 +118,7 @@ body.beranda-editorial::before { display: none !important; }
   margin: 0 0 21px;
 }
 .beranda-editorial .editorial-privasi {
-  background: #f7f4ed;
+  background: var(--emas-muda);
   border: 0;
   border-left: 3px solid var(--editorial-gold);
   border-radius: 4px;
@@ -157,10 +159,10 @@ body.beranda-editorial::before { display: none !important; }
   display: flex;
   overflow: hidden;
   background: white;
-  border: 1px solid #ced5da;
+  border: 1px solid var(--cari-garis);
   border-radius: 5px;
 }
-.beranda-editorial .editorial-cari-baris:focus-within { outline: 3px solid #cad9e8; outline-offset: 1px; }
+.beranda-editorial .editorial-cari-baris:focus-within { outline: 3px solid var(--fokus-lembut); outline-offset: 1px; }
 .beranda-editorial #cariAlat {
   flex: 1 1 auto;
   min-width: 0;
@@ -176,21 +178,21 @@ body.beranda-editorial::before { display: none !important; }
   min-height: 50px;
   padding: 12px 17px;
 }
-.beranda-editorial #cariAlat::placeholder { color: #6f7f94; opacity: 1; }
+.beranda-editorial #cariAlat::placeholder { color: var(--teks-contoh); opacity: 1; }
 .beranda-editorial .editorial-cari button {
   flex: none;
   min-width: 112px;
   min-height: 48px;
   border: 0;
   border-radius: 0;
-  background: #062d58;
+  background: var(--cari-tombol);
   color: white;
   font: 600 15px "Public Sans", sans-serif;
   cursor: pointer;
   padding: 10px 19px;
 }
-.beranda-editorial .editorial-cari button:hover { background: #16446e; }
-.beranda-editorial .editorial-cari button:focus-visible { outline: 3px solid #c5a15b; outline-offset: -3px; }
+.beranda-editorial .editorial-cari button:hover { background: var(--biru-hover); }
+.beranda-editorial .editorial-cari button:focus-visible { outline: 3px solid var(--cari-fokus); outline-offset: -3px; }
 .beranda-editorial .editorial-cari button span { display: none; }
 
 /* Semburat hangat di belakang banner: latar kertas beralih perlahan ke warna langit foto. */
@@ -202,7 +204,7 @@ body.beranda-editorial::before { display: none !important; }
   right: calc(var(--editorial-column-gap) * -.85);
   bottom: 0;
   height: clamp(380px, 36vw, 520px);
-  background: linear-gradient(to bottom, rgba(240,218,185,0), rgba(240,218,185,.34) 58%, rgba(226,214,194,.46));
+  background: linear-gradient(to bottom, rgba(var(--rgb-semburat),0), rgba(var(--rgb-semburat),.34) 58%, rgba(var(--rgb-semburat-2),.46));
   -webkit-mask-image: linear-gradient(to right, #000 80%, transparent);
   mask-image: linear-gradient(to right, #000 80%, transparent);
   pointer-events: none;
@@ -227,15 +229,15 @@ body.beranda-editorial::before { display: none !important; }
   content: "";
   position: absolute;
   inset: 37% 0 0;
-  background: linear-gradient(to bottom, transparent, rgba(4,33,58,.18) 45%, rgba(4,33,58,.5));
+  background: linear-gradient(to bottom, transparent, rgba(var(--rgb-gelap),var(--banner-lapis-tengah)) 45%, rgba(var(--rgb-gelap),var(--banner-lapis-bawah)));
   pointer-events: none;
 }
-.beranda-editorial .editorial-lanskap img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 48%;
+/* Gambar banner dipasang sebagai latar supaya bisa berganti mengikuti tema
+   (variabel --banner di gaya.css). Uraian gambarnya ada di aria-label. */
+.beranda-editorial .editorial-lanskap-gambar {
+  position: absolute;
+  inset: 0;
+  background: var(--banner) var(--banner-beranda-posisi) / cover no-repeat;
 }
 .beranda-editorial .editorial-lanskap figcaption {
   z-index: 2;
@@ -248,7 +250,7 @@ body.beranda-editorial::before { display: none !important; }
   gap: 4px;
   font-size: 14px;
   line-height: 1.4;
-  text-shadow: 0 1px 8px #102943;
+  text-shadow: 0 1px 8px var(--bayang-teks);
 }
 .beranda-editorial .editorial-lanskap figcaption span:first-child {
   font-size: 12px;
@@ -257,7 +259,7 @@ body.beranda-editorial::before { display: none !important; }
 }
 .beranda-editorial .editorial-lanskap figcaption i {
   display: inline-block;
-  background: #d4a34d;
+  background: var(--emas-terang);
   width: 37px;
   height: 2px;
   margin-left: 8px;
@@ -288,19 +290,19 @@ body.beranda-editorial::before { display: none !important; }
   min-width: 0;
   min-height: 180px;
   padding: 20px 20px 18px;
-  background: #fff;
-  border: 1px solid #e7e7e5;
+  background: var(--putih);
+  border: 1px solid var(--kartu-garis);
   border-radius: 4px;
   color: var(--editorial-navy);
   text-decoration: none;
-  box-shadow: 0 1px 6px rgba(12,46,79,.022);
+  box-shadow: 0 1px 6px rgba(var(--rgb-bayangan-kartu),.022);
   transition: border-color .16s ease, background-color .16s ease;
 }
 .beranda-editorial .editorial-kartu:hover {
-  border-color: #c6a36a;
-  background: #fffdf8;
+  border-color: var(--kartu-garis-hover);
+  background: var(--kartu-latar-hover);
   transform: none;
-  box-shadow: 0 1px 8px rgba(12,46,79,.045);
+  box-shadow: 0 1px 8px rgba(var(--rgb-bayangan-kartu),.045);
 }
 .beranda-editorial .editorial-kartu:focus-visible { outline: 3px solid var(--editorial-gold); outline-offset: 3px; }
 .beranda-editorial .editorial-kartu[hidden] { display: none !important; }
@@ -342,7 +344,7 @@ body.beranda-editorial::before { display: none !important; }
 .beranda-editorial .editorial-kartu .editorial-buka {
   margin-top: auto;
   padding-top: 17px;
-  color: #073565;
+  color: var(--tautan-kartu);
   font-size: 14px;
   font-weight: 700;
   line-height: 1.4;
@@ -355,9 +357,9 @@ body.beranda-editorial::before { display: none !important; }
   margin: 17px 0 0;
 }
 .beranda-editorial .editorial-kosong {
-  background: #f8f4eb;
+  background: var(--kosong-latar);
   padding: 18px 22px;
-  border-left: 3px solid #aa8444;
+  border-left: 3px solid var(--kosong-garis);
   color: var(--editorial-muted);
   font-size: 15px;
 }
@@ -367,7 +369,7 @@ body.beranda-editorial::before { display: none !important; }
 .beranda-editorial .editorial-penutup {
   margin: 0 calc(var(--editorial-gutter) * -1);
   padding: 31px var(--editorial-gutter) 33px;
-  background: linear-gradient(to bottom, rgba(4,33,58,.09), rgba(4,33,58,0) 30px), linear-gradient(110deg,#f7f4ed,#faf8f3 60%,#f7f3e9);
+  background: linear-gradient(to bottom, rgba(var(--rgb-gelap),.09), rgba(var(--rgb-gelap),0) 30px), linear-gradient(110deg,var(--penutup-1),var(--penutup-2) 60%,var(--penutup-3));
   border-top: 0;
   border-bottom: 0;
   border-radius: 0;
@@ -411,7 +413,7 @@ body.beranda-editorial::before { display: none !important; }
 }
 .beranda-editorial .editorial-kaki {
   margin: 0;
-  border-top: 1px solid #eee9e0;
+  border-top: 1px solid var(--kaki-garis);
   padding: 13px 0 23px;
   display: flex;
   justify-content: space-between;
@@ -464,7 +466,7 @@ body.beranda-editorial::before { display: none !important; }
     left: calc(var(--editorial-gutter) * -1);
     right: calc(var(--editorial-gutter) * -1);
     height: 30px;
-    background: linear-gradient(to bottom, rgba(4,33,58,.09), rgba(4,33,58,0));
+    background: linear-gradient(to bottom, rgba(var(--rgb-gelap),.09), rgba(var(--rgb-gelap),0));
     pointer-events: none;
   }
   .beranda-editorial .editorial-kartu-grid { grid-template-columns: repeat(3, minmax(0,1fr)); grid-auto-rows: minmax(185px,auto); }
@@ -492,7 +494,7 @@ body.beranda-editorial::before { display: none !important; }
   .beranda-editorial .editorial-kartu strong { font-size: 17px; }
   .beranda-editorial .editorial-kartu > span:nth-child(3) { font-size: 14px; }
   .beranda-editorial .editorial-lanskap { height: 225px; }
-  .beranda-editorial .editorial-lanskap img { object-position: 80% 48%; }
+  .beranda-editorial .editorial-lanskap-gambar { background-position: var(--banner-beranda-posisi-ponsel); }
 }
 @media (max-width: 440px) {
   .beranda-editorial .editorial-kartu-grid { grid-template-columns: 1fr; grid-auto-rows: auto; }
